@@ -27,8 +27,6 @@ exports.handler = async (event, context) => {
     responseBody = "Something went wrong."
     statusCode = 403;
   }
-
-  // ADD removal of items in order_rows table
   
   const response = { 
     statusCode: statusCode,

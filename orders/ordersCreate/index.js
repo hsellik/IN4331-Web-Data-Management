@@ -23,15 +23,15 @@ exports.handler = async (event, context) => {
 
   try {
     const data = await documentClient.get(searchParams).promise();
-    if (data.length > 0) {
-      console.log('Duplicate ID tried to be written.')
-      // TODO: Call this function again?
+    if (data.Item) {
+      throw 'Duplicate ID tried to be written.';
     } else {
       const putParams = {
         TableName: "orders",
         Item: {
           id: uuid,
           user_id: user_id,
+          items: [],
           paid: false
         }
       };
@@ -40,6 +40,7 @@ exports.handler = async (event, context) => {
       statusCode = 200;
     }  
   } catch (err) {
+    console.log(err)
     responseBody = "Something went wrong."
     statusCode = 403;
   }
