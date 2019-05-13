@@ -37,7 +37,7 @@ exports.handler = async (event, context) => {
       }
     }
     const data = await documentClient.update(updateParams).promise();
-    responseBody = data
+    responseBody = JSON.stringify(data);
     statusCode = 200;
   } catch (err) {
     responseBody = "Something went wrong."
