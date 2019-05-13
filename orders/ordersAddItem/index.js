@@ -23,24 +23,22 @@ exports.handler = async (event, context) => {
   // TODO: Check if item exists and stock!
 
   try {
-    const data = await documentClient.get(searchOrderParams).promise();
-    if (data) {
-      // TODO: Possibly check if already paid or not, for now just reset to not paid.
-      const putParams = {
-        TableName: "orders",
-        Item: {
-          id: data.id,
-          user_id: data.user_id,
-          paid: false,
-          items: data.items.push(item_id)
-        }
-      };
-      const data = await documentClient.put(putParams).promise();
-      responseBody = data
-      statusCode = 200;
-    } else {
-      throw 'OrderID did not exist.'
-    }  
+    const updateParams = {
+      TableName: 'orders',
+      Key: { id: order_id },
+      ReturnValues: 'ALL_NEW',
+      UpdateExpression: 'set #items = list_append(if_not_exists(#items, :empty_list), :item_id)',
+      ExpressionAttributeNames: {
+        '#items': 'items'
+      },
+      ExpressionAttributeValues: {
+        ':item_id': [item_id],
+        ':empty_list': []
+      }
+    }
+    const data = await documentClient.update(updateParams).promise();
+    responseBody = data
+    statusCode = 200;
   } catch (err) {
     responseBody = "Something went wrong."
     statusCode = 403;
