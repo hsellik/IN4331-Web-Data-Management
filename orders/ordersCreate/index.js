@@ -8,9 +8,11 @@ exports.handler = async (event, context) => {
   const ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08"});
   const documentClient = new AWS.DynamoDB.DocumentClient({ region: "us-east-1"});
 
+  let responseBody = "";
+  let statusCode = 0;
+
   const uuid = uuidv4();
-  // TODO: add user from url
-  const user_id = 1;
+  const { user_id } = event.pathParameters;
 
   const searchParams = {
     TableName: "orders",
@@ -19,28 +21,34 @@ exports.handler = async (event, context) => {
     }
   };
 
-  const putParams = {
-    TableName: "orders",
-    Item: {
-      id: uuid,
-      user_id: user_id,
-      paid: false
-    }
-  };
-
   try {
-    // Check if UUID already exists
     const data = await documentClient.get(searchParams).promise();
     if (data.length > 0) {
       console.log('Duplicate ID tried to be written.')
-      // TODO: Call this function again? Return error?
+      // TODO: Call this function again?
     } else {
-      // Add order to table
+      const putParams = {
+        TableName: "orders",
+        Item: {
+          id: uuid,
+          user_id: user_id,
+          paid: false
+        }
+      };
       const data = await documentClient.put(putParams).promise();
-      return uuid;
+      responseBody = uuid;
+      statusCode = 200;
     }  
   } catch (err) {
-    console.log(err)
+    responseBody = "Something went wrong."
+    statusCode = 403;
   }
+  
+  const response = { 
+    statusCode: statusCode,
+    body: responseBody
+  };
+  
+  return response;
 
 };
