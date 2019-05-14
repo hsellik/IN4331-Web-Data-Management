@@ -90,7 +90,7 @@ resources:
           - AttributeName: order_ID
             KeyType: HASH
           - AttributeName: item_ID
-            KeyType: HASH
+            KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
