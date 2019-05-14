@@ -1,0 +1,130 @@
+service: lambda-saga
+
+custom:
+  region: ${opt:region, self:provider.region}
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: dev
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+      Resource: 
+        - arn:aws:dynamodb:${self:custom.region}:*:table/hotel_bookings
+        - arn:aws:dynamodb:${self:custom.region}:*:table/rental_bookings
+        - arn:aws:dynamodb:${self:custom.region}:*:table/flight_bookings
+
+functions:
+  book-hotel:
+    handler: functions/book-hotel.handler
+
+  book-rental:
+    handler: functions/book-rental.handler
+
+  book-flight:
+    handler: functions/book-flight.handler
+
+  cancel-hotel:
+    handler: functions/cancel-hotel.handler
+
+  cancel-rental:
+    handler: functions/cancel-rental.handler
+
+  cancel-flight:
+    handler: functions/cancel-flight.handler
+
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: users
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: credit
+            AttributeType: N
+          - AttributeName: isDeleted
+            AttributeType: N
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+    orderTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: orders
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: totalPrice
+            AttributeType: N
+          - AttributeName: user_ID
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+    orderRowTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: orderRow 
+        AttributeDefinitions:
+          - AttributeName: order_ID
+            AttributeType: S
+          - AttributeName: item_ID
+            AttributeType: S
+          - AttributeName: quantity
+            AttributeType: N
+        KeySchema:
+          - AttributeName: order_ID
+            KeyType: HASH
+          - AttributeName: item_ID
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+    stockTable:
+       Type: AWS::DynamoDB::Table
+       Properties:
+         TableName: stock
+         AttributeDefinitions:
+           - AttributeName: item_ID
+             AttributeType: S
+           - AttributeName: quantity
+             AttributeType: N
+           - AttributeName: price
+             AttributeType: N
+         KeySchema:
+           - AttributeName: item_ID
+             KeyType: HASH
+         ProvisionedThroughput:
+           ReadCapacityUnits: 1
+           WriteCapacityUnits: 1
+
+    paymentTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+          TableName: payments 
+          AttributeDefinitions:
+            - AttributeName: order_ID
+              AttributeType: S
+            - AttributeName: isPaid
+              AttributeType: N
+          KeySchema:
+            - AttributeName: order_ID
+              KeyType: HASH
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
