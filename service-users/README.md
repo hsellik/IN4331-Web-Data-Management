@@ -4,6 +4,8 @@
 
 Add header `x-api-key` with value `cLnHl2BI4t2XBg9IAmuSyGLkthJZw8H83GAjjhMb`.
 
+If the service fails (i.e. throws an error that we don't create ourselves), `status code 500 (Internal Server Error)` will be returned.
+
 ### Create
 
 Endpoint: `https://apy8kr8jue.execute-api.us-east-1.amazonaws.com/default/create`
