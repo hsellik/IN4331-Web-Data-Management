@@ -22,10 +22,17 @@ exports.handler = function(e, ctx, callback) {
     };
 
     dynamoDB.update(params, function(err, data) {
+        var success = {
+            "statusCode": 200,
+            "headers": {},
+            "body": JSON.stringify(data),
+            "isBase64Encoded": false
+        };
+
         if(err) {
             callback(err, null);
         } else {
-            callback(null, data);
+            callback(null, success);
         }
     });
-}
+};
