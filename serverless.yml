@@ -18,7 +18,7 @@ provider:
         - arn:aws:dynamodb:${self:custom.region}:*:table/Users
         - arn:aws:dynamodb:${self:custom.region}:*:table/Orders
         - arn:aws:dynamodb:${self:custom.region}:*:table/Stock
-        - arn:aws:dynamodb:${self:custom.region}:*:table/Payment
+        - arn:aws:dynamodb:${self:custom.region}:*:table/Payments
 
 functions:
   cancel-payment:
