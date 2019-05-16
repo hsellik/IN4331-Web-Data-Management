@@ -15,11 +15,10 @@ provider:
         - dynamodb:DeleteItem
         - dynamodb:UpdateItem
       Resource: 
-        - arn:aws:dynamodb:${self:custom.region}:*:table/users
-        - arn:aws:dynamodb:${self:custom.region}:*:table/orders
-        - arn:aws:dynamodb:${self:custom.region}:*:table/orderRow
-        - arn:aws:dynamodb:${self:custom.region}:*:table/stock
-        - arn:aws:dynamodb:${self:custom.region}:*:table/payments
+        - arn:aws:dynamodb:${self:custom.region}:*:table/Users
+        - arn:aws:dynamodb:${self:custom.region}:*:table/Orders
+        - arn:aws:dynamodb:${self:custom.region}:*:table/Stock
+        - arn:aws:dynamodb:${self:custom.region}:*:table/Payment
 
 functions:
   cancel-payment:
@@ -81,16 +80,12 @@ resources:
     usersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: users
+        TableName: Users
         AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-          - AttributeName: credit
-            AttributeType: N
-          - AttributeName: isDeleted
+          - AttributeName: ID
             AttributeType: N
         KeySchema:
-          - AttributeName: id
+          - AttributeName: ID
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
@@ -99,37 +94,13 @@ resources:
     orderTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: orders
+        TableName: Orders
         AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-          - AttributeName: totalPrice
-            AttributeType: N
-          - AttributeName: user_ID
-            AttributeType: S
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
-
-    orderRowTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: orderRow 
-        AttributeDefinitions:
-          - AttributeName: order_ID
-            AttributeType: S
-          - AttributeName: item_ID
-            AttributeType: S
-          - AttributeName: quantity
+          - AttributeName: ID
             AttributeType: N
         KeySchema:
-          - AttributeName: order_ID
+          - AttributeName: ID
             KeyType: HASH
-          - AttributeName: item_ID
-            KeyType: RANGE
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
@@ -137,16 +108,12 @@ resources:
     stockTable:
        Type: AWS::DynamoDB::Table
        Properties:
-         TableName: stock
+         TableName: Stock
          AttributeDefinitions:
-           - AttributeName: item_ID
-             AttributeType: S
-           - AttributeName: quantity
-             AttributeType: N
-           - AttributeName: price
+           - AttributeName: Item_ID
              AttributeType: N
          KeySchema:
-           - AttributeName: item_ID
+           - AttributeName: Item_ID
              KeyType: HASH
          ProvisionedThroughput:
            ReadCapacityUnits: 1
@@ -155,14 +122,12 @@ resources:
     paymentTable:
         Type: AWS::DynamoDB::Table
         Properties:
-          TableName: payments 
+          TableName: Payments
           AttributeDefinitions:
-            - AttributeName: order_ID
-              AttributeType: S
-            - AttributeName: isPaid
+            - AttributeName: Order_ID
               AttributeType: N
           KeySchema:
-            - AttributeName: order_ID
+            - AttributeName: Order_ID
               KeyType: HASH
           ProvisionedThroughput:
             ReadCapacityUnits: 1
