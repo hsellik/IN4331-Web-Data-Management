@@ -97,7 +97,7 @@ resources:
         TableName: Orders
         AttributeDefinitions:
           - AttributeName: ID
-            AttributeType: N
+            AttributeType: S
         KeySchema:
           - AttributeName: ID
             KeyType: HASH
@@ -111,7 +111,7 @@ resources:
          TableName: Stock
          AttributeDefinitions:
            - AttributeName: Item_ID
-             AttributeType: N
+             AttributeType: S
          KeySchema:
            - AttributeName: Item_ID
              KeyType: HASH
@@ -125,7 +125,7 @@ resources:
           TableName: Payments
           AttributeDefinitions:
             - AttributeName: Order_ID
-              AttributeType: N
+              AttributeType: S
           KeySchema:
             - AttributeName: Order_ID
               KeyType: HASH

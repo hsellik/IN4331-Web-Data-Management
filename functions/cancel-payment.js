@@ -6,7 +6,6 @@ const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'us-east-1'});
 exports.handler = function(e, ctx, callback) {
 
     let order_id = ((e.path || {})['order_id']) || (e['order_id']);
-    order_id = parseInt(order_id, 10);
 
     var params = {
         TableName: 'Payments',

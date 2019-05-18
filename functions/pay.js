@@ -7,9 +7,6 @@ exports.handler = function(e, ctx, callback) {
     let order_id = ((e.path || {})['order_id']) || (e['order_id']);
     let user_id = ((e.path || {})['user_id']) || (e['user_id']);
 
-    order_id = parseInt(order_id, 10);
-    user_id = parseInt(user_id, 10);
-
     var params = {
         TableName: 'Payments',
         Item: {
