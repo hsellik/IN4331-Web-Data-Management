@@ -24,3 +24,10 @@ To remove the micro services, run:
 example:  
 
 `./build.sh remove dev us-east-1 default`
+
+## To do:
+- Replace Saga resource routes/ endpoints by correct ones
+- Improve error handling instead of States.ALL
+    - https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-mode-exceptions.html
+- Add stock for all items, replacing for loop
+- Subtract stock for all items given, replacing for loop

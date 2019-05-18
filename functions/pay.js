@@ -4,11 +4,11 @@ const AWS = require('aws-sdk');
 const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'us-east-1'});
 
 exports.handler = function(e, ctx, callback) {
+    let order_id = ((e.path || {})['order_id']) || (e['order_id']);
+    let user_id = ((e.path || {})['user_id']) || (e['user_id']);
 
-    console.log(e);
-
-    const order_id = parseInt(e.path.order_id, 10);
-    const user_id = parseInt(e.path.user_id, 10);
+    order_id = parseInt(order_id, 10);
+    user_id = parseInt(user_id, 10);
 
     var params = {
         TableName: 'Payments',
@@ -17,6 +17,9 @@ exports.handler = function(e, ctx, callback) {
             'isPaid' : true
         }
     };
+
+    // @TODO also check if it already exists in the DB, but isPaid is set to false.
+    // If in that case isPaid is set to true, throw error
 
     dynamoDB.put(params, function(err, data) {
         var success = {
@@ -27,7 +30,7 @@ exports.handler = function(e, ctx, callback) {
         };
 
         if(err) {
-            callback(err, null);
+            callback(err);
 
         } else {
             callback(null, success);

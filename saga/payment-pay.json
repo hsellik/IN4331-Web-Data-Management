@@ -1,0 +1,69 @@
+{
+  "Comment": "Applying the Saga pattern for the pay endpoint of the payment microservice",
+  "StartAt": "Pay",
+  "States": {
+    "Pay": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:{AccountID}:function:lambda-saga-dev-pay",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.PayError",
+          "Next": "CancelPayment"
+        }
+      ],
+      "ResultPath": "$.PayResult",
+      "Next": "FindOrder"
+    },
+    "FindOrder": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:{AccountID}:function:lambda-saga-dev-{ADD ROUTE HERE}",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.FindOrderError",
+          "Next": "CancelPayment"
+        }
+      ],
+      "ResultPath": "$.FindOrderResult",
+      "Next": "SubtractUserCredit"
+    },
+    "SubtractUserCredit": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:{AccountID}:function:lambda-saga-dev-{ADD ROUTE HERE}",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.SubtractUserCreditError",
+          "Next": "CancelPayment"
+        }
+      ],
+      "ResultPath": "$.SubtractUserCreditResult",
+      "End": true
+    },
+    "CancelPayment": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-east-1:{AccountID}:function:lambda-saga-dev-remove-payment",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.CancelPaymentError",
+          "Next": "CancelPayment"
+        }
+      ],
+      "ResultPath": "$.CancelPaymentResult",
+      "Next": "Fail"
+    },
+    "Fail": {
+      "Type": "Fail"
+    }
+  }
+}
