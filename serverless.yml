@@ -83,7 +83,7 @@ resources:
         TableName: Users
         AttributeDefinitions:
           - AttributeName: ID
-            AttributeType: N
+            AttributeType: S
         KeySchema:
           - AttributeName: ID
             KeyType: HASH
