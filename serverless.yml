@@ -1,0 +1,184 @@
+service: lambda-saga
+
+custom:
+  region: ${opt:region, self:provider.region}
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+        - dynamodb:UpdateItem
+      Resource: 
+        - arn:aws:dynamodb:${self:custom.region}:*:table/Users
+        - arn:aws:dynamodb:${self:custom.region}:*:table/Orders
+        - arn:aws:dynamodb:${self:custom.region}:*:table/Stock
+        - arn:aws:dynamodb:${self:custom.region}:*:table/Payments
+
+functions:
+  cancel-payment:
+    handler: functions/cancel-payment.handler
+    events:
+      - http:
+          path: /payment/cancelPayment/{user_id}/{order_id}
+          method: POST
+          integration: lambda
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+                order_id: true
+
+  pay:
+    handler: functions/pay.handler
+    events:
+      - http:
+          path: /payment/pay/{user_id}/{order_id}
+          method: POST
+          integration: lambda
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+                order_id: true
+
+  payment-status:
+    handler: functions/payment-status.handler
+    events:
+      - http:
+          path: /payment/status/{order_id}
+          method: GET
+          integration: lambda
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+
+  remove-payment:
+    handler: functions/remove-payment.handler
+    events:
+      - http:
+          path: /payment/remove/{order_id}
+          method: DELETE
+          integration: lambda
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+
+  stock-availability:
+    handler: stock/stock-availability.handler
+    events:
+      - http:
+          path: /stock/availability/{item_id}
+          method: GET
+          integration: lambda
+          private: false
+          request:
+            parameters:
+              paths:
+                item_id: true
+
+  stock-subtract:
+    handler: stock/stock-subtract.handler
+    events:
+      - http:
+          path: /stock/subtract/{item_id}/{number}
+          method: POST
+          integration: lambda
+          private: false
+          request:
+            parameters:
+              paths:
+                item_id: true
+                number: true
+
+  stock-add:
+    handler: stock/stock-add.handler
+    events:
+      - http:
+          path: /stock/add/{item_id}/{number}
+          method: POST
+          integration: lambda
+          private: false
+          request:
+            parameters:
+              paths:
+                item_id: true
+                number: true
+
+  stock-create:
+    handler: stock/stock-create.handler
+    events:
+      - http:
+          path: /stock/item/create/
+          method: POST
+          integration: lambda
+          private: false
+
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Users
+        AttributeDefinitions:
+          - AttributeName: ID
+            AttributeType: N
+        KeySchema:
+          - AttributeName: ID
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+    orderTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Orders
+        AttributeDefinitions:
+          - AttributeName: ID
+            AttributeType: N
+        KeySchema:
+          - AttributeName: ID
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+    stockTable:
+       Type: AWS::DynamoDB::Table
+       Properties:
+         TableName: Stock
+         AttributeDefinitions:
+           - AttributeName: Item_ID
+             AttributeType: N
+         KeySchema:
+           - AttributeName: Item_ID
+             KeyType: HASH
+         ProvisionedThroughput:
+           ReadCapacityUnits: 1
+           WriteCapacityUnits: 1
+
+    paymentTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+          TableName: Payments
+          AttributeDefinitions:
+            - AttributeName: Order_ID
+              AttributeType: N
+          KeySchema:
+            - AttributeName: Order_ID
+              KeyType: HASH
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
