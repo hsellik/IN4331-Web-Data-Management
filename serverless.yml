@@ -7,10 +7,11 @@ provider:
   name: aws
   runtime: nodejs8.10
   stage: dev
-  region: us-east-1
+  region: us-west-1
   iamRoleStatements:
     - Effect: Allow
       Action:
+        - dynamodb:GetItem
         - dynamodb:PutItem
         - dynamodb:DeleteItem
         - dynamodb:UpdateItem
@@ -21,6 +22,88 @@ provider:
         - arn:aws:dynamodb:${self:custom.region}:*:table/Payments
 
 functions:
+  # -----------------------------
+  # User functions
+  # -----------------------------
+  create-user:
+    handler: users/create-user.handler
+    events:
+      - http:
+          path: /users/create
+          method: POST
+          integration: lambda
+          private: false
+
+  remove-user:
+    handler: users/remove-user.handler
+    events:
+      - http:
+          path: /users/remove/{user_id}
+          method: DELETE
+          integration: lambda
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+
+  find-user:
+    handler: users/find-user.handler
+    events:
+      - http:
+          path: /users/find/{user_id}
+          method: GET
+          integration: lambda
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+  
+  credit:
+    handler: users/credit.handler
+    events:
+      - http:
+          path: /users/credit/{user_id}
+          method: GET
+          integration: lambda
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+
+  credit-subtract:
+    handler: users/credit-subtract.handler
+    events:
+      - http:
+          path: /users/credit/subtract/{user_id}/{amount}
+          method: POST
+          integration: lambda
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+                amount: true
+
+  credit-add:
+    handler: users/credit-add.handler
+    events:
+      - http:
+          path: /users/credit/add/{user_id}/{amount}
+          method: POST
+          integration: lambda
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+                amount: true
+
+  # -----------------------------
+  # Payment functions
+  # -----------------------------
   cancel-payment:
     handler: functions/cancel-payment.handler
     events:
@@ -82,10 +165,10 @@ resources:
       Properties:
         TableName: Users
         AttributeDefinitions:
-          - AttributeName: ID
+          - AttributeName: User_ID
             AttributeType: S
         KeySchema:
-          - AttributeName: ID
+          - AttributeName: User_ID
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1

@@ -1,0 +1,36 @@
+console.log('Starting find user function');
+
+const AWS = require('aws-sdk');
+const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'us-west-1'});
+
+exports.handler = function(e, ctx, callback) {
+
+    const user_id = ((e.path || {})['user_id']) || (e.user_id);
+
+    const params = {
+        TableName: 'Users',
+        Key: {
+            User_ID : user_id,
+        }
+    };
+
+    dynamoDB.get(params, function(err, data) {
+        if(err) {
+            callback(err, {
+                statusCode: 500,
+            });
+        } else if (data.Item == null) {
+            callback(null, {
+                statusCode: 404,
+                headers: { "Content-type": "application/json" },
+                body: { message: "User not found" },
+            });
+        } else {
+            callback(null, {
+                statusCode: 200,
+                headers: { "Content-type": "application/json" },
+                body: data.Item,
+            });
+        }
+    });
+};

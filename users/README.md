@@ -8,37 +8,26 @@ If the service fails (i.e. throws an error that we don't create ourselves), `sta
 
 ### Create
 
-Endpoint: `https://apy8kr8jue.execute-api.us-east-1.amazonaws.com/default/create`
-
 Method: `POST`
 
 Returns
 ```
 status code 200 (OK)
-{ 
-    user_id: <user_id_here>
+{
+    User_ID: <user_id_here>
 }
 ```
 
 ### Remove
 
-Endpoint: `https://apy8kr8jue.execute-api.us-east-1.amazonaws.com/default/remove/{user_id_here}`
-
 Method: `DELETE`
 
-If user_id is not found or already deleted, return
-```
-status code 404 (Not Found)
-```
-
-If user is successfully removed, return
+If user is successfully removed or the given user_id does not exist, return
 ```
 status code 200 (OK)
 ```
 
 ### Find
-
-Endpoint: `https://apy8kr8jue.execute-api.us-east-1.amazonaws.com/default/find/{user_id_here}`
 
 Method: `GET`
 
@@ -51,14 +40,12 @@ If user is found, return
 ```
 status code 200 (OK)
 body: {
-    user_id: <user_id_here>,
+    User_ID: <user_id_here>,
     credit: <credit_here>
 }
 ```
 
 ### Credit
-
-Endpoint: `https://apy8kr8jue.execute-api.us-east-1.amazonaws.com/default/credit/{user_id_here}`
 
 Method: `GET`
 
@@ -76,8 +63,6 @@ body: {
 ```
 
 ### Credit subtract
-
-Endpoint: `https://apy8kr8jue.execute-api.us-east-1.amazonaws.com/default/credit/subtract/{user_id_here}/{amount_here}`
 
 Method: `POST`
 
@@ -97,8 +82,6 @@ status code 200 (OK)
 ```
 
 ### Credit add
-
-Endpoint: `https://apy8kr8jue.execute-api.us-east-1.amazonaws.com/default/credit/add/{user_id_here}/{amount_here}`
 
 Method: `POST`
 
