@@ -11,7 +11,12 @@ exports.handler = function(e, ctx, callback) {
         TableName: 'Payments',
         Key: {
             'Order_ID' : order_id
-        }
+        },
+        ConditionExpression: 'Order_ID = :order_ID and isPaid <> :isPaid',
+        ExpressionAttributeValues: {
+            ':order_ID' : order_id,
+            ':isPaid': true
+        },
     };
 
     dynamoDB.delete(params, function(err, data) {
@@ -29,4 +34,5 @@ exports.handler = function(e, ctx, callback) {
             callback(null, success);
         }
     });
+
 };

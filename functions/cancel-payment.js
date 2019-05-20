@@ -13,10 +13,9 @@ exports.handler = function(e, ctx, callback) {
             'Order_ID': order_id
         },
         UpdateExpression: 'SET isPaid = :isPaid',
-        ConditionExpression: 'Order_ID = :order_ID and isPaid <> :isPaid',
+        ConditionExpression: 'Order_ID = :order_ID and isPaid = true',
         ExpressionAttributeValues: {
-            ':order_ID' : order_id,
-            ':isPaid': false
+            ':order_ID' : order_id
         },
         ReturnValues: "ALL_NEW"
     };

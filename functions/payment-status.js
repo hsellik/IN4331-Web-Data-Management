@@ -32,6 +32,5 @@ exports.handler = function(e, ctx, callback) {
             const error = new Error("404 - Order not found");
             callback(error);
         }
-
     });
 };
