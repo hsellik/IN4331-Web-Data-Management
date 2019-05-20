@@ -17,6 +17,14 @@ example:
 which will install NPM packages and use the `Serverless` framework to deploy both
 DynamoDB tables as well as Lambda functions to the account.
 
+## (Re)deploying Single AWS Function  
+To save time and re-deploy only a single function after modifications, use:  
+* `serverless deploy function -f <function> -s <stage> -r <region>`
+Example
+* `serverless deploy function -f pay -s dev -r us-east-1`
+*
+
+
 To remove the micro services, run:
 
 * `./build.sh remove <stage> <region> <aws_profile>`

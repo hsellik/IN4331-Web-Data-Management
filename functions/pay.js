@@ -7,18 +7,24 @@ exports.handler = function(e, ctx, callback) {
     let order_id = ((e.path || {})['order_id']) || (e['order_id']);
     let user_id = ((e.path || {})['user_id']) || (e['user_id']);
 
+
+    // If not in DB, create new with Order_ID = order_id and isPaid = true
+    // If exists, update only, if it is not paid
+    // else return error
     var params = {
-        TableName: 'Payments',
-        Item: {
-            'Order_ID' : order_id,
-            'isPaid' : true
-        }
+        TableName: "Payments",
+        Key: {
+            Order_ID: order_id
+        },
+        UpdateExpression: "SET isPaid = :isPaid",
+        ConditionExpression: 'isPaid <> :isPaid',
+        ExpressionAttributeValues: {
+            ":isPaid": true
+        },
+        ReturnValues: "UPDATED_NEW"
     };
 
-    // @TODO also check if it already exists in the DB, but isPaid is set to false.
-    // If in that case isPaid is set to true, throw error
-
-    dynamoDB.put(params, function(err, data) {
+    dynamoDB.update(params, function(err, data) {
         var success = {
             "statusCode": 200,
             "headers": {},
