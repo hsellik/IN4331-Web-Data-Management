@@ -5,9 +5,9 @@ const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'us-east-1'});
 
 exports.handler = function(e, ctx, callback) {
 
-    const order_id = parseInt(e.path.order_id, 10);
+    let order_id = ((e.path || {})['order_id']) || (e['order_id']);
 
-    var params = {
+    const params = {
         TableName: 'Payments',
         Key: {
             'Order_ID' : order_id
@@ -15,18 +15,23 @@ exports.handler = function(e, ctx, callback) {
     };
 
     dynamoDB.get(params, function(err, data) {
-        var success = {
-            "statusCode": 200,
-            "headers": {},
-            "body": JSON.stringify(data),
-            "isBase64Encoded": false
-        };
-
         if(err) {
-            callback(err, null);
-
-        } else {
-            callback(null, success);
+            callback(err);
+            return;
         }
+
+        if (Object.keys(data).length) {
+            const result = {
+                "statusCode": 200,
+                "headers": {},
+                "body": JSON.stringify(data),
+                "isBase64Encoded": false
+            };
+            callback(null, result);
+        } else {
+            const error = new Error("404 - Order not found");
+            callback(error);
+        }
+
     });
 };
