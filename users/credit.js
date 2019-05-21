@@ -3,9 +3,9 @@ console.log('Starting credit function');
 const AWS = require('aws-sdk');
 const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'us-east-1'});
 
-exports.handler = function(e, ctx, callback) {
+exports.handler = async function(e, ctx) {
 
-    const user_id = ((e.path || {})['user_id']) || (e.user_id);
+    const user_id = ((e.pathParameters || {})['user_id']) || (e.user_id);
 
     const params = {
         TableName: 'Users',
@@ -14,29 +14,31 @@ exports.handler = function(e, ctx, callback) {
         }
     };
 
-    dynamoDB.get(params, function(err, data) {
-        if(err) {
-            callback(err, {
-                statusCode: 500,
-            });
-        } else if (data.Item == null) {
-            callback(null, {
+    try {
+        const data = await dynamoDB.get(params).promise();
+        if (data.Item == null) {
+            return {
                 statusCode: 404,
                 headers: { "Content-type": "application/json" },
-                body: { message: "User not found" },
-            });
+                body: JSON.stringify({ Message: "User not found" }),
+            }
         } else if (data.Item.credit === null) {
-            callback(err, {
+            return {
                 statusCode: 500,
                 headers: { "Content-type": "application/json" },
-                body: { message: `credit not found in User item: ${JSON.stringify(data.Item)}` },
-            });
+                body: JSON.stringify({ Message: "credit not found in User item", data: data.Item }),
+            }
         } else {
-            callback(null, {
+            return {
                 statusCode: 200,
                 headers: { "Content-type": "application/json" },
-                body: { credit: data.Item.credit }
-            });
+                body: JSON.stringify({ credit: data.Item.credit }),
+            }
         }
-    });
+    } catch (err) {
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ Message: err }),
+        }
+    }
 };

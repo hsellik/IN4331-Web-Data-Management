@@ -3,17 +3,17 @@ console.log('Starting credit subtract function');
 const AWS = require('aws-sdk');
 const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'us-east-1'});
 
-exports.handler = function(e, ctx, callback) {
+exports.handler = async function(e, ctx) {
 
-    const user_id = ((e.path || {})['user_id']) || (e.user_id);
-    const amountRaw = ((e.path || {})['amount']) || e.amount;
+    const user_id = ((e.pathParameters || {})['user_id']) || e.user_id;
+    const amountRaw = ((e.pathParameters || {})['amount']) || e.amount;
 
     const amount = parseInt(amountRaw, 10);
     if (amount == NaN) { // TODO: This doesn't seem to work, not sure why
         callback(null, {
             statusCode: 400,
             headers: { "Content-type": "application/json" },
-            body: { message: `Amount parameter is not a number: \"${amountRaw}\"` },
+            body: JSON.stringify({ message: `Amount parameter is not a number: \"${amountRaw}\"` }),
         });
         return;
     }
@@ -24,54 +24,56 @@ exports.handler = function(e, ctx, callback) {
             User_ID : user_id,
         }
     };
-
-    dynamoDB.get(getParams, function(err, data) {
-        if(err) {
-            callback(err, {
-                statusCode: 500,
-            });
-        } else if (data.Item == null) {
-            callback(null, {
+    try {
+        const data = await dynamoDB.get(getParams).promise();
+        if (data.Item == null) {
+            return {
                 statusCode: 404,
                 headers: { "Content-type": "application/json" },
-                body: { message: "User not found" },
-            });
+                body: JSON.stringify({ Message: "User not found" }),
+            }
         } else if (data.Item.credit === null) {
-            callback(err, {
+            return {
                 statusCode: 500,
                 headers: { "Content-type": "application/json" },
-                body: { message: `credit not found in User item: ${JSON.stringify(data.Item)}` },
-            });
+                body: JSON.stringify({ Message: "credit not found in User item.", item: data.Item }),
+            }
         } else if (data.Item.credit < amount) {
-            callback(err, {
+            return {
                 statusCode: 412,
                 headers: { "Content-type": "application/json" },
-                body: { message: `Credit not sufficient; current credit: ${data.Item.credit}` },
-            });
+                body: JSON.stringify({ Message: `Credit not sufficient; current credit: ${data.Item.credit}` }),
+            };
         } else {
-            const updateParams = {
-                TableName: 'Users',
-                Key: { User_ID: user_id },
-                UpdateExpression: "SET credit = credit - :amount",
-                ConditionExpression: "credit >= :amount",   // This is a sanity check, has been checked in code before
-                                                            // but something might have changed
-                ExpressionAttributeValues: { ":amount": amount },
-                ReturnValues: "NONE"
-            }
-
-            dynamoDB.update(updateParams, function(err, data) {
-                if (err) {
-                    callback(err, {
-                        statusCode: 500,
-                    });
-                } else {
-                    callback(null, {
-                        statusCode: 200,
-                        headers: { "Content-type": "application/json" },
-                        body: data,
-                    });
+            try {
+                const updateParams = {
+                    TableName: 'Users',
+                    Key: { User_ID: user_id },
+                    UpdateExpression: "SET credit = credit - :amount",
+                    ConditionExpression: "credit >= :amount",   // This is a sanity check, has been checked in code before
+                                                                // but something might have changed
+                    ExpressionAttributeValues: { ":amount": amount },
+                    ReturnValues: "ALL_NEW"
                 }
-            });
+                const data = await dynamoDB.update(updateParams).promise();
+                return {
+                    statusCode: 200,
+                    headers: { "Content-type": "application/json" },
+                    body: JSON.stringify({ ...data.Attributes }),
+                };
+            } catch (err) {
+                return {
+                    statusCode: 500,
+                    headers: { "Content-type": "application/json" },
+                    body: JSON.stringify({ Message: err }),
+                }
+            }
+        } 
+    } catch (err) {
+        return {
+            statusCode: 500,
+            headers: { "Content-type": "application/json" },
+            body: JSON.stringify({ Message: err }),
         }
-    });
+    }
 };

@@ -31,7 +31,7 @@ functions:
       - http:
           path: /users/create
           method: POST
-          integration: lambda
+          integration: lambda-proxy
           private: false
 
   remove-user:
@@ -40,7 +40,7 @@ functions:
       - http:
           path: /users/remove/{user_id}
           method: DELETE
-          integration: lambda
+          integration: lambda-proxy
           private: false
           request:
             parameters:
@@ -53,7 +53,7 @@ functions:
       - http:
           path: /users/find/{user_id}
           method: GET
-          integration: lambda
+          integration: lambda-proxy
           private: false
           request:
             parameters:
@@ -66,7 +66,7 @@ functions:
       - http:
           path: /users/credit/{user_id}
           method: GET
-          integration: lambda
+          integration: lambda-proxy
           private: false
           request:
             parameters:
@@ -79,7 +79,7 @@ functions:
       - http:
           path: /users/credit/subtract/{user_id}/{amount}
           method: POST
-          integration: lambda
+          integration: lambda-proxy
           private: false
           request:
             parameters:
@@ -93,7 +93,7 @@ functions:
       - http:
           path: /users/credit/add/{user_id}/{amount}
           method: POST
-          integration: lambda
+          integration: lambda-proxy
           private: false
           request:
             parameters:

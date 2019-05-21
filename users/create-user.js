@@ -4,7 +4,7 @@ const uuid = require('uuid/v1');
 const AWS = require('aws-sdk');
 const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'us-east-1'});
 
-exports.handler = function(e, ctx, callback) {
+exports.handler = async function(e, ctx) {
     const user_id = uuid();
 
     const params = {
@@ -15,20 +15,23 @@ exports.handler = function(e, ctx, callback) {
         }
     };
 
-    dynamoDB.put(params, function(err, data) {
-        if(err) {
-            callback(err, {
-                statusCode: 500
-            });
-        } else {
-            callback(null, {
-                statusCode: 200,
-                headers: {},
-                body: {
-                    User_ID: user_id,
-                },
-                isBase64Encoded: false,
-            });
+    try {
+        const data = await dynamoDB.put(params).promise();
+        return {
+            statusCode: 200,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                User_ID: user_id,
+            }),
+            isBase64Encoded: false,
+        };
+    } catch (err) {
+        console.log(err);
+        return {
+            statusCode: 500,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ Message: err }),
+            isBase64Encoded: false,
         }
-    });
+    }
 };

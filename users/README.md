@@ -22,7 +22,12 @@ status code 200 (OK)
 
 Method: `DELETE`
 
-If user is successfully removed or the given user_id does not exist, return
+If user_id is not found or deleted, return
+```
+status code 404 (Not Found)
+```
+
+If user is successfully removed, return
 ```
 status code 200 (OK)
 ```
@@ -39,7 +44,7 @@ status code 404 (Not Found)
 If user is found, return
 ```
 status code 200 (OK)
-body: {
+{
     User_ID: <user_id_here>,
     credit: <credit_here>
 }
@@ -57,7 +62,7 @@ status code 404 (Not Found)
 If user is found, return
 ```
 status code 200 (OK)
-body: {
+{
     credit: <credit_here>
 }
 ```
@@ -79,6 +84,10 @@ status code 412 (Precondition Failed)
 If user is found and has enough credit, return
 ```
 status code 200 (OK)
+{
+    User_ID: <user_id_here>
+    credit: <credit_here>
+}
 ```
 
 ### Credit add
@@ -93,4 +102,8 @@ status code 404 (Not Found)
 If user is found
 ```
 status code 200 (OK)
+{
+    User_ID: <user_id_here>
+    credit: <credit_here>
+}
 ```
