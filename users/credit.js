@@ -1,7 +1,7 @@
 console.log('Starting credit function');
 
 const AWS = require('aws-sdk');
-const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'us-west-1'});
+const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'us-east-1'});
 
 exports.handler = function(e, ctx, callback) {
 

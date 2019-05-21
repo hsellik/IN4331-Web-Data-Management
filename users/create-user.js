@@ -2,7 +2,7 @@ console.log('Starting create user function');
 
 const uuid = require('uuid/v1');
 const AWS = require('aws-sdk');
-const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'us-west-1'});
+const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'us-east-1'});
 
 exports.handler = function(e, ctx, callback) {
     const user_id = uuid();
