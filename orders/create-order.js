@@ -2,11 +2,11 @@
 const AWS = require('aws-sdk');
 const uuidv4 = require('uuid/v4');
 
-AWS.config.update({ region: "us-east-1"});
+AWS.config.update({ region: "eu-north-1"});
 
 exports.handler = async (event, context) => {
   const ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08"});
-  const documentClient = new AWS.DynamoDB.DocumentClient({ region: "us-east-1"});
+  const documentClient = new AWS.DynamoDB.DocumentClient({ region: "eu-north-1"});
 
   let responseBody = "";
   let statusCode = 0;
@@ -17,7 +17,7 @@ exports.handler = async (event, context) => {
   const searchParams = {
     TableName: "Orders",
     Key: {
-      id: uuid
+      Order_ID: uuid
     }
   };
 
@@ -29,8 +29,8 @@ exports.handler = async (event, context) => {
       const putParams = {
         TableName: "Orders",
         Item: {
-          id: uuid,
-          user_id: user_id,
+          Order_ID: uuid,
+          User_ID: user_id,
           items: [],
           total_price: 0,
         }
