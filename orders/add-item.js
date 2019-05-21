@@ -2,11 +2,11 @@
 const AWS = require('aws-sdk');
 const uuidv4 = require('uuid/v4');
 
-AWS.config.update({ region: "us-east-1"});
+AWS.config.update({ region: "eu-north-1"});
 
 exports.handler = async (event, context) => {
   const ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08"});
-  const documentClient = new AWS.DynamoDB.DocumentClient({ region: "us-east-1"});
+  const documentClient = new AWS.DynamoDB.DocumentClient({ region: "eu-north-1"});
 
   let responseBody = "";
   let statusCode = 0;
@@ -17,7 +17,7 @@ exports.handler = async (event, context) => {
   const searchParams = {
     TableName: "Orders",
     Key: {
-      id: order_id
+      Order_ID: order_id
     }
   };
 
@@ -26,17 +26,17 @@ exports.handler = async (event, context) => {
     if (data.Item) {
       let found = false;
       data.Item.items.forEach(function(entry) {
-        if (entry.id == item_id) {
+        if (entry.Order_ID == item_id) {
           entry.quantity += 1;
           found = true;
         }
       });
       if (found == false) {
-        data.Item.items.push({ id: item_id, quantity: 1 })
+        data.Item.items.push({ Item_ID: item_id, quantity: 1 })
       };
       const updateParams = {
         TableName: 'Orders',
-        Key: { id: order_id },
+        Key: { Order_ID: order_id },
         ReturnValues: 'UPDATED_NEW',
         UpdateExpression: 'set #items = :newList',
         ExpressionAttributeNames: {

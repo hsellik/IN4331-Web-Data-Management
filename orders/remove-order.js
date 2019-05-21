@@ -1,11 +1,11 @@
 'use strict';
 const AWS = require('aws-sdk');
 
-AWS.config.update({ region: "us-east-1"});
+AWS.config.update({ region: "eu-north-1"});
 
 exports.handler = async (event, context) => {
   const ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08"});
-  const documentClient = new AWS.DynamoDB.DocumentClient({ region: "us-east-1"});
+  const documentClient = new AWS.DynamoDB.DocumentClient({ region: "eu-north-1"});
 
   let responseBody = "";
   let statusCode = 0;
@@ -15,7 +15,7 @@ exports.handler = async (event, context) => {
   const params = {
     TableName: "orders",
     Key: {
-      id: order_id
+      Order_ID: order_id
     }
   };
 

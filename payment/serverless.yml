@@ -248,10 +248,10 @@ resources:
       Properties:
         TableName: Orders
         AttributeDefinitions:
-          - AttributeName: ID
+          - AttributeName: Order_ID
             AttributeType: S
         KeySchema:
-          - AttributeName: ID
+          - AttributeName: Order_ID
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
