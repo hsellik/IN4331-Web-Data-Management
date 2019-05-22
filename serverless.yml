@@ -159,6 +159,73 @@ functions:
               paths:
                 order_id: true
 
+  create-order:
+    handler: orders/create-order.handler
+    events:
+      - http:
+          path: /orders/create/{user_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+
+  find-order:
+    handler: orders/find-order.handler
+    events:
+      - http:
+          path: /orders/find/{order_id}
+          method: GET
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+
+  remove-order:
+    handler: orders/remove-order.handler
+    events:
+      - http:
+          path: /orders/remove/{order_id}
+          method: DELETE
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+
+  add-item:
+    handler: orders/add-item.handler
+    events:
+      - http:
+          path: /orders/addItem/{order_id}/{item_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+                item_id: true
+
+  remove-item:
+    handler: orders/remove-item.handler
+    events:
+      - http:
+          path: /orders/removeItem/{order_id}/{item_id}
+          method: DELETE
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+                item_id: true
+
 resources:
   Resources:
     usersTable:
@@ -180,10 +247,10 @@ resources:
       Properties:
         TableName: Orders
         AttributeDefinitions:
-          - AttributeName: ID
+          - AttributeName: Order_ID
             AttributeType: S
         KeySchema:
-          - AttributeName: ID
+          - AttributeName: Order_ID
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
