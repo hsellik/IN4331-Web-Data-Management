@@ -11,15 +11,15 @@ provider:
   iamRoleStatements:
     - Effect: Allow
       Action:
+<<<<<<< HEAD:serverless.yml
         - dynamodb:GetItem
         - dynamodb:PutItem
+=======
+>>>>>>> Make payment functions return proper error codes:payment/serverless.yml
         - dynamodb:DeleteItem
         - dynamodb:UpdateItem
         - dynamodb:GetItem
-      Resource: 
-        - arn:aws:dynamodb:${self:custom.region}:*:table/Users
-        - arn:aws:dynamodb:${self:custom.region}:*:table/Orders
-        - arn:aws:dynamodb:${self:custom.region}:*:table/Stock
+      Resource:
         - arn:aws:dynamodb:${self:custom.region}:*:table/Payments
 
 functions:
@@ -111,7 +111,7 @@ functions:
       - http:
           path: /payment/cancelPayment/{user_id}/{order_id}
           method: POST
-          integration: lambda
+          integration: lambda-proxy
           private: false
           request:
             parameters:
@@ -125,7 +125,7 @@ functions:
       - http:
           path: /payment/pay/{user_id}/{order_id}
           method: POST
-          integration: lambda
+          integration: lambda-proxy
           private: false
           request:
             parameters:
@@ -139,7 +139,7 @@ functions:
       - http:
           path: /payment/status/{order_id}
           method: GET
-          integration: lambda
+          integration: lambda-proxy
           private: false
           request:
             parameters:
@@ -152,7 +152,7 @@ functions:
       - http:
           path: /payment/remove/{order_id}
           method: DELETE
-          integration: lambda
+          integration: lambda-proxy
           private: false
           request:
             parameters:
@@ -161,6 +161,7 @@ functions:
 
 resources:
   Resources:
+<<<<<<< HEAD:serverless.yml
     usersTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -203,6 +204,8 @@ resources:
            ReadCapacityUnits: 1
            WriteCapacityUnits: 1
 
+=======
+>>>>>>> Make payment functions return proper error codes:payment/serverless.yml
     paymentTable:
         Type: AWS::DynamoDB::Table
         Properties:
