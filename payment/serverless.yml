@@ -1,4 +1,4 @@
-service: payment-microservice
+service: payment-service
 
 custom:
   region: ${opt:region, self:provider.region}
@@ -15,7 +15,6 @@ provider:
         - dynamodb:PutItem
         - dynamodb:DeleteItem
         - dynamodb:UpdateItem
-        - dynamodb:GetItem
       Resource:
         - arn:aws:dynamodb:${self:custom.region}:*:table/Payments
 
