@@ -1,0 +1,89 @@
+service: lambda-saga
+
+custom:
+  region: ${opt:region, self:provider.region}
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+        - dynamodb:UpdateItem
+      Resource: 
+        - arn:aws:dynamodb:${self:custom.region}:*:table/Stock
+
+functions:
+  # -----------------------------
+  # Stock functions
+  # -----------------------------
+  stock-availability:
+    handler: functions/stock-availability.handler
+    events:
+      - http:
+          path: /stock/availability/{item_id}
+          method: GET
+          integration: lambda
+          private: false
+          request:
+            parameters:
+              paths:
+                item_id: true
+
+  stock-subtract:
+    handler: functions/stock-subtract.handler
+    events:
+      - http:
+          path: /stock/subtract/{item_id}/{number}
+          method: POST
+          integration: lambda
+          private: false
+          request:
+            parameters:
+              paths:
+                item_id: true
+                number: true
+
+  stock-add:
+    handler: functions/stock-add.handler
+    events:
+      - http:
+          path: /stock/add/{item_id}/{number}
+          method: POST
+          integration: lambda
+          private: false
+          request:
+            parameters:
+              paths:
+                item_id: true
+                number: true
+
+  stock-create:
+    handler: functions/stock-create.handler
+    events:
+      - http:
+          path: /stock/item/create/
+          method: POST
+          integration: lambda
+          private: false
+
+
+resources:
+  Resources:
+    stockTable:
+       Type: AWS::DynamoDB::Table
+       Properties:
+         TableName: Stock
+         AttributeDefinitions:
+           - AttributeName: Item_ID
+             AttributeType: S
+         KeySchema:
+           - AttributeName: Item_ID
+             KeyType: HASH
+         ProvisionedThroughput:
+           ReadCapacityUnits: 1
+           WriteCapacityUnits: 1
