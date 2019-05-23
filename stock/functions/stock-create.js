@@ -2,7 +2,7 @@ console.log("Create new item in stock");
 
 const uuidv1 = require('uuid/v1');
 const AWS = require('aws-sdk');
-const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'us-east-1'});
+const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'PLACEHOLDER_REGION'});
 
 exports.handler = function(e, ctx, callback) {
     const item_id = uuidv1();

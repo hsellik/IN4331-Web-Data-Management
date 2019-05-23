@@ -1,8 +1,8 @@
 {
   "service": {
-    "service": "payment-microservice",
+    "service": "payment-service",
     "serviceObject": {
-      "name": "payment-microservice"
+      "name": "payment-service"
     },
     "provider": {
       "stage": "dev",
@@ -17,8 +17,7 @@
             "dynamodb:GetItem",
             "dynamodb:PutItem",
             "dynamodb:DeleteItem",
-            "dynamodb:UpdateItem",
-            "dynamodb:GetItem"
+            "dynamodb:UpdateItem"
           ],
           "Resource": [
             "arn:aws:dynamodb:eu-north-1:*:table/Payments"
@@ -48,25 +47,25 @@
           "CancelDashpaymentLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-              "LogGroupName": "/aws/lambda/payment-microservice-dev-cancel-payment"
+              "LogGroupName": "/aws/lambda/payment-service-dev-cancel-payment"
             }
           },
           "PayLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-              "LogGroupName": "/aws/lambda/payment-microservice-dev-pay"
+              "LogGroupName": "/aws/lambda/payment-service-dev-pay"
             }
           },
           "PaymentDashstatusLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-              "LogGroupName": "/aws/lambda/payment-microservice-dev-payment-status"
+              "LogGroupName": "/aws/lambda/payment-service-dev-payment-status"
             }
           },
           "RemoveDashpaymentLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-              "LogGroupName": "/aws/lambda/payment-microservice-dev-remove-payment"
+              "LogGroupName": "/aws/lambda/payment-service-dev-remove-payment"
             }
           },
           "IamRoleLambdaExecution": {
@@ -95,7 +94,7 @@
                       "-",
                       [
                         "dev",
-                        "payment-microservice",
+                        "payment-service",
                         "lambda"
                       ]
                     ]
@@ -110,16 +109,16 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/payment-microservice-dev-cancel-payment:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/payment-service-dev-cancel-payment:*"
                           },
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/payment-microservice-dev-pay:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/payment-service-dev-pay:*"
                           },
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/payment-microservice-dev-payment-status:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/payment-service-dev-payment-status:*"
                           },
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/payment-microservice-dev-remove-payment:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/payment-service-dev-remove-payment:*"
                           }
                         ]
                       },
@@ -130,16 +129,16 @@
                         ],
                         "Resource": [
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/payment-microservice-dev-cancel-payment:*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/payment-service-dev-cancel-payment:*:*"
                           },
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/payment-microservice-dev-pay:*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/payment-service-dev-pay:*:*"
                           },
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/payment-microservice-dev-payment-status:*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/payment-service-dev-payment-status:*:*"
                           },
                           {
-                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/payment-microservice-dev-remove-payment:*:*"
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/payment-service-dev-remove-payment:*:*"
                           }
                         ]
                       },
@@ -155,7 +154,7 @@
                 "Fn::Join": [
                   "-",
                   [
-                    "payment-microservice",
+                    "payment-service",
                     "dev",
                     {
                       "Ref": "AWS::Region"
@@ -173,9 +172,9 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/payment-microservice/dev/1558606430573-2019-05-23T10:13:50.573Z/payment-microservice.zip"
+                "S3Key": "serverless/payment-service/dev/1558607361621-2019-05-23T10:29:21.621Z/payment-service.zip"
               },
-              "FunctionName": "payment-microservice-dev-cancel-payment",
+              "FunctionName": "payment-service-dev-cancel-payment",
               "Handler": "functions/cancel-payment.handler",
               "MemorySize": 1024,
               "Role": {
@@ -192,7 +191,7 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "CancelDashpaymentLambdaVersion362EghVhqhgfCXJniDEVZfTur8FJQ64qZ7giPad6q8": {
+          "CancelDashpaymentLambdaVersionbv0ly2qFPBxNanrZHFCFnKJHrI8QiIQVwgsOmkmyer4": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
@@ -209,9 +208,9 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/payment-microservice/dev/1558606430573-2019-05-23T10:13:50.573Z/payment-microservice.zip"
+                "S3Key": "serverless/payment-service/dev/1558607361621-2019-05-23T10:29:21.621Z/payment-service.zip"
               },
-              "FunctionName": "payment-microservice-dev-pay",
+              "FunctionName": "payment-service-dev-pay",
               "Handler": "functions/pay.handler",
               "MemorySize": 1024,
               "Role": {
@@ -228,7 +227,7 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "PayLambdaVersionvgmEvPPe6YZpmN8U8RU5orhDcJ31YdaSlLEFq3oFuE": {
+          "PayLambdaVersioncdUbOH8kwO92Pzcm6buSrouKOEkNmFgOMRL9Ma4": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
@@ -245,9 +244,9 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/payment-microservice/dev/1558606430573-2019-05-23T10:13:50.573Z/payment-microservice.zip"
+                "S3Key": "serverless/payment-service/dev/1558607361621-2019-05-23T10:29:21.621Z/payment-service.zip"
               },
-              "FunctionName": "payment-microservice-dev-payment-status",
+              "FunctionName": "payment-service-dev-payment-status",
               "Handler": "functions/payment-status.handler",
               "MemorySize": 1024,
               "Role": {
@@ -264,7 +263,7 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "PaymentDashstatusLambdaVersionVQ8CN6ee5GUvjkuAexwyOgON2NdZS4bpr090xlEYY1U": {
+          "PaymentDashstatusLambdaVersionMQQn7BNriwi0vGEBZTomm3nWOlTNYqElUd63ChvI0": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
@@ -281,9 +280,9 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/payment-microservice/dev/1558606430573-2019-05-23T10:13:50.573Z/payment-microservice.zip"
+                "S3Key": "serverless/payment-service/dev/1558607361621-2019-05-23T10:29:21.621Z/payment-service.zip"
               },
-              "FunctionName": "payment-microservice-dev-remove-payment",
+              "FunctionName": "payment-service-dev-remove-payment",
               "Handler": "functions/remove-payment.handler",
               "MemorySize": 1024,
               "Role": {
@@ -300,7 +299,7 @@
               "IamRoleLambdaExecution"
             ]
           },
-          "RemoveDashpaymentLambdaVersionKgkbsGss7MXlfA2QgGSrFIGF2yKuqZfvv8skVIgBI": {
+          "RemoveDashpaymentLambdaVersionJdRBrZtZGSPOxLIGcLXxkjAs5KSQ1HKYhXUDHUrVA": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
@@ -313,7 +312,7 @@
           "ApiGatewayRestApi": {
             "Type": "AWS::ApiGateway::RestApi",
             "Properties": {
-              "Name": "dev-payment-microservice",
+              "Name": "dev-payment-service",
               "EndpointConfiguration": {
                 "Types": [
                   "EDGE"
@@ -638,7 +637,7 @@
               "MethodResponses": []
             }
           },
-          "ApiGatewayDeployment1558606427016": {
+          "ApiGatewayDeployment1558607356823": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -873,25 +872,25 @@
           "CancelDashpaymentLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "CancelDashpaymentLambdaVersion362EghVhqhgfCXJniDEVZfTur8FJQ64qZ7giPad6q8"
+              "Ref": "CancelDashpaymentLambdaVersionbv0ly2qFPBxNanrZHFCFnKJHrI8QiIQVwgsOmkmyer4"
             }
           },
           "PayLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "PayLambdaVersionvgmEvPPe6YZpmN8U8RU5orhDcJ31YdaSlLEFq3oFuE"
+              "Ref": "PayLambdaVersioncdUbOH8kwO92Pzcm6buSrouKOEkNmFgOMRL9Ma4"
             }
           },
           "PaymentDashstatusLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "PaymentDashstatusLambdaVersionVQ8CN6ee5GUvjkuAexwyOgON2NdZS4bpr090xlEYY1U"
+              "Ref": "PaymentDashstatusLambdaVersionMQQn7BNriwi0vGEBZTomm3nWOlTNYqElUd63ChvI0"
             }
           },
           "RemoveDashpaymentLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "RemoveDashpaymentLambdaVersionKgkbsGss7MXlfA2QgGSrFIGF2yKuqZfvv8skVIgBI"
+              "Ref": "RemoveDashpaymentLambdaVersionJdRBrZtZGSPOxLIGcLXxkjAs5KSQ1HKYhXUDHUrVA"
             }
           },
           "ServiceEndpoint": {
@@ -971,7 +970,7 @@
             }
           }
         ],
-        "name": "payment-microservice-dev-cancel-payment",
+        "name": "payment-service-dev-cancel-payment",
         "package": {},
         "memory": 1024,
         "timeout": 6,
@@ -996,7 +995,7 @@
             }
           }
         ],
-        "name": "payment-microservice-dev-pay",
+        "name": "payment-service-dev-pay",
         "package": {},
         "memory": 1024,
         "timeout": 6,
@@ -1020,7 +1019,7 @@
             }
           }
         ],
-        "name": "payment-microservice-dev-payment-status",
+        "name": "payment-service-dev-payment-status",
         "package": {},
         "memory": 1024,
         "timeout": 6,
@@ -1044,7 +1043,7 @@
             }
           }
         ],
-        "name": "payment-microservice-dev-remove-payment",
+        "name": "payment-service-dev-remove-payment",
         "package": {},
         "memory": 1024,
         "timeout": 6,
@@ -1080,10 +1079,10 @@
       "Outputs": {}
     },
     "layers": {},
-    "artifact": "/Users/martijndeheus/Documents/Master/WDM/IN4331-Web-Data-Management/payment/.serverless/payment-microservice.zip"
+    "artifact": "/Users/martijndeheus/Documents/Master/WDM/IN4331-Web-Data-Management/payment/.serverless/payment-service.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/payment-microservice/dev/1558606430573-2019-05-23T10:13:50.573Z",
-    "artifact": "payment-microservice.zip"
+    "artifactDirectoryName": "serverless/payment-service/dev/1558607361621-2019-05-23T10:29:21.621Z",
+    "artifact": "payment-service.zip"
   }
 }

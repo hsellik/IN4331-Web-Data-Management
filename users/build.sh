@@ -23,8 +23,20 @@ elif [ "$1" = "deploy" ] && [ $# -eq 4 ]; then
   PROFILE=$4
 
   npm install
+  
+  # REPLACE PLACEHOLDER_REGION with REGION
+  cd functions
+  sed -i '.backup' "s/PLACEHOLDER_REGION/$REGION/g" *.js
+  cd ..
 
   AWS_PROFILE=$PROFILE "node_modules/.bin/sls" deploy -s $STAGE -r $REGION
+
+  # REPLACE REGION BACK TO PLACEHOLDER_REGION
+  cd functions
+  sed -i '.backup' "s/$REGION/PLACEHOLDER_REGION/g" *.js
+  rm *.backup
+  cd ..
+
 elif [ "$1" = "remove" ] && [ $# -eq 4 ]; then
   STAGE=$2
   REGION=$3

@@ -2,11 +2,11 @@
 const AWS = require('aws-sdk');
 const uuidv4 = require('uuid/v4');
 
-AWS.config.update({ region: "eu-north-1"});
+AWS.config.update({ region: "PLACEHOLDER_REGION"});
 
 exports.handler = async (event, context) => {
   const ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08"});
-  const documentClient = new AWS.DynamoDB.DocumentClient({ region: "eu-north-1"});
+  const documentClient = new AWS.DynamoDB.DocumentClient({ region: "PLACEHOLDER_REGION"});
 
   let responseBody = "";
   let statusCode = 0;

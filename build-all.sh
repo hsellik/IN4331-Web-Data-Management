@@ -24,6 +24,7 @@ elif [ "$1" = "deploy" ] && [ $# -eq 4 ]; then
 
   for service in $(find . -maxdepth 2 -type f -name serverless.yml -exec dirname {} \;)
   do
+    echo '------------- ADDING $service SERIVCE -------------'
     cd $service
     ./build.sh deploy $STAGE $REGION $PROFILE
     cd -
@@ -35,6 +36,7 @@ elif [ "$1" = "remove" ] && [ $# -eq 4 ]; then
 
   for service in $(find . -maxdepth 2 -type f -name serverless.yml -exec dirname {} \;)
   do
+    echo '------------- REMOVING $service SERIVCE -------------'
     cd $service
     ./build.sh remove $STAGE $REGION $PROFILE
     cd -
