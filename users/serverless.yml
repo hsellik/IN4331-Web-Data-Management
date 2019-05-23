@@ -18,11 +18,11 @@ provider:
         - arn:aws:dynamodb:${self:custom.region}:*:table/Users
 
 functions:
-    # -----------------------------
+  # -----------------------------
   # User functions
   # -----------------------------
   create-user:
-    handler: users/create-user.handler
+    handler: functions/create-user.handler
     events:
       - http:
           path: /users/create
@@ -31,7 +31,7 @@ functions:
           private: false
 
   remove-user:
-    handler: users/remove-user.handler
+    handler: functions/remove-user.handler
     events:
       - http:
           path: /users/remove/{user_id}
@@ -44,7 +44,7 @@ functions:
                 user_id: true
 
   find-user:
-    handler: users/find-user.handler
+    handler: functions/find-user.handler
     events:
       - http:
           path: /users/find/{user_id}
@@ -57,7 +57,7 @@ functions:
                 user_id: true
   
   credit:
-    handler: users/credit.handler
+    handler: functions/credit.handler
     events:
       - http:
           path: /users/credit/{user_id}
@@ -70,7 +70,7 @@ functions:
                 user_id: true
 
   credit-subtract:
-    handler: users/credit-subtract.handler
+    handler: functions/credit-subtract.handler
     events:
       - http:
           path: /users/credit/subtract/{user_id}/{amount}
@@ -84,7 +84,7 @@ functions:
                 amount: true
 
   credit-add:
-    handler: users/credit-add.handler
+    handler: functions/credit-add.handler
     events:
       - http:
           path: /users/credit/add/{user_id}/{amount}
@@ -96,7 +96,6 @@ functions:
               paths:
                 user_id: true
                 amount: true
-
 
 resources:
   Resources:
