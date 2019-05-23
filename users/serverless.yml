@@ -1,0 +1,115 @@
+service: lambda-saga
+
+custom:
+  region: ${opt:region, self:provider.region}
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+        - dynamodb:UpdateItem
+      Resource: 
+        - arn:aws:dynamodb:${self:custom.region}:*:table/Users
+
+functions:
+    # -----------------------------
+  # User functions
+  # -----------------------------
+  create-user:
+    handler: users/create-user.handler
+    events:
+      - http:
+          path: /users/create
+          method: POST
+          integration: lambda-proxy
+          private: false
+
+  remove-user:
+    handler: users/remove-user.handler
+    events:
+      - http:
+          path: /users/remove/{user_id}
+          method: DELETE
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+
+  find-user:
+    handler: users/find-user.handler
+    events:
+      - http:
+          path: /users/find/{user_id}
+          method: GET
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+  
+  credit:
+    handler: users/credit.handler
+    events:
+      - http:
+          path: /users/credit/{user_id}
+          method: GET
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+
+  credit-subtract:
+    handler: users/credit-subtract.handler
+    events:
+      - http:
+          path: /users/credit/subtract/{user_id}/{amount}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+                amount: true
+
+  credit-add:
+    handler: users/credit-add.handler
+    events:
+      - http:
+          path: /users/credit/add/{user_id}/{amount}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+                amount: true
+
+
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Users
+        AttributeDefinitions:
+          - AttributeName: User_ID
+            AttributeType: S
+        KeySchema:
+          - AttributeName: User_ID
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
