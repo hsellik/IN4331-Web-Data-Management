@@ -23,7 +23,7 @@ functions:
   # Order functions
   # -----------------------------
   create-order:
-    handler: orders/create-order.handler
+    handler: functions/create-order.handler
     events:
       - http:
           path: /orders/create/{user_id}
@@ -36,7 +36,7 @@ functions:
                 user_id: true
 
   find-order:
-    handler: orders/find-order.handler
+    handler: functions/find-order.handler
     events:
       - http:
           path: /orders/find/{order_id}
@@ -49,7 +49,7 @@ functions:
                 order_id: true
 
   remove-order:
-    handler: orders/remove-order.handler
+    handler: functions/remove-order.handler
     events:
       - http:
           path: /orders/remove/{order_id}
@@ -62,7 +62,7 @@ functions:
                 order_id: true
 
   add-item:
-    handler: orders/add-item.handler
+    handler: functions/add-item.handler
     events:
       - http:
           path: /orders/addItem/{order_id}/{item_id}
@@ -76,7 +76,7 @@ functions:
                 item_id: true
 
   remove-item:
-    handler: orders/remove-item.handler
+    handler: functions/remove-item.handler
     events:
       - http:
           path: /orders/removeItem/{order_id}/{item_id}
