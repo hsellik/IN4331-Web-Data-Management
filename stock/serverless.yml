@@ -1,4 +1,4 @@
-service: lambda-saga
+service: stock-microservice
 
 custom:
   region: ${opt:region, self:provider.region}
