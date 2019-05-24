@@ -14,6 +14,7 @@ exports.handler = async function(e, ctx) {
                 'Item_ID' : item.Item_ID
             },
             UpdateExpression: "SET quantity = quantity - :num",
+            ConditionExpression: "quantity >= :num",
             ExpressionAttributeValues:{
                 ":num": item.quantity
             },
@@ -22,7 +23,6 @@ exports.handler = async function(e, ctx) {
         return await dynamoDB.update(params).promise();
     }
 
-    // let data = Array(Item.length);
     var data;
     try {
         const promises = Item.items.map(subtract);

@@ -7,24 +7,25 @@ exports.handler = async function(e, ctx) {
     const order_id = ((e.path || {})['order_id']) || (e['order_id']);
     const Item = e['Item'];
 
-    let data = Array(Item.length);
+    async function add (item) {
+        var params = {
+            TableName: 'Stock',
+            Key: {
+                'Item_ID' : item.Item_ID
+            },
+            UpdateExpression: "SET quantity = quantity + :num",
+            ExpressionAttributeValues:{
+                ":num": item.quantity
+            },
+            ReturnValues: "ALL_NEW"
+        };
+        return await dynamoDB.update(params).promise();
+    }
+
+    var data;
     try {
-        let cnt = 0
-        Item.items.forEach(function(item) {
-            var params = {
-                TableName: 'Stock',
-                Key: {
-                    'Item_ID' : item.Item_ID
-                },
-                UpdateExpression: "SET quantity = quantity + :num",
-                ExpressionAttributeValues:{
-                    ":num": item.quantity
-                },
-                ReturnValues: "ALL_NEW"
-            };
-            data[cnt] = await dynamoDB.update(params).promise();
-            cnt += 1;
-        });
+        const promises = Item.items.map(add);
+        data = await Promise.all(promises);
 
         return {
             statusCode: 200,
