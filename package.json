@@ -1,22 +1,22 @@
 {
-    "name": "web-data-management",
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
-    "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "repository": {
-      "type": "git",
-      "url": "git+https://github.com/hsellik/IN4331-Web-Data-Management.git"
-    },
-    "author": "",
-    "license": "ISC",
-    "bugs": {
-      "url": "https://github.com/hsellik/IN4331-Web-Data-Management/issues"
-    },
-    "homepage": "https://github.com/hsellik/IN4331-Web-Data-Management#readme",
-    "devDependencies": {
-      "serverless": "^1.42.3"
-    }
+  "name": "web-data-management",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hsellik/IN4331-Web-Data-Management.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hsellik/IN4331-Web-Data-Management/issues"
+  },
+  "homepage": "https://github.com/hsellik/IN4331-Web-Data-Management#readme",
+  "devDependencies": {
+    "serverless": "^1.42.3"
   }
+}

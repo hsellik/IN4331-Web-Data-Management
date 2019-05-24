@@ -13,8 +13,9 @@ exports.handler = async function(e, ctx) {
         }
     };
 
+    var data;
     try {
-        const data = await dynamoDB.get(params).promise();
+        data = await dynamoDB.get(params).promise();
 
         return {
             statusCode: 200,

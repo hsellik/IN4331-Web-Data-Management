@@ -21,8 +21,9 @@ exports.handler = async function(e, ctx) {
         ReturnValues: "ALL_NEW"
     };
 
+    var data;
     try {
-        const data = await dynamoDB.update(params).promise();
+        data = await dynamoDB.update(params).promise();
 
         return {
             statusCode: 200,
