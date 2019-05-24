@@ -62,7 +62,7 @@ functions:
                 item_id: true
                 number: true
 
-  stock-add-from-failed-payment:
+  stock-return:
     handler: functions/stock-return.handler
     events:
       - http:
