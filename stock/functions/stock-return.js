@@ -1,4 +1,4 @@
-console.log('Subtract items from stock for order');
+console.log('Return item to stock');
 
 const AWS = require('aws-sdk');
 const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'PLACEHOLDER_REGION'});
@@ -16,7 +16,7 @@ exports.handler = async function(e, ctx) {
                 Key: {
                     'Item_ID' : item.Item_ID
                 },
-                UpdateExpression: "SET quantity = quantity - :num",
+                UpdateExpression: "SET quantity = quantity + :num",
                 ExpressionAttributeValues:{
                     ":num": item.quantity
                 },
@@ -30,7 +30,7 @@ exports.handler = async function(e, ctx) {
             statusCode: 200,
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
-                Message: "Successfully subtract items from stock of order " + order_id,
+                Message: "Successfully return items of order " + order_id,
                 Data: JSON.stringify(data)
             }),
         };
@@ -39,7 +39,7 @@ exports.handler = async function(e, ctx) {
             statusCode: 403,
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
-                Message: "Something wrong! Unable to subtract items from stock of order" + order_id,
+                Message: "Something wrong! Unable to return items of order" + order_id,
                 Data: JSON.stringify(data),
                 Error: err
             }),

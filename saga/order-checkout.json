@@ -4,7 +4,7 @@
   "States": {
     "Payment": {
       "Type": "Task",
-      "Resource": "{ADD ARN ROUTE HERE FOR STEP FUNCTION OF PAYMENT-PAY}",
+      "Resource": "arn:aws:lambda:us-east-1:{AccountID}:function:lambda-saga-dev-find-order",
       "Catch": [
         {
           "ErrorEquals": [
@@ -19,7 +19,7 @@
     },
     "SubtractStock": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:us-east-1:{AccountID}:function:lambda-saga-dev-{ADD ROUTE HERE}",
+      "Resource": "arn:aws:lambda:us-east-1:{AccountID}:function:lambda-saga-dev-",
       "Catch": [
         {
           "ErrorEquals": [
