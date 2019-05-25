@@ -3,6 +3,12 @@ console.log('Return item to stock');
 const AWS = require('aws-sdk');
 const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'PLACEHOLDER_REGION'});
 
+/**
+ * input: {
+ *     "order_id"   :   (from path), for console log
+ *     "Item"       :   (from output json), Item.items is an array of items
+ * }
+ */
 exports.handler = async function(e, ctx) {
     const order_id = ((e.path || {})['order_id']) || (e['order_id']);
     const Item = e['Item'];

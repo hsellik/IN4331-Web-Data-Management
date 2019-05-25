@@ -3,6 +3,11 @@ console.log('Check stock availability');
 const AWS = require('aws-sdk');
 const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'PLACEHOLDER_REGION'});
 
+/**
+ * input: {
+ *     "item_id"    :   (from path)
+ * }
+ */
 exports.handler = async function(e, ctx) {
     const item_id = ((e.path || {})['item_id']) || (e['item_id']);
 

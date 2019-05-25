@@ -4,6 +4,9 @@ const uuidv1 = require('uuid/v1');
 const AWS = require('aws-sdk');
 const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'PLACEHOLDER_REGION'});
 
+/**
+ * input: no input
+ */
 exports.handler = async function(e, ctx) {
     const item_id = uuidv1();
 
