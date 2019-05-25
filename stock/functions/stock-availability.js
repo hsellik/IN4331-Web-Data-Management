@@ -1,16 +1,15 @@
-console.log('Starting payment status function');
+console.log('Check stock availability');
 
 const AWS = require('aws-sdk');
-const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'us-east-1'});
+const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'PLACEHOLDER_REGION'});
 
 exports.handler = function(e, ctx, callback) {
+    let item_id = ((e.path || {})['item_id']) || (e['item_id']);
 
-    let order_id = ((e.path || {})['order_id']) || (e['order_id']);
-
-    const params = {
-        TableName: 'Payments',
+    var params = {
+        TableName: 'Stock',
         Key: {
-            'Order_ID' : order_id
+            'Item_ID' : item_id
         }
     };
 
@@ -29,8 +28,10 @@ exports.handler = function(e, ctx, callback) {
             };
             callback(null, result);
         } else {
-            const error = new Error("404 - Order not found");
+            const error = new Error("404 - Item not found");
             callback(error);
         }
+
     });
-};
+
+}

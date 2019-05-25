@@ -1,7 +1,7 @@
-console.log('Starting credit subtract function');
+console.log('Starting credit add function');
 
 const AWS = require('aws-sdk');
-const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'us-east-1'});
+const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'PLACEHOLDER_REGION'});
 
 exports.handler = async function(e, ctx) {
 
@@ -38,20 +38,12 @@ exports.handler = async function(e, ctx) {
                 headers: { "Content-type": "application/json" },
                 body: JSON.stringify({ Message: "credit not found in User item.", item: data.Item }),
             }
-        } else if (data.Item.credit < amount) {
-            return {
-                statusCode: 412,
-                headers: { "Content-type": "application/json" },
-                body: JSON.stringify({ Message: `Credit not sufficient; current credit: ${data.Item.credit}` }),
-            };
         } else {
             try {
                 const updateParams = {
                     TableName: 'Users',
                     Key: { User_ID: user_id },
-                    UpdateExpression: "SET credit = credit - :amount",
-                    ConditionExpression: "credit >= :amount",   // This is a sanity check, has been checked in code before
-                                                                // but something might have changed
+                    UpdateExpression: "SET credit = credit + :amount",
                     ExpressionAttributeValues: { ":amount": amount },
                     ReturnValues: "ALL_NEW"
                 }
@@ -68,7 +60,7 @@ exports.handler = async function(e, ctx) {
                     body: JSON.stringify({ Message: err }),
                 }
             }
-        } 
+        }
     } catch (err) {
         return {
             statusCode: 500,
