@@ -2,11 +2,12 @@
 const AWS = require('aws-sdk');
 const uuidv4 = require('uuid/v4');
 
-AWS.config.update({ region: "PLACEHOLDER_REGION"});
+const region = process.env.AWS_REGION;
+AWS.config.update({ region: region});
 
 exports.handler = async (event, context) => {
   const ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08"});
-  const documentClient = new AWS.DynamoDB.DocumentClient({ region: "PLACEHOLDER_REGION"});
+  const documentClient = new AWS.DynamoDB.DocumentClient({ region: region});
 
   let responseBody = "";
   let statusCode = 0;
@@ -40,8 +41,8 @@ exports.handler = async (event, context) => {
       statusCode = 200;
     }  
   } catch (err) {
-    console.log(err)
-    responseBody = "Something went wrong."
+    console.log(err);
+    responseBody = "Something went wrong.";
     statusCode = 403;
   }
   

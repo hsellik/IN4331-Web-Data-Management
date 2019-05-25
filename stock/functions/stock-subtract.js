@@ -1,7 +1,8 @@
 console.log('Subtract item from stock');
 
 const AWS = require('aws-sdk');
-const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'PLACEHOLDER_REGION'});
+const region = process.env.AWS_REGION;
+const dynamoDB = new AWS.DynamoDB.DocumentClient({region: region});
 
 exports.handler = function(e, ctx, callback) {
     let item_id = ((e.path || {})['item_id']) || (e['item_id']);
@@ -35,4 +36,4 @@ exports.handler = function(e, ctx, callback) {
             callback(null, result);
         }
     });
-}
+};
