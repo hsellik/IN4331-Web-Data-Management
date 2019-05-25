@@ -19,7 +19,7 @@ provider:
       Resource:
         - arn:aws:dynamodb:${self:custom.region}:*:table/Payments
 
-
+functions:
   # -----------------------------
   # Payment functions
   # -----------------------------
@@ -79,6 +79,9 @@ provider:
 
 resources:
   Resources:
+    # -----------------------------
+    # Payment table
+    # -----------------------------
     paymentTable:
         Type: AWS::DynamoDB::Table
         Properties:
