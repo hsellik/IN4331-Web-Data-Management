@@ -1,7 +1,8 @@
 console.log('Starting pay function');
 
 const AWS = require('aws-sdk');
-const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'PLACEHOLDER_REGION'});
+const region = process.env.AWS_REGION;
+const dynamoDB = new AWS.DynamoDB.DocumentClient({region: region});
 
 exports.handler = async function (e, ctx) {
 
@@ -44,7 +45,6 @@ exports.handler = async function (e, ctx) {
             },
             body: JSON.stringify({
                 Message: "Order has already been paid for! ID: " + order_id,
-                Data: JSON.stringify(data),
                 Error: err
             }),
         };
