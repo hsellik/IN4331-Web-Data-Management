@@ -11,96 +11,12 @@ provider:
   iamRoleStatements:
     - Effect: Allow
       Action:
-<<<<<<< HEAD:serverless.yml
         - dynamodb:GetItem
-        - dynamodb:PutItem
-=======
->>>>>>> Make payment functions return proper error codes:payment/serverless.yml
         - dynamodb:DeleteItem
         - dynamodb:UpdateItem
-        - dynamodb:GetItem
       Resource:
         - arn:aws:dynamodb:${self:custom.region}:*:table/Payments
 
-functions:
-  # -----------------------------
-  # User functions
-  # -----------------------------
-  create-user:
-    handler: users/create-user.handler
-    events:
-      - http:
-          path: /users/create
-          method: POST
-          integration: lambda-proxy
-          private: false
-
-  remove-user:
-    handler: users/remove-user.handler
-    events:
-      - http:
-          path: /users/remove/{user_id}
-          method: DELETE
-          integration: lambda-proxy
-          private: false
-          request:
-            parameters:
-              paths:
-                user_id: true
-
-  find-user:
-    handler: users/find-user.handler
-    events:
-      - http:
-          path: /users/find/{user_id}
-          method: GET
-          integration: lambda-proxy
-          private: false
-          request:
-            parameters:
-              paths:
-                user_id: true
-  
-  credit:
-    handler: users/credit.handler
-    events:
-      - http:
-          path: /users/credit/{user_id}
-          method: GET
-          integration: lambda-proxy
-          private: false
-          request:
-            parameters:
-              paths:
-                user_id: true
-
-  credit-subtract:
-    handler: users/credit-subtract.handler
-    events:
-      - http:
-          path: /users/credit/subtract/{user_id}/{amount}
-          method: POST
-          integration: lambda-proxy
-          private: false
-          request:
-            parameters:
-              paths:
-                user_id: true
-                amount: true
-
-  credit-add:
-    handler: users/credit-add.handler
-    events:
-      - http:
-          path: /users/credit/add/{user_id}/{amount}
-          method: POST
-          integration: lambda-proxy
-          private: false
-          request:
-            parameters:
-              paths:
-                user_id: true
-                amount: true
 
   # -----------------------------
   # Payment functions
@@ -161,51 +77,6 @@ functions:
 
 resources:
   Resources:
-<<<<<<< HEAD:serverless.yml
-    usersTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: Users
-        AttributeDefinitions:
-          - AttributeName: User_ID
-            AttributeType: S
-        KeySchema:
-          - AttributeName: User_ID
-            KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
-
-    orderTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: Orders
-        AttributeDefinitions:
-          - AttributeName: ID
-            AttributeType: S
-        KeySchema:
-          - AttributeName: ID
-            KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
-
-    stockTable:
-       Type: AWS::DynamoDB::Table
-       Properties:
-         TableName: Stock
-         AttributeDefinitions:
-           - AttributeName: Item_ID
-             AttributeType: S
-         KeySchema:
-           - AttributeName: Item_ID
-             KeyType: HASH
-         ProvisionedThroughput:
-           ReadCapacityUnits: 1
-           WriteCapacityUnits: 1
-
-=======
->>>>>>> Make payment functions return proper error codes:payment/serverless.yml
     paymentTable:
         Type: AWS::DynamoDB::Table
         Properties:
@@ -216,6 +87,4 @@ resources:
           KeySchema:
             - AttributeName: Order_ID
               KeyType: HASH
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
+          BillingMode: PAY_PER_REQUEST
