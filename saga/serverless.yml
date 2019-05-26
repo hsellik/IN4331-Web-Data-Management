@@ -28,6 +28,7 @@ stepFunctions:
         - http:
             path: orders/find/{order_id}
             method: GET
+            private: false
             request:
               template:
                 application/json: |                  
@@ -35,6 +36,9 @@ stepFunctions:
                     "input" : "{ \"order_id\": \"$input.params('order_id')\" }",
                     "stateMachineArn":"arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:FindOrderStateMachine"
                   }
+              parameters:
+                paths:
+                  order_id: true
       definition:
         Comment: "Applying the Saga pattern for the find endpoint of the order microservice"
         StartAt: PaymentStatus
