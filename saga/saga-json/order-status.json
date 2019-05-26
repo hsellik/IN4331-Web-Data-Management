@@ -5,6 +5,8 @@
     "PaymentStatus": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:us-east-1:117328278478:function:payment-service-dev-payment-status",
+      "TimeoutSeconds": 200,
+      "HeartbeatSeconds": 60,
       "Catch": [
         {
           "ErrorEquals": [
@@ -19,6 +21,8 @@
     },
     "PaymentResultStatusCode": {
       "Type": "Choice",
+      "TimeoutSeconds": 200,
+      "HeartbeatSeconds": 60,
       "Choices": [
         {
           "Or": [
@@ -26,7 +30,7 @@
               "Variable": "$.PaymentStatusResult.statusCode",
               "NumericEquals": 200
             },
-            {  
+            {
               "Variable": "$.PaymentStatusResult.statusCode",
               "NumericEquals": 404
             }
@@ -39,6 +43,8 @@
     "OrderStatus": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:us-east-1:117328278478:function:orders-microservice-dev-find-order",
+      "TimeoutSeconds": 200,
+      "HeartbeatSeconds": 60,
       "Catch": [
         {
           "ErrorEquals": [

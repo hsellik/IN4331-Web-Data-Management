@@ -5,6 +5,8 @@
     "Pay": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:us-east-1:{AccountID}:function:lambda-saga-dev-pay",
+      "TimeoutSeconds": 200,
+      "HeartbeatSeconds": 60,
       "Catch": [
         {
           "ErrorEquals": [
@@ -20,6 +22,8 @@
     "FindOrder": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:us-east-1:{AccountID}:function:lambda-saga-dev-{ADD ROUTE HERE}",
+      "TimeoutSeconds": 200,
+      "HeartbeatSeconds": 60,
       "Catch": [
         {
           "ErrorEquals": [
@@ -35,6 +39,8 @@
     "SubtractUserCredit": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:us-east-1:{AccountID}:function:lambda-saga-dev-{ADD ROUTE HERE}",
+      "TimeoutSeconds": 200,
+      "HeartbeatSeconds": 60,
       "Catch": [
         {
           "ErrorEquals": [
@@ -50,6 +56,8 @@
     "CancelPayment": {
       "Type": "Task",
       "Resource": "arn:aws:lambda:us-east-1:{AccountID}:function:lambda-saga-dev-remove-payment",
+      "TimeoutSeconds": 200,
+      "HeartbeatSeconds": 60,
       "Catch": [
         {
           "ErrorEquals": [
