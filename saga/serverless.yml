@@ -7,8 +7,6 @@ plugins:
 provider:
   name: aws
   runtime: nodejs8.10
-  stage: dev
-  region: us-east-1  
 
   iamRoleStatements:
     - Effect: "Allow"
@@ -25,6 +23,18 @@ provider:
 stepFunctions:
   stateMachines: 
     FindOrder:
+      name: FindOrderStateMachine
+      events:
+        - http:
+            path: orders/find/{order_id}
+            method: GET
+            request:
+              template:
+                application/json: |                  
+                  {
+                    "input" : "{ \"order_id\": \"$input.params('order_id')\" }",
+                    "stateMachineArn":"arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:FindOrderStateMachine"
+                  }
       definition:
         Comment: "Applying the Saga pattern for the find endpoint of the order microservice"
         StartAt: PaymentStatus
