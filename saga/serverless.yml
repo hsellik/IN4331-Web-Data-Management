@@ -1,4 +1,4 @@
-service: mediocre-saga-sample 
+service: saga-service 
 
 plugins:
   - serverless-step-functions
@@ -7,6 +7,8 @@ plugins:
 provider:
   name: aws
   runtime: nodejs8.10
+  stage: dev
+  region: us-east-1  
 
   iamRoleStatements:
     - Effect: "Allow"
@@ -19,29 +21,42 @@ provider:
         - "states:StartExecution"
         - "states:GetExecutionHistory"
       Resource: "arn:aws:states:*:*:*"
+
 stepFunctions:
   stateMachines: 
-    GetDepartureMachine:
+    FindOrder:
       definition:
-        Comment: "Get Departure information"
-        StartAt: Parallel
+        Comment: "Applying the Saga pattern for the find endpoint of the order microservice"
+        StartAt: PaymentStatus
         States:
-          Parallel:
-            Type: Parallel
-            Next: FinalState
-            Branches:
-              - StartAt: GetFlight
-                States:
-                  GetFlight:
-                    Type: Task
-                    Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-get-flight
-                    End: true
-              - StartAt: GetForecast
-                States:
-                  GetForecast:
-                    Type: Task
-                    Resource: arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-get-forecast
-                    End: true
-          FinalState:
-            Type: Pass
+          PaymentStatus:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:payment-service-${opt:stage}-payment-status"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.PaymentStatusError"
+              Next: Fail
+            ResultPath: "$.PaymentStatusResult"
+            Next: PaymentResultStatusCode
+          PaymentResultStatusCode:
+            Type: Choice
+            Choices:
+            - Or:
+              - Variable: "$.PaymentStatusResult.statusCode"
+                NumericEquals: 200
+              - Variable: "$.PaymentStatusResult.statusCode"
+                NumericEquals: 404
+              Next: OrderStatus
+            Default: Fail
+          OrderStatus:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:orders-microservice-${opt:stage}-find-order"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.OrderStatusError"
+              Next: Fail
+            ResultPath: "$.OrderStatusResult"
+            End: true
+          Fail:
+            Type: Fail
 End: true

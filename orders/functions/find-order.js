@@ -10,13 +10,21 @@ exports.handler = async (event, context) => {
 
   let responseBody = "";
   let statusCode = 0;
+  let responseHeaders = { "Content-Type": "application/json" };
 
-  const order_id = ((event.pathParameters || {})['order_id']) || (event.order_id);
+  const orderId = ((event.pathParameters || {})['order_id']) || (event.order_id);
+  const paymentStatusCode = ((event.PaymentStatusResult.statusCode)) || 404;
+  
+  let paymentSuccessful = false;
+  if (paymentStatusCode === 200) {
+    const response = JSON.parse(event.PaymentStatusResult.body);
+    paymentSuccessful = response.Data.isPaid;
+  }
 
   const searchParams = {
     TableName: "Orders",
     Key: {
-      Order_ID: order_id
+      Order_ID: orderId
     }
   };
 
@@ -24,20 +32,24 @@ exports.handler = async (event, context) => {
     const data = await documentClient.get(searchParams).promise();
     if (data.Item) {
       statusCode = 200;
-      responseBody = JSON.stringify(data);
+      responseBody = JSON.stringify({
+        ...data,
+        isPaid: paymentSuccessful,
+      });
     } else {
       statusCode = 404;
       responseBody = JSON.stringify({ Message: 'Could not find order' });
     }  
   } catch (err) {
     console.log(err);
-    responseBody = "Something went wrong.";
-    statusCode = 403;
+    responseBody = JSON.stringify({ Message: "Something went wrong" });
+    statusCode = 500;
   }
   
   const response = { 
     statusCode: statusCode,
-    body: responseBody
+    headers: responseHeaders,
+    body: responseBody,
   };
   
   return response;

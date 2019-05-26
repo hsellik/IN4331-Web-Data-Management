@@ -15,14 +15,22 @@
         }
       ],
       "ResultPath": "$.PaymentStatusResult",
-      "Next": "OrderStatus"
+      "Next": "PaymentResultStatusCode"
     },
     "PaymentResultStatusCode": {
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$.PaymentStatusResult.statusCode",
-          "NumericEquals": "200",
+          "Or": [
+            {
+              "Variable": "$.PaymentStatusResult.statusCode",
+              "NumericEquals": 200
+            },
+            {  
+              "Variable": "$.PaymentStatusResult.statusCode",
+              "NumericEquals": 404
+            }
+          ],
           "Next": "OrderStatus"
         }
       ],

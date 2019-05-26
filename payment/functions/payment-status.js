@@ -34,7 +34,7 @@ exports.handler = async function(e, ctx) {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     Message: "Payment successful",
-                    Data: JSON.stringify(data)
+                    Data: data
                 }),
             };
         }
