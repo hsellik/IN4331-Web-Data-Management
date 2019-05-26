@@ -4,7 +4,7 @@
   "States": {
     "PaymentStatus": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:us-east-1:{AccountID}:function:lambda-saga-dev-{ADD ROUTE HERE}",
+      "Resource": "arn:aws:lambda:us-east-1:117328278478:function:payment-service-dev-payment-status",
       "Catch": [
         {
           "ErrorEquals": [
@@ -15,11 +15,22 @@
         }
       ],
       "ResultPath": "$.PaymentStatusResult",
-      "Next": "RemoveOrder"
+      "Next": "OrderStatus"
+    },
+    "PaymentResultStatusCode": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.PaymentStatusResult.statusCode",
+          "NumericEquals": "200",
+          "Next": "OrderStatus"
+        }
+      ],
+      "Default": "Fail"
     },
     "OrderStatus": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:us-east-1:{AccountID}:function:lambda-saga-dev-{ADD ROUTE HERE}",
+      "Resource": "arn:aws:lambda:us-east-1:117328278478:function:orders-microservice-dev-find-order",
       "Catch": [
         {
           "ErrorEquals": [

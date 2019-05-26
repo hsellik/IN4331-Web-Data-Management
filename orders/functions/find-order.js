@@ -1,6 +1,5 @@
 'use strict';
 const AWS = require('aws-sdk');
-const uuidv4 = require('uuid/v4');
 
 const region = process.env.AWS_REGION;
 AWS.config.update({ region: region});
@@ -12,13 +11,12 @@ exports.handler = async (event, context) => {
   let responseBody = "";
   let statusCode = 0;
 
-  const uuid = uuidv4();
-  const { user_id } = event.pathParameters;
+  const order_id = ((event.pathParameters || {})['order_id']) || (event.order_id);
 
   const searchParams = {
     TableName: "Orders",
     Key: {
-      Order_ID: uuid
+      Order_ID: order_id
     }
   };
 
@@ -28,7 +26,8 @@ exports.handler = async (event, context) => {
       statusCode = 200;
       responseBody = JSON.stringify(data);
     } else {
-      throw 'Could not find ID.';
+      statusCode = 404;
+      responseBody = JSON.stringify({ Message: 'Could not find order' });
     }  
   } catch (err) {
     console.log(err);
