@@ -1,4 +1,4 @@
-console.log('Subtract items from stock for order');
+console.log('Return item to stock');
 
 const AWS = require('aws-sdk');
 const region = process.env.AWS_REGION;
@@ -14,16 +14,13 @@ exports.handler = async function(e, ctx) {
     const order_id = ((e.path || {})['order_id']) || (e['order_id']);
     const Item = e['Item'];
 
-    // TO DO: Get the availability of all items before trying to subtract because
-    //        it would still subtract items that available even though some items are not.
-    async function subtract (item) {
+    async function add (item) {
         var params = {
             TableName: 'Stock',
             Key: {
                 'Item_ID' : item.Item_ID
             },
-            UpdateExpression: "SET quantity = quantity - :num",
-            ConditionExpression: "quantity >= :num",
+            UpdateExpression: "SET quantity = quantity + :num",
             ExpressionAttributeValues:{
                 ":num": item.quantity
             },
@@ -34,14 +31,14 @@ exports.handler = async function(e, ctx) {
 
     var data;
     try {
-        const promises = Item.items.map(subtract);
+        const promises = Item.items.map(add);
         data = await Promise.all(promises);
 
         return {
             statusCode: 200,
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
-                Message: "Successfully subtract items from stock of order " + order_id,
+                Message: "Successfully return items of order " + order_id,
                 Data: JSON.stringify(data)
             }),
         };
@@ -50,7 +47,7 @@ exports.handler = async function(e, ctx) {
             statusCode: 403,
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
-                Message: "Something wrong! Unable to subtract items from stock of order" + order_id,
+                Message: "Something wrong! Unable to return items of order" + order_id,
                 Data: JSON.stringify(data),
                 Error: err
             }),
