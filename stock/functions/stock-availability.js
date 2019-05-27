@@ -1,7 +1,8 @@
 console.log('Check stock availability');
 
 const AWS = require('aws-sdk');
-const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'PLACEHOLDER_REGION'});
+const region = process.env.AWS_REGION;
+const dynamoDB = new AWS.DynamoDB.DocumentClient({region: region});
 
 /**
  * input: {
