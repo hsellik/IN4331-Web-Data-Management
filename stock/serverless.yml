@@ -28,7 +28,7 @@ functions:
       - http:
           path: /stock/availability/{item_id}
           method: GET
-          integration: lambda
+          integration: lambda-proxy
           private: false
           request:
             parameters:
@@ -41,7 +41,7 @@ functions:
       - http:
           path: /stock/subtract/{item_id}/{number}
           method: POST
-          integration: lambda
+          integration: lambda-proxy
           private: false
           request:
             parameters:
@@ -55,7 +55,7 @@ functions:
       - http:
           path: /stock/add/{item_id}/{number}
           method: POST
-          integration: lambda
+          integration: lambda-proxy
           private: false
           request:
             parameters:
@@ -69,7 +69,7 @@ functions:
       - http:
           path: /stock/item/create/
           method: POST
-          integration: lambda
+          integration: lambda-proxy
           private: false
 
 

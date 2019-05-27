@@ -45,7 +45,7 @@ stepFunctions:
         States:
           PaymentStatus:
             Type: Task
-            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:payment-service-${opt:stage}-payment-status"
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:payment-microservice-${opt:stage}-payment-status"
             Catch:
             - ErrorEquals: ["States.ALL"]
               ResultPath: "$.PaymentStatusError"
@@ -73,4 +73,57 @@ stepFunctions:
             End: true
           Fail:
             Type: Fail
+    OrderAddItem:
+      name: OrderAddItemStateMachine
+      events:
+        - http:
+            path: orders/addItem/{order_id}/{item_id}
+            method: POST
+            private: false
+            request:
+              template:
+                application/json: |                  
+                  {
+                    "input" : "{ \"order_id\": \"$input.params('order_id')\", \"item_id\": \"$input.params('item_id')\" }",
+                    "stateMachineArn":"arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:OrderAddItemStateMachine"
+                  }
+              parameters:
+                paths:
+                  order_id: true
+                  item_id: true
+      definition:
+        Comment: "Applying the Saga pattern for the addItem endpoint of the order microservice"
+        StartAt: StockAvailability
+        States:
+          StockAvailability:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:stock-microservice-${opt:stage}-stock-availability"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.StockAvailabilityError"
+              Next: Fail
+            ResultPath: "$.StockAvailabilityResult"
+            Next: StockAvailabilityStatusCode
+          StockAvailabilityStatusCode:
+            Type: Choice
+            Choices:
+            - Or:
+              - Variable: "$.StockAvailabilityResult.statusCode"
+                NumericEquals: 200
+              - Variable: "$.StockAvailabilityResult.statusCode"
+                NumericEquals: 404
+              Next: OrderAddItem
+            Default: Fail
+          OrderAddItem:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:orders-microservice-${opt:stage}-add-item"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.OrderAddItemError"
+              Next: Fail
+            ResultPath: "$.OrderAddItemResult"
+            End: true
+          Fail:
+            Type: Fail
+            
 End: true

@@ -4,35 +4,37 @@ const AWS = require('aws-sdk');
 const region = process.env.AWS_REGION;
 const dynamoDB = new AWS.DynamoDB.DocumentClient({region: region});
 
-exports.handler = function(e, ctx, callback) {
-    let item_id = ((e.path || {})['item_id']) || (e['item_id']);
+exports.handler = async function(e, ctx) {
+    let item_id = ((e.pathParameters || {})['item_id']) || (e.item_id);
 
-    var params = {
+    const params = {
         TableName: 'Stock',
         Key: {
             'Item_ID' : item_id
         }
     };
 
-    dynamoDB.get(params, function(err, data) {
-        if(err) {
-            callback(err);
-            return;
-        }
-
-        if (Object.keys(data).length) {
-            const result = {
-                "statusCode": 200,
-                "headers": {},
-                "body": JSON.stringify(data),
-                "isBase64Encoded": false
-            };
-            callback(null, result);
+    try {
+        const data = await dynamoDB.get(params);
+        if (data.Item == null) {
+            return {
+                statusCode: 404,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ Message: data })
+            }
         } else {
-            const error = new Error("404 - Item not found");
-            callback(error);
+            return {
+                statusCode: 200,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data.Item)
+            };
         }
-
-    });
+    } catch (err) {
+        return {
+            statusCode: 500,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ Message: err })
+        }
+    }
 
 };

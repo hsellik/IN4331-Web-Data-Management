@@ -12,13 +12,28 @@ exports.handler = async (event, context) => {
   let responseBody = "";
   let statusCode = 0;
 
-  const { order_id } = event.pathParameters;
-  const { item_id } = event.pathParameters;
+  const orderId = ((event.pathParameters || {})['order_id']) || (event.order_id);
+  const itemId = ((event.pathParameters || {})['item_id']) || (event.item_id);
+  const stockAvailabilityStatusCode = ((event.StockAvailabilityResult.statusCode)) || 404;
+  
+  let itemAvailable = false;
+  if (stockAvailabilityStatusCode === 200) {
+    const response = JSON.parse(event.StockAvailabilityResult.body);
+    itemAvailable = (response.quantity > 0);
+  }
+
+  if (!itemAvailable) {
+    return {
+      statusCode: 412,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ Message: "Item is not available" })
+    }
+  }
 
   const searchParams = {
     TableName: "Orders",
     Key: {
-      Order_ID: order_id
+      Order_ID: orderId
     }
   };
 
@@ -27,17 +42,17 @@ exports.handler = async (event, context) => {
     if (data.Item) {
       let found = false;
       data.Item.items.forEach(function(entry) {
-        if (entry.Order_ID == item_id) {
+        if (entry.Order_ID == itemId) {
           entry.quantity += 1;
           found = true;
         }
       });
       if (found == false) {
-        data.Item.items.push({ Item_ID: item_id, quantity: 1 })
+        data.Item.items.push({ Item_ID: itemId, quantity: 1 })
       };
       const updateParams = {
         TableName: 'Orders',
-        Key: { Order_ID: order_id },
+        Key: { Order_ID: orderId },
         ReturnValues: 'UPDATED_NEW',
         UpdateExpression: 'set #items = :newList',
         ExpressionAttributeNames: {
