@@ -1,11 +1,12 @@
 'use strict';
 const AWS = require('aws-sdk');
 
-AWS.config.update({ region: "PLACEHOLDER_REGION"});
+const region = process.env.AWS_REGION;
+AWS.config.update({ region: region});
 
 exports.handler = async (event, context) => {
   const ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08"});
-  const documentClient = new AWS.DynamoDB.DocumentClient({ region: "PLACEHOLDER_REGION"});
+  const documentClient = new AWS.DynamoDB.DocumentClient({ region: region});
 
   let responseBody = "";
   let statusCode = 0;
@@ -24,7 +25,7 @@ exports.handler = async (event, context) => {
     responseBody = order_id;
     statusCode = 200;
   } catch (err) {
-    responseBody = "Something went wrong."
+    responseBody = "Something went wrong.";
     statusCode = 403;
   }
   

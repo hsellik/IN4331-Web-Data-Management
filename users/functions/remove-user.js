@@ -1,7 +1,8 @@
 console.log('Starting remove user function');
 
 const AWS = require('aws-sdk');
-const dynamoDB = new AWS.DynamoDB.DocumentClient({region: 'PLACEHOLDER_REGION'});
+const region = process.env.AWS_REGION;
+const dynamoDB = new AWS.DynamoDB.DocumentClient({region: region});
 
 exports.handler = async function(e, ctx) {
 
