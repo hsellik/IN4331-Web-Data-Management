@@ -153,7 +153,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/payment-service/dev/1558739403252-2019-05-24T23:10:03.252Z/payment-service.zip"
+          "S3Key": "serverless/payment-service/dev/1558740631319-2019-05-24T23:30:31.319Z/payment-service.zip"
         },
         "FunctionName": "payment-service-dev-cancel-payment",
         "Handler": "functions/cancel-payment.handler",
@@ -189,7 +189,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/payment-service/dev/1558739403252-2019-05-24T23:10:03.252Z/payment-service.zip"
+          "S3Key": "serverless/payment-service/dev/1558740631319-2019-05-24T23:30:31.319Z/payment-service.zip"
         },
         "FunctionName": "payment-service-dev-pay",
         "Handler": "functions/pay.handler",
@@ -225,7 +225,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/payment-service/dev/1558739403252-2019-05-24T23:10:03.252Z/payment-service.zip"
+          "S3Key": "serverless/payment-service/dev/1558740631319-2019-05-24T23:30:31.319Z/payment-service.zip"
         },
         "FunctionName": "payment-service-dev-payment-status",
         "Handler": "functions/payment-status.handler",
@@ -261,7 +261,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/payment-service/dev/1558739403252-2019-05-24T23:10:03.252Z/payment-service.zip"
+          "S3Key": "serverless/payment-service/dev/1558740631319-2019-05-24T23:30:31.319Z/payment-service.zip"
         },
         "FunctionName": "payment-service-dev-remove-payment",
         "Handler": "functions/remove-payment.handler",
@@ -618,7 +618,7 @@
         "MethodResponses": []
       }
     },
-    "ApiGatewayDeployment1558739398498": {
+    "ApiGatewayDeployment1558740625932": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
