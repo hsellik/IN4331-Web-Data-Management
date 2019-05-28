@@ -22,10 +22,15 @@ Example
 * `./build-all.sh remove dev us-east-1 default`
 ## Configuration
 * Config database settings in `db.config` under each microservice directory.
-  * `DB_IDENTIFIER`
+  * `DB_IDENTIFIER` (a unique DB instance ID)
   * `PGPORT`
   * `PGDATABASE`
-  * `PGUSER=master`
+  * `PGUSER`
   * `PGPASSWORD`
   * `TABLE_NAME`
-  * `CREATE_TABLE`
+  * `DBINSTANCE_CLASS` (EC2 machine configuration)
+  * `CREATE_TABLE` (not completely implemented, table only for stock functions are done)
+## TODO
+* Complete `CREATE_TABLE` for other microservices.
+* Test the deployment script for other microservices.
+* Migrate DynamoDB to PostGreSql and test the functionalities.

@@ -1,4 +1,4 @@
-service: postgres-stock-microservice
+service: postgres-orders-microservice
 
 package:
   excludeDevDependencies: false
@@ -22,69 +22,74 @@ provider:
 
 functions:
   # -----------------------------
-  # Stock functions
+  # Order functions
   # -----------------------------
-  stock-availability:
-    handler: functions/stock-availability.handler
+  create-order:
+    handler: functions/create-order.handler
     events:
       - http:
-          path: /stock/availability/{item_id}
+          path: /orders/create/{user_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+
+  find-order:
+    handler: functions/find-order.handler
+    events:
+      - http:
+          path: /orders/find/{order_id}
           method: GET
-          integration: lambda
+          integration: lambda-proxy
           private: false
           request:
             parameters:
               paths:
-                item_id: true
+                order_id: true
 
-  # stock-subtract:
-  #   handler: functions/stock-subtract.handler
-  #   events:
-  #     - http:
-  #         path: /stock/subtract/{order_id}
-  #         method: POST
-  #         integration: lambda
-  #         private: false
-  #         request:
-  #           parameters:
-  #             paths:
-  #               order_id: true
-
-  stock-add:
-    handler: functions/stock-add.handler
+  remove-order:
+    handler: functions/remove-order.handler
     events:
       - http:
-          path: /stock/add/{item_id}/{number}
-          method: POST
-          integration: lambda
+          path: /orders/remove/{order_id}
+          method: DELETE
+          integration: lambda-proxy
           private: false
           request:
             parameters:
               paths:
-                item_id: true
-                number: true
+                order_id: true
 
-  # stock-return:
-  #   handler: functions/stock-return.handler
-  #   events:
-  #     - http:
-  #         path: /stock/return/{order_id}
-  #         method: POST
-  #         integration: lambda
-  #         private: false
-  #         request:
-  #           parameters:
-  #             paths:
-  #               order_id: true
-
-  stock-create:
-    handler: functions/stock-create.handler
+  add-item:
+    handler: functions/add-item.handler
     events:
       - http:
-          path: /stock/item/create/
+          path: /orders/addItem/{order_id}/{item_id}
           method: POST
-          integration: lambda
+          integration: lambda-proxy
           private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+                item_id: true
+
+  remove-item:
+    handler: functions/remove-item.handler
+    events:
+      - http:
+          path: /orders/removeItem/{order_id}/{item_id}
+          method: DELETE
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+                item_id: true
 
 resources:
   Resources:

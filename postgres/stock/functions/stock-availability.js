@@ -1,13 +1,14 @@
-console.log("Create new item in stock");
+console.log('Check stock availability');
 
-const uuidv1 = require('uuid/v1');
 const { Pool, Client } = require('pg')
 
 /**
- * input: no input
+ * input: {
+ *     "item_id"    :   (from path)
+ * }
  */
-exports.handler = async function (e, ctx) {
-    const item_id = uuidv1();
+exports.handler = async function(e, ctx) {
+    const item_id = ((e.path || {})['item_id']) || (e['item_id']);
 
     const pool = new Pool({
         host: process.env.PGHOST,
@@ -16,30 +17,30 @@ exports.handler = async function (e, ctx) {
         password: process.env.PGPASSWORD,
         port: process.env.PGPORT,
     });
-    
-    const query = {
-        text: 'INSERT INTO Stock(item_id) VALUES($1) RETURNING *',
+
+    const selectQuery = {
+        text: 'SELECT * FROM Stock WHERE item_id = $1',
         values: [item_id],
     };
 
     var data;
     try {
-        data = await pool.query(query);
+        data = await pool.query(selectQuery);
 
         return {
             statusCode: 200,
-            headers: { "Content-Type": "application/json" },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
-                Message: "Successfully create item " + item_id,
+                Message: "Successfully get availability of item " + item_id,
                 Data: JSON.stringify(data.rows)
             }),
         };
     } catch (err) {
         return {
             statusCode: 403,
-            headers: { "Content-Type": "application/json" },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
-                Message: "Unable to create item.",
+                Message: "Something wrong! No " + item_id + " in the stock.",
                 Data: JSON.stringify(data.rows),
                 Error: err
             }),
