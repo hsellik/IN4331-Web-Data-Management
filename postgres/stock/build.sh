@@ -100,9 +100,7 @@ elif [ "$1" = "remove" ] && [ $# -eq 4 ]; then
   if [ -z $PGHOST ]
   then
       echo "Instance $DB_IDENTIFIER does not exist!"
-  else
-      echo "Instance $DB_IDENTIFIER exists!"
-      
+  else∂
       # if the env PGHOST is set which means it's not the first deployment,
       # then we have to replace db env variable to with placeholder for next deployment
       if grep -q $PGHOST "serverless.yml"; then

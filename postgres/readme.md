@@ -31,6 +31,6 @@ Example
   * `DBINSTANCE_CLASS` (EC2 machine configuration)
   * `CREATE_TABLE` (not completely implemented, table only for stock functions are done)
 ## TODO
-* Complete `CREATE_TABLE` for other microservices.
-* Test the deployment script for other microservices.
-* Migrate DynamoDB to PostGreSql and test the functionalities.
+* Complete `CREATE_TABLE` for other microservices. **Done.**
+* Test the deployment script for other microservices. **Stock and orders tested**
+* Migrate DynamoDB to PostGreSql and test the functionalities. **On progress**
