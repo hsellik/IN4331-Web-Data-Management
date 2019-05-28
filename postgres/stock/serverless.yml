@@ -1,0 +1,134 @@
+service: stock-microservice
+
+custom:
+  region: ${opt:region, self:provider.region}
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+  region: us-east-1
+
+functions:
+  # -----------------------------
+  # Stock functions
+  # -----------------------------
+  # stock-availability:
+  #   handler: functions/stock-availability.handler
+  #   events:
+  #     - http:
+  #         path: /stock/availability/{item_id}
+  #         method: GET
+  #         integration: lambda
+  #         private: false
+  #         request:
+  #           parameters:
+  #             paths:
+  #               item_id: true
+
+  # stock-subtract:
+  #   handler: functions/stock-subtract.handler
+  #   events:
+  #     - http:
+  #         path: /stock/subtract/{order_id}
+  #         method: POST
+  #         integration: lambda
+  #         private: false
+  #         request:
+  #           parameters:
+  #             paths:
+  #               order_id: true
+
+  # stock-add:
+  #   handler: functions/stock-add.handler
+  #   events:
+  #     - http:
+  #         path: /stock/add/{item_id}/{number}
+  #         method: POST
+  #         integration: lambda
+  #         private: false
+  #         request:
+  #           parameters:
+  #             paths:
+  #               item_id: true
+  #               number: true
+
+  # stock-return:
+  #   handler: functions/stock-return.handler
+  #   events:
+  #     - http:
+  #         path: /stock/return/{order_id}
+  #         method: POST
+  #         integration: lambda
+  #         private: false
+  #         request:
+  #           parameters:
+  #             paths:
+  #               order_id: true
+
+  stock-create:
+    handler: functions/stock-create.handler
+    events:
+      - http:
+          path: /stock/item/create/
+          method: POST
+          integration: lambda
+          private: false
+
+resources:
+  Resources:
+    StockDB:
+      Type: AWS::RDS::DBInstance
+      Properties: 
+        Engine: Postgres
+        EngineVersion: 10.6
+        DBInstanceIdentifier: DB_IDENTIFIER    # case insensitive
+        DBName: DBStock                # case sensitive
+        MasterUsername: master
+        MasterUserPassword: master-pwd
+        DBInstanceClass: db.t2.micro
+        AllocatedStorage: 20
+        Port: 5432
+        # DBSubnetGroupName:
+        #   Ref: DBSubnetGroup
+        VPCSecurityGroups:
+          GroupId: sg-b8de22f7
+
+    # Vpc:
+    #   Type: AWS::EC2::VPC
+    #   Properties: 
+    #     CidrBlock: 172.31.0.0/16  # default
+    #     InstanceTenancy: default
+
+    # PublicSubnet1:
+    #   Type: AWS::EC2::Subnet
+    #   Properties:
+    #     CidrBlock: 172.31.64.0/20 # default
+    #     VpcId: vpc-e3449699
+
+    # PublicSubnet2:
+    #   Type: AWS::EC2::Subnet
+    #   Properties:
+    #     CidrBlock: 172.31.48.0/20 # default
+    #     VpcId: vpc-e3449699
+
+    # DBSubnetGroup:
+    #   Type: AWS::RDS::DBSubnetGroup
+    #   Properties: 
+    #     DBSubnetGroupName: DbSubnet
+    #     DBSubnetGroupDescription: DbSubnet
+    #     SubnetIds:
+    #       - Ref: PublicSubnet1
+    #       - Ref: PublicSubnet2
+
+    # DatabaseVpcSecurityGroup:
+    #   Type: AWS::EC2::SecurityGroup
+    #   Properties:
+    #     GroupName: DBSecurityGroup1
+    #     GroupDescription: Allow access from everywhere
+    #     SecurityGroupIngress:
+    #       - CidrIp: 0.0.0.0/0
+    #         IpProtocol: tcp
+    #         FromPort: 5432
+    #         ToPort: 5432
+    #     VpcId: vpc-e3449699
