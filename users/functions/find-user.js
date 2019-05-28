@@ -15,12 +15,17 @@ exports.handler = async function(e, ctx) {
         },
     };
 
+    const selectQuery = {
+        text: 'SELECT * FROM Users WHERE user_id = $1',
+        values: [user_id],
+    };
+
     try {
         const data = await dynamoDB.get(params).promise();
         if (data.Item == null) {
             return {
                 statusCode: 404,
-                headers: { 
+                headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ Message: "User not found" }),
@@ -37,7 +42,7 @@ exports.handler = async function(e, ctx) {
     } catch (err) {
         return {
             statusCode: 500,
-            headers: { 
+            headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({ Message: err }),

@@ -15,6 +15,11 @@ exports.handler = async function(e, ctx) {
         }
     };
 
+    const selectQuery = {
+        text: 'SELECT * FROM Payments WHERE order_id = $1',
+        values: [order_id],
+    };
+
     try {
         const data = await dynamoDB.get(params).promise();
         if (data.Item == null) {

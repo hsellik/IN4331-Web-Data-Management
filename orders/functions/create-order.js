@@ -22,6 +22,11 @@ exports.handler = async (event, context) => {
     }
   };
 
+  const query = {
+    text: 'INSERT INTO Orders(order_id, user_id, total_price) VALUES($1, $2, $3)',
+    values: [uuid, user_id, 0],
+  }; // @TODO order_row
+
   try {
     const data = await documentClient.get(searchParams).promise();
     if (data.Item) {
@@ -39,18 +44,18 @@ exports.handler = async (event, context) => {
       const data = await documentClient.put(putParams).promise();
       responseBody = uuid;
       statusCode = 200;
-    }  
+    }
   } catch (err) {
     console.log(err);
     responseBody = "Something went wrong.";
     statusCode = 403;
   }
-  
-  const response = { 
+
+  const response = {
     statusCode: statusCode,
     body: responseBody
   };
-  
+
   return response;
 
 };

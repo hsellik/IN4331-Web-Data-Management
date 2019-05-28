@@ -16,6 +16,11 @@ exports.handler = async function(e, ctx) {
         }
     };
 
+    const query = {
+        text: 'INSERT INTO Users(user_id, credit) VALUES($1, $2)',
+        values: [user_id, 0],
+    };
+
     try {
         const data = await dynamoDB.put(params).promise();
         return {

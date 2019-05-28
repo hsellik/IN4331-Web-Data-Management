@@ -25,6 +25,17 @@ exports.handler = async function(e, ctx) {
             User_ID : user_id,
         }
     };
+
+    const selectQuery = {
+        text: 'SELECT * FROM Users WHERE user_id = $1',
+        values: [user_id],
+    };
+
+    const updateQuery = {
+        text: 'UPDATE Users SET credit = credit + $1 WHERE user_id = $2',
+        values: [amount, user_id],
+    };
+
     try {
         const data = await dynamoDB.get(getParams).promise();
         if (data.Item == null) {

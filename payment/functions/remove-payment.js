@@ -20,6 +20,11 @@ exports.handler = async function(e, ctx) {
         },
     };
 
+    const deleteQuery = {
+        text: 'DELETE FROM Payments WHERE EXISTS order_id = $1 AND isPaid = FALSE',
+        values: [order_id],
+    };
+
     try {
         const data = await dynamoDB.delete(params).promise();
 

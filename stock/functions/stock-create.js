@@ -19,6 +19,11 @@ exports.handler = async function(e, ctx) {
         }
     };
 
+    const query = {
+        text: 'INSERT INTO Stock(item_id, quantity) VALUES($1, $2)',
+        values: [item_id, quantity || 100],
+    };
+
     var data;
     try {
         data = await dynamoDB.put(params).promise();

@@ -20,6 +20,11 @@ exports.handler = async (event, context) => {
     }
   };
 
+  const deleteQuery = {
+    text: 'DELETE FROM Order WHERE EXISTS order_id = $1',
+    values: [order_id],
+  };
+
   try {
     await documentClient.delete(params).promise();
     responseBody = order_id;
@@ -28,12 +33,12 @@ exports.handler = async (event, context) => {
     responseBody = "Something went wrong.";
     statusCode = 403;
   }
-  
-  const response = { 
+
+  const response = {
     statusCode: statusCode,
     body: responseBody
   };
-  
+
   return response;
 
 };
