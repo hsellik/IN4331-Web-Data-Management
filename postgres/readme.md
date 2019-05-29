@@ -12,11 +12,11 @@ project root directory (see below).
 * AWS CLI access (pip3 install awscli --upgrade --user)
 * Node
 * psql (brew install psql)
-## Running
+## Running (in `postgresql` folder)
 * `./build-all.sh deploy <stage> <region> <aws_profile>`  
 Example  
 * `./build-all.sh deploy dev us-east-1 default`
-## Removing
+## Removing (in `postgresql` folder)
 * `./build-all.sh remove <stage> <region> <aws_profile>`  
 Example  
 * `./build-all.sh remove dev us-east-1 default`
