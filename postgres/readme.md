@@ -1,4 +1,4 @@
-# Web Data Management: Lambda Microservices
+# Web Data Management: Lambda Microservices with Postgresql
 This repository contains 4 microservices:
 * `user-service` (sub-directory `users/`)
 * `stock-service` (sub-directory `stock/`)
@@ -12,11 +12,11 @@ project root directory (see below).
 * AWS CLI access (pip3 install awscli --upgrade --user)
 * Node
 * psql (brew install psql)
-## Running (in `postgresql` folder)
+## Running (in `postgres` folder)
 * `./build-all.sh deploy <stage> <region> <aws_profile>`  
 Example  
 * `./build-all.sh deploy dev us-east-1 default`
-## Removing (in `postgresql` folder)
+## Removing (in `postgres` folder)
 * `./build-all.sh remove <stage> <region> <aws_profile>`  
 Example  
 * `./build-all.sh remove dev us-east-1 default`
