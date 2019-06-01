@@ -14,7 +14,7 @@ provider:
   stage: dev
   region: us-east-1
   environment:
-    PGHOST: webdatamanagementusers.ce28ceiqtpkp.us-east-1.rds.amazonaws.com
+    PGHOST: PLACEHOLDER_PGHOST
     PGUSER: PLACEHOLDER-USERNAME
     PGDATABASE: PLACEHOLDER-DBNAME
     PGPASSWORD: PLACEHOLDER-PWD
