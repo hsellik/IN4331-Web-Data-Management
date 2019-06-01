@@ -8,18 +8,22 @@ Python 3
 `pip install locustio`
 
 ## Running Single Locust in localhost
-* `locust -f locustfile.py --host https://{restapi_id}.execute-api.{region}.amazonaws.com/{stage_name}`  
+`cd helm/tasks/`
+`locust -f tasks.py --host=https://{restapi_id}.execute-api.{region}.amazonaws.com/{stage_name}`   
 Example  
-* `locust -f locustfile.py --host https://02kq0qfexc.execute-api.us-east-1.amazonaws.com/dev`  
-Open browser for locustio UI
-* `localhost:8089`
+`locust -f tasks.py --host=https://6ull6qibde.execute-api.us-east-1.amazonaws.com/dev/`  
+Open browser for locustio UI  
+`localhost:8089`
 
 ## Understanding Distributed Locust
 Locust can be run in a distributed way on multiple machines. Firstly a master must be run.
 After that a slave can be run in another machine. If run locally, all slaves default to 127.0.0.1
 and no master host must be specified.  
-Example in localhost:  
-* `locust -f locustfile.py --slave --master-host=192.168.0.100 --host=http://example.com`
+Running master:  
+`locust -f tasks.py --host https://6ull6qibde.execute-api.us-east-1.amazonaws.com/dev --master`  
+Running slave:  
+`locust -f tasks.py --slave --master-host=<master-url>`  
+
 
 ## Running Distributed Locust with Helm (Kubernetes + Docker) in Google Cloud
 ### Google Cloud Console Quickstart
