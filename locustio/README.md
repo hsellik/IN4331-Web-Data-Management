@@ -25,21 +25,30 @@ Running slave:
 `locust -f tasks.py --slave --master-host=<master-url>`  
 
 
-## Running Distributed Locust with Helm (Kubernetes + Docker) in Google Cloud
+## Running Distributed Locust with Helm (Kubernetes + Docker) in Google Cloud  
+First, create a google cloud project:
+* https://console.cloud.google.com/cloud-resource-manager  
 ### Google Cloud Console Quickstart
-Get gcloud and kubectl installed and set the project for gcloud
+Get gcloud and kubectl installed
 * https://cloud.google.com/kubernetes-engine/docs/quickstart  
+Also run:  
+`gcloud config set project [PROJECT_ID]`
 
 After that you need to change quotas in Google Cloud Console:    
 ![Change quotas in Google Cloud Console](readme-images/change-quotas.png)  
 After this you can deploy a cluster  
-* `gcloud container clusters create --machine-type n1-standard-2 locust-cluster --zone europe-west4`
+* `gcloud container clusters create --machine-type n1-standard-4 locust-cluster --zone us-east1`
 You should end up something like:
 ```
 NAME            LOCATION      MASTER_VERSION  MASTER_IP      MACHINE_TYPE   NODE_VERSION   NUM_NODES  STATUS
 locust-cluster  europe-west4  1.12.7-gke.10   34.90.190.240  n1-standard-2  1.12.7-gke.10  9          RUNNING
 ```
 ### Helm Deployment
+If first time, init helm in Kubernetes cluster to install Tiller  
+`helm init --history-max 200`  
+Follow commands from this post:  
+* https://github.com/helm/helm/issues/3130#issuecomment-372931407  
+After that:  
 * Change locust slave count (`replicaCount`) and `target-host` in `helm/values.yaml`  
 * Change locustfile under `helm/tasks/tasks.py`  
 `cd helm`  
