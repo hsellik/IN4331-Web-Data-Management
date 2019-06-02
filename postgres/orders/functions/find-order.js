@@ -1,14 +1,14 @@
-console.log("Check stock availability");
+'use strict';
 
 const { Pool } = require("pg");
 
-/**
- * input: {
- *     "item_id"    :   (from path)
- * }
- */
-exports.handler = async function (e, ctx) {
-  const item_id = ((e.path || {})["item_id"]) || (e["item_id"]);
+exports.handler = async (event, context) => {
+  const { order_id } = event.pathParameters;
+
+  const selectQuery = {
+    text: 'SELECT * FROM Orders JOIN OrderRow ON Orders.order_id = OrderRow.order_id WHERE Orders.order_id = $1',
+    values: [order_id],
+  };
 
   const pool = new Pool({
     host: process.env.PGHOST,
@@ -18,27 +18,20 @@ exports.handler = async function (e, ctx) {
     port: process.env.PGPORT
   });
 
-  const selectQuery = {
-    text: "SELECT * FROM Stock WHERE item_id = $1",
-    values: [item_id]
-  };
-
   try {
     const data = await pool.query(selectQuery);
-
     if (data.rows.length === 0) {
       return {
         statusCode: 404,
         headers: { "Content-type": "application/json" },
-        body: JSON.stringify({ Message: "User not found" })
+        body: JSON.stringify({ Message: "Order not found" })
       };
     }
-
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        Message: "Successfully retrieved availability of item " + item_id,
+        Message: "Successfully retrieved order " + order_id,
         Data: JSON.stringify(data.rows)
       })
     };
@@ -47,10 +40,11 @@ exports.handler = async function (e, ctx) {
       statusCode: 403,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        Message: "Something wrong! No " + item_id + " in the stock.",
+        Message: "Something wrong! Order ID: " + order_id + ".",
         Data: JSON.stringify(data.rows),
         Error: err
       })
     };
   }
+
 };

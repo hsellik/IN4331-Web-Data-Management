@@ -1,6 +1,6 @@
 console.log('Starting remove payment function');
 
-const { Pool, Client } = require('pg')
+const { Pool } = require('pg');
 
 exports.handler = async function(e, ctx) {
 
@@ -19,9 +19,16 @@ exports.handler = async function(e, ctx) {
         values: [order_id],
     };
 
-    var data;
     try {
-        data = await pool.query(deleteQuery);
+        const data = await pool.query(deleteQuery);
+
+        if (data.rows.length === 0) {
+            return {
+                statusCode: 404,
+                headers: { "Content-type": "application/json" },
+                body: JSON.stringify({ Message: "Payment not found" })
+            };
+        }
 
         return {
             statusCode: 200,

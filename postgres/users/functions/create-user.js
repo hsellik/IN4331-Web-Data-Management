@@ -1,7 +1,7 @@
 console.log('Starting create user function');
 
 const uuid = require('uuid/v1');
-const { Pool, Client } = require('pg')
+const { Pool } = require('pg');
 
 exports.handler = async function(e, ctx) {
     const user_id = uuid();
@@ -19,9 +19,8 @@ exports.handler = async function(e, ctx) {
         values: [user_id, 0],
     };
 
-    var data;
     try {
-        data = await pool.query(query);
+        const data = await pool.query(query);
         return {
             statusCode: 200,
             headers: { "Content-Type": "application/json" },

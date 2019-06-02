@@ -1,6 +1,6 @@
 console.log('starting function');
 
-const { Pool, Client } = require('pg')
+const { Pool } = require('pg')
 
 exports.handler = async function(e, ctx) {
 
@@ -14,35 +14,20 @@ exports.handler = async function(e, ctx) {
         port: process.env.PGPORT,
     });
 
-    // var params = {
-    //     TableName: 'Payments',
-    //     Key: {
-    //         'Order_ID': order_id
-    //     },
-    //     UpdateExpression: 'SET isPaid = :notPaid',
-    //     ConditionExpression: 'Order_ID = :order_ID and isPaid = :paid',
-    //     ExpressionAttributeValues: {
-    //         ':order_ID' : order_id,
-    //         ':paid': true,
-    //         ':notPaid': false
-    //     },
-    //     ReturnValues: "ALL_NEW"
-    // };
-
     const updateQuery = {
         text: 'UPDATE Payments SET isPaid=FALSE WHERE order_id = $1 AND isPaid IS TRUE RETURNING *',
         values: [order_id],
     };
 
-    // const selectQuery = {
-    //     text: 'SELECT * FROM Payments WHERE order_id = $1',
-    //     values: [order_id],
-    // };
-
-    var data;
     try {
-        data = await pool.query(updateQuery);
-        // const data = await pool.query(selectQuery);
+        const data = await pool.query(updateQuery);
+        if (data.rows.length === 0) {
+            return {
+                statusCode: 404,
+                headers: { "Content-type": "application/json" },
+                body: JSON.stringify({ Message: "Payment not found" })
+            };
+        }
 
         return {
             statusCode: 200,

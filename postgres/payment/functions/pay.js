@@ -15,16 +15,11 @@ exports.handler = async function (e, ctx) {
         port: process.env.PGPORT,
     });
 
-    const selectQuery = {
-        text: 'SELECT * FROM Payments WHERE order_id = $1',
-        values: [order_id],
-    };
-
     const insertQuery = {
         text: "INSERT INTO Payments(order_id, isPaid) \
             SELECT $1, TRUE \
             WHERE NOT EXISTS ( \
-                SELECT 1 FROM Payments \
+                SELECT $1 FROM Payments \
             );",
         values: [order_id],
     }
@@ -34,14 +29,14 @@ exports.handler = async function (e, ctx) {
         values: [order_id],
     };
 
-    var data;
     try {
         const insert = await pool.query(insertQuery);
-        const update = await pool.query(updateQuery);
-        data = await pool.query(selectQuery);
+        if (insert.rows.length === 0) {
+            await pool.query(updateQuery);
+        }
 
         return {
-            statusCode: 200, 
+            statusCode: 200,
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
                 Message: "Successfully paid for order! ID: " + order_id,

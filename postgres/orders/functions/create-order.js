@@ -1,13 +1,11 @@
-console.log("Create new item in stock");
-
-const uuidv1 = require("uuid/v1");
+'use strict';
+const uuidv4 = require('uuid/v4');
 const { Pool } = require("pg");
 
-/**
- * input: no input
- */
-exports.handler = async function (e, ctx) {
-  const item_id = uuidv1();
+
+exports.handler = async (event, context) => {
+  const uuid = uuidv4();
+  const { user_id } = event.pathParameters;
 
   const pool = new Pool({
     host: process.env.PGHOST,
@@ -17,19 +15,19 @@ exports.handler = async function (e, ctx) {
     port: process.env.PGPORT
   });
 
-  const query = {
-    text: "INSERT INTO Stock(item_id) VALUES($1) RETURNING *",
-    values: [item_id]
+  const insertQuery = {
+    text: 'INSERT INTO Orders(order_id, user_id, total_price) VALUES($1, $2, $3)',
+    values: [uuid, user_id, 0],
   };
 
   try {
-    const data = await pool.query(query);
+    const data = await pool.query(insertQuery);
 
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        Message: "Successfully created item " + item_id,
+        Message: "Successfully created order.",
         Data: JSON.stringify(data.rows)
       })
     };
@@ -38,10 +36,11 @@ exports.handler = async function (e, ctx) {
       statusCode: 403,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        Message: "Unable to create item.",
+        Message: "Something wrong! Could not create order.",
         Data: JSON.stringify(data.rows),
         Error: err
       })
     };
   }
+
 };

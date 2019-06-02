@@ -1,14 +1,13 @@
-console.log("Check stock availability");
+"use strict";
 
-const { Pool } = require("pg");
+exports.handler = async (event, context) => {
+  const { Pool } = require("pg");
+  const { order_id } = event.pathParameters;
 
-/**
- * input: {
- *     "item_id"    :   (from path)
- * }
- */
-exports.handler = async function (e, ctx) {
-  const item_id = ((e.path || {})["item_id"]) || (e["item_id"]);
+  const deleteQuery = {
+    text: "DELETE FROM Order WHERE EXISTS order_id = $1",
+    values: [order_id]
+  };
 
   const pool = new Pool({
     host: process.env.PGHOST,
@@ -18,27 +17,20 @@ exports.handler = async function (e, ctx) {
     port: process.env.PGPORT
   });
 
-  const selectQuery = {
-    text: "SELECT * FROM Stock WHERE item_id = $1",
-    values: [item_id]
-  };
-
   try {
-    const data = await pool.query(selectQuery);
-
+    const data = await pool.query(deleteQuery);
     if (data.rows.length === 0) {
       return {
         statusCode: 404,
         headers: { "Content-type": "application/json" },
-        body: JSON.stringify({ Message: "User not found" })
+        body: JSON.stringify({ Message: "Order not found " + order_id })
       };
     }
-
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        Message: "Successfully retrieved availability of item " + item_id,
+        Message: "Successfully removed order " + order_id ,
         Data: JSON.stringify(data.rows)
       })
     };
@@ -47,10 +39,11 @@ exports.handler = async function (e, ctx) {
       statusCode: 403,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        Message: "Something wrong! No " + item_id + " in the stock.",
+        Message: "Something wrong! Could not delete order " + order_id + " .",
         Data: JSON.stringify(data.rows),
         Error: err
       })
     };
   }
+
 };

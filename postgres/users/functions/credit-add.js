@@ -1,6 +1,6 @@
 console.log('Starting credit add function');
 
-const { Pool, Client } = require('pg')
+const { Pool } = require('pg');
 
 exports.handler = async function(e, ctx) {
 
@@ -16,7 +16,7 @@ exports.handler = async function(e, ctx) {
     });
 
     const amount = parseInt(amountRaw, 10);
-    if (amount >= 0) {
+    if (Number.isNaN(amount)) {
         return {
             statusCode: 400,
             headers: { "Content-type": "application/json" },
@@ -24,20 +24,14 @@ exports.handler = async function(e, ctx) {
         }
     }
 
-    const selectQuery = {
-        text: 'SELECT * FROM Users WHERE user_id = $1',
-        values: [user_id],
-    };
-
     const updateQuery = {
         text: 'UPDATE Users SET credit = credit + $1 WHERE user_id = $2 RETURNING *',
         values: [amount, user_id],
     };
 
-    var data;
     try {
-        data = await pool.query(updateQuery);
-        if (data.rows.length == 0) {
+        const data = await pool.query(updateQuery);
+        if (data.rows.length === 0) {
             return {
                 statusCode: 404,
                 headers: { "Content-type": "application/json" },
@@ -47,7 +41,7 @@ exports.handler = async function(e, ctx) {
             return {
                 statusCode: 500,
                 headers: { "Content-type": "application/json" },
-                body: JSON.stringify({ Message: "credit not found in User item.", item: data.rows }),
+                body: JSON.stringify({ Message: "Credit not found in User item.", item: data.rows }),
             }
         }
         return {
@@ -60,7 +54,7 @@ exports.handler = async function(e, ctx) {
         return {
             statusCode: 500,
             headers: { "Content-type": "application/json" },
-            body: JSON.stringify({ Message: err }),
-        }
+            body: JSON.stringify({ Message: err })
+        };
     }
 };
