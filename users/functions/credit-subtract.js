@@ -10,8 +10,8 @@ exports.handler = async function(e, ctx) {
     const amountRaw = ((e.pathParameters || {})['amount']) || e.amount;
 
     const amount = parseInt(amountRaw, 10);
-    if (amount == NaN) { // TODO: This doesn't seem to work, not sure why
-        callback(null, {
+    if (Number.isNaN(amount)) {
+        callback(null, { // Undefined?
             statusCode: 400,
             headers: { "Content-type": "application/json" },
             body: JSON.stringify({ message: `Amount parameter is not a number: \"${amountRaw}\"` }),
@@ -24,16 +24,6 @@ exports.handler = async function(e, ctx) {
         Key: {
             User_ID : user_id,
         }
-    };
-
-    const selectQuery = {
-        text: 'SELECT * FROM Users WHERE user_id = $1',
-        values: [user_id],
-    };
-
-    const updateQuery = {
-        text: 'UPDATE Users SET credit = credit - $1 WHERE credit >= $1 AND user_id = $2',
-        values: [amount, user_id],
     };
 
     try {

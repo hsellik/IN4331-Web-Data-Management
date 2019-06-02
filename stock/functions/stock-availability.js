@@ -19,11 +19,6 @@ exports.handler = async function(e, ctx) {
         }
     };
 
-    const selectQuery = {
-        text: 'SELECT * FROM Stock WHERE item_id = $1',
-        values: [item_id],
-    };
-
     var data;
     try {
         data = await dynamoDB.get(params).promise();

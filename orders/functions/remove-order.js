@@ -20,11 +20,6 @@ exports.handler = async (event, context) => {
     }
   };
 
-  const deleteQuery = {
-    text: 'DELETE FROM Order WHERE EXISTS order_id = $1',
-    values: [order_id],
-  };
-
   try {
     await documentClient.delete(params).promise();
     responseBody = order_id;

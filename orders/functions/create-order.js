@@ -22,11 +22,6 @@ exports.handler = async (event, context) => {
     }
   };
 
-  const query = {
-    text: 'INSERT INTO Orders(order_id, user_id, total_price) VALUES($1, $2, $3)',
-    values: [uuid, user_id, 0],
-  }; // @TODO order_row
-
   try {
     const data = await documentClient.get(searchParams).promise();
     if (data.Item) {

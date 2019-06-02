@@ -27,10 +27,6 @@ exports.handler = async function(e, ctx) {
             ReturnValues: "ALL_NEW"
         };
 
-        const updateQuery = {
-            text: 'UPDATE Stock SET quantity = quantity + $1 WHERE item_id = $2',
-            values: [item.quantity, item.Item_ID],
-        };
         return await dynamoDB.update(params).promise();
     }
 

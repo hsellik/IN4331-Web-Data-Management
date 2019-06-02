@@ -22,21 +22,6 @@ exports.handler = async (event, context) => {
     }
   };
 
-  const selectQuery = {
-    text: 'SELECT * FROM OrderRow WHERE order_id = $1',
-    values: [order_id],
-  };
-
-  const updateQuery = {
-    text: 'UPDATE OrderRow SET quantity=$1 WHERE order_id = $2 AND item_id = $3',
-    values: [quantity, order_id, item_id],
-  };
-
-  const deleteQuery = {
-    text: 'DELETE FROM OrderRow WHERE EXISTS order_id = $1 AND item_id = $2',
-    values: [order_id, item_id],
-  };
-
   try {
     const data = await documentClient.get(searchParams).promise();
     if (data.Item) {

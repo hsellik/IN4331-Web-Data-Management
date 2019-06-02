@@ -20,11 +20,6 @@ exports.handler = async (event, context) => {
     }
   };
 
-  const selectQuery = {
-    text: 'SELECT * FROM Orders JOIN OrderRow ON Orders.order_id = OrderRow.order_id WHERE Orders.order_id = $1',
-    values: [order_id],
-  };
-
   try {
     const data = await documentClient.get(searchParams).promise();
     if (data.Item) {

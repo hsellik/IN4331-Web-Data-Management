@@ -23,11 +23,6 @@ exports.handler = async function(e, ctx) {
         ReturnValues: "ALL_NEW"
     };
 
-    const updateQuery = {
-        text: 'UPDATE Payments SET isPaid=FALSE WHERE order_id = $1 AND isPaid IS TRUE',
-        values: [order_id],
-    };
-
     try {
         const data = await dynamoDB.update(params).promise();
 
