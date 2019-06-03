@@ -1,4 +1,4 @@
-service: saga-service 
+service: saga-microservice 
 
 custom:
   region: ${opt:region, self:provider.region}
@@ -38,6 +38,81 @@ functions:
             parameters:
               paths:
                 order_id: true
+  order-add-item:
+    handler: functions/order-add-item.handler
+    events:
+      - http:
+          path: orders/addItem/{order_id}/{item_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+                item_id: true
+  order-create:
+    handler: functions/order-create.handler
+    events:
+      - http:
+          path: /orders/create/{user_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+  order-remove:
+    handler: functions/order-remove.handler
+    events:
+      - http:
+          path: /orders/remove/{order_id}
+          method: DELETE
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+  cancel-payment:
+    handler: functions/cancel-payment.handler
+    events:
+      - http:
+          path: /payment/cancelPayment/{user_id}/{order_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+                order_id: true
+  payment-pay:
+    handler: functions/payment-pay.handler
+    events:
+      - http:
+          path: /payment/pay/{user_id}/{order_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+                order_id: true
+  order-checkout:
+    handler: functions/order-checkout.handler
+    events:
+      - http:
+          path: /orders/checkout/{order_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
 
 stepFunctions:
   stateMachines: 
@@ -45,21 +120,6 @@ stepFunctions:
     # ORDER FIND
     FindOrder:
       name: FindOrderStateMachine
-      # events:
-      #   - http:
-      #       path: orders/find/{order_id}
-      #       method: GET
-      #       private: false
-      #       request:
-      #         template:
-      #           application/json: |                  
-      #             {
-      #               "input" : "{ \"order_id\": \"$input.params('order_id')\" }",
-      #               "stateMachineArn":"arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:FindOrderStateMachine"
-      #             }
-      #         parameters:
-      #           paths:
-      #             order_id: true
       definition:
         Comment: "Applying the Saga pattern for the find endpoint of the order microservice"
         StartAt: PaymentStatus
@@ -98,22 +158,6 @@ stepFunctions:
     # ORDER ADD ITEM
     OrderAddItem:
       name: OrderAddItemStateMachine
-      events:
-        - http:
-            path: orders/addItem/{order_id}/{item_id}
-            method: POST
-            private: false
-            request:
-              template:
-                application/json: |                  
-                  {
-                    "input" : "{ \"order_id\": \"$input.params('order_id')\", \"item_id\": \"$input.params('item_id')\" }",
-                    "stateMachineArn":"arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:OrderAddItemStateMachine"
-                  }
-              parameters:
-                paths:
-                  order_id: true
-                  item_id: true
       definition:
         Comment: "Applying the Saga pattern for the addItem endpoint of the order microservice"
         StartAt: StockAvailability
@@ -152,21 +196,6 @@ stepFunctions:
     # ORDER CREATE
     OrderCreate:
       name: OrderCreateStateMachine
-      events:
-        - http:
-            path: orders/create/{user_id}
-            method: POST
-            private: false
-            request:
-              template:
-                application/json: |                  
-                  {
-                    "input" : "{ \"user_id\": \"$input.params('user_id')\" }",
-                    "stateMachineArn":"arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:OrderCreateStateMachine"
-                  }
-              parameters:
-                paths:
-                  user_id: true
       definition:
         Comment: "Applying the Saga pattern for the create endpoint of the order microservice"
         StartAt: FindUser
@@ -205,21 +234,6 @@ stepFunctions:
     # ORDER REMOVE
     OrderRemove:
       name: OrderRemoveStateMachine
-      events:
-        - http:
-            path: orders/remove/{order_id}
-            method: DELETE
-            private: false
-            request:
-              template:
-                application/json: |                  
-                  {
-                    "input" : "{ \"order_id\": \"$input.params('order_id')\" }",
-                    "stateMachineArn":"arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:OrderRemoveStateMachine"
-                  }
-              parameters:
-                paths:
-                  order_id: true
       definition:
         Comment: "Applying the Saga pattern for the remove endpoint of the order microservice"
         StartAt: PaymentStatus
@@ -276,22 +290,6 @@ stepFunctions:
     # CANCEL PAYMENT
     PaymentCancel:
       name: PaymentCancelStateMachine
-      events:
-        - http:
-            path: payment/cancelPayment/{user_id}/{order_id}
-            method: POST
-            private: false
-            request:
-              template:
-                application/json: |                  
-                  {
-                    "input" : "{ \"user_id\": \"$input.params('user_id')\", \"order_id\": \"$input.params('order_id')\" }",
-                    "stateMachineArn":"arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:PaymentCancelStateMachine"
-                  }
-              parameters:
-                paths:
-                  user_id: true
-                  order_id: true
       definition:
         Comment: "Applying the Saga pattern for the cancel endpoint of the payment microservice"
         StartAt: FindOrder
@@ -360,8 +358,11 @@ stepFunctions:
               NumericEquals: 200
               Next: FinalState
             Default: RepayOrder
-          RepayOrder: # TO-DO: call pay step-function here
-            Type: Fail
+          RepayOrder:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:saga-microservice-${opt:stage}-payment-pay"
+            ResultPath: "$.RepayOrderResult"
+            End: true
           SetPaymentPaid:
             Type: Task
             Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:payment-microservice-${opt:stage}-pay"
@@ -379,22 +380,6 @@ stepFunctions:
     # PAYMENT PAY
     PaymentPay:
       name: PaymentPayStateMachine
-      events:
-        - http:
-            path: payment/pay/{user_id}/{order_id}
-            method: POST
-            private: false
-            request:
-              template:
-                application/json: |                  
-                  {
-                    "input" : "{ \"user_id\": \"$input.params('user_id')\", \"order_id\": \"$input.params('order_id')\" }",
-                    "stateMachineArn":"arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:PaymentPayStateMachine"
-                  }
-              parameters:
-                paths:
-                  user_id: true
-                  order_id: true
       definition:
         Comment: "Applying the Saga pattern for the pay endpoint of the payment microservice"
         StartAt: FindOrder
@@ -464,21 +449,6 @@ stepFunctions:
     # ORDER CHECKOUT
     OrderCheckout:
       name: OrderCheckoutStateMachine
-      events:
-        - http:
-            path: orders/checkout/{order_id}
-            method: POST
-            private: false
-            request:
-              template:
-                application/json: |                  
-                  {
-                    "input" : "{ \"order_id\": \"$input.params('order_id')\" }",
-                    "stateMachineArn":"arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:OrderCheckoutStateMachine"
-                  }
-              parameters:
-                paths:
-                  order_id: true
       definition:
         Comment: "Applying the Saga pattern for the checkout endpoint of the orders microservice"
         StartAt: FindOrder
@@ -499,9 +469,15 @@ stepFunctions:
               NumericEquals: 200
               Next: PaymentPay
             Default: Fail
-          PaymentPay: #TO-DO: call pay step function here
-              Type: Pass
-              Next: PaymentPayStatusCode
+          PaymentPay:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:saga-microservice-${opt:stage}-payment-pay"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.PaymentPayError"
+              Next: Fail
+            ResultPath: "$.PaymentPayResult"
+            Next: PaymentPayStatusCode
           PaymentPayStatusCode:
             Type: Choice
             Choices:
@@ -525,8 +501,15 @@ stepFunctions:
               NumericEquals: 200
               Next: FinalState
             Default: CancelPayment
-          CancelPayment: #TO-DO: call cancel payment step function here
-            Type: Fail
+          CancelPayment:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:saga-microservice-${opt:stage}-cancel-payment"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.CancelPaymentError"
+              Next: Fail
+            ResultPath: "$.CancelPaymentResult"
+            End: true
           FinalState:
             Type: Succeed
           Fail:
