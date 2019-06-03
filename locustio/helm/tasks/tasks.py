@@ -2,7 +2,7 @@ import uuid
 import json
 import random
 
-from locust import HttpLocust, TaskSet, task
+from locust import HttpLocust, TaskSet, task, TaskSequence, seq_task
 
 
 class ElbTasks(TaskSet):
@@ -35,14 +35,14 @@ class goodFlowTasks(TaskSet):
 
     @seq_task(4)
     def add_item_to_order(self):
-      for i in range(random(1, self.InitialStock)):
+      for i in range(random.randint(1, self.InitialStock)):
         self.client.post(f"/orders/additem/{self.OrderID}/{self.ItemID}")
     
     @seq_task(5)
     def add_credit(self):
       self.client.post(f"/users/credit/add/{self.UserID}/{self.InitialStock}")
 
-    seq_task(6)
+    @seq_task(6)
     def checkout(self):
       self.client.post(f"/orders/checkout/{self.OrderID}")
       self.interrupt()
@@ -67,7 +67,7 @@ class goodFlowTasks(TaskSet):
 
     @seq_task(4)
     def add_item_to_order(self):
-      for i in range(random(1, self.InitialStock)):
+      for i in range(random.randint(1, self.InitialStock)):
         self.client.post(f"/orders/additem/{self.OrderID}/{self.ItemID}")
       self.interrupt()
 
@@ -112,10 +112,10 @@ class badFlowTasks(TaskSet):
 
     @seq_task(4)
     def add_item_to_order(self):
-      for i in range(random(1, self.InitialStock)):
+      for i in range(random.randint(1, self.InitialStock)):
         self.client.post(f"/orders/additem/{self.OrderID}/{self.ItemID}")
 
-    seq_task(5)
+    @seq_task(5)
     def checkout(self):
       with self.client.post(f"/orders/checkout/{self.OrderID}", catch_response=True) as response:
         if response.status_code != 400:
