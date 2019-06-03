@@ -34,15 +34,19 @@ Get gcloud and kubectl installed
 Also run:  
 `gcloud config set project [PROJECT_ID]`
 
-After that you need to change quotas in Google Cloud Console:    
+After that you need to change quotas in Google Cloud Console:   
+* CPUS_ALL_REGIONS = 576
+* Regional (us-east1) CPUs = 576
+* Regional (us-east1) In-use IP addresses = 9
 ![Change quotas in Google Cloud Console](readme-images/change-quotas.png)  
 After this you can deploy a cluster  
-* `gcloud container clusters create --machine-type n1-standard-4 locust-cluster --zone us-east1`
+* `gcloud beta container clusters create --machine-type n1-highcpu-4 locust-cluster --zone us-east1 --preemptible`  
 You should end up something like:
 ```
 NAME            LOCATION      MASTER_VERSION  MASTER_IP      MACHINE_TYPE   NODE_VERSION   NUM_NODES  STATUS
-locust-cluster  europe-west4  1.12.7-gke.10   34.90.190.240  n1-standard-2  1.12.7-gke.10  9          RUNNING
-```
+locust-cluster  europe-west4  1.12.7-gke.10   34.90.190.240  n1-highcpu-64  1.12.7-gke.10  9          RUNNING
+```  
+MAKE SURE TO DELETE THE CLUSTER ONCE YOU HAVE FINISHED TESTING, this cluster costs $0.4800 per hour!  
 ### Helm Deployment
 If first time, init helm in Kubernetes cluster to install Tiller  
 `helm init --history-max 200`  
@@ -60,7 +64,8 @@ Access external swarm via local url:
 [http://127.0.0.1:8089/](http://127.0.0.1:8089/)
 
 ## Removing 
-`helm del --purge helm-locust`
+`helm del --purge helm-locust`  
+`gcloud container clusters delete locust-cluster`
 
 ## Debug kubectl pods
 * `kubectl get pods`
