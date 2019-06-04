@@ -25,12 +25,14 @@ exports.handler = async function(e, ctx) {
         while (result.status === "RUNNING") {
             result = await stepFunctionClient.describeExecution({ executionArn: executionArn }).promise();
         }
-
-        if (result.status === "SUCCEEDED") {
+        resultJson = JSON.parse(result.output)
+        if (result.status === "SUCCEEDED" && resultJson.OrderCreateResult && resultJson.OrderCreateResult.body) {
             return {
                 statusCode: 200,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(result.output),
+                body: JSON.stringify({
+                  Order_ID: resultJson.OrderCreateResult.body,
+                 }),
                 isBase64Encoded: false,
             };
         } else {
@@ -46,7 +48,10 @@ exports.handler = async function(e, ctx) {
         return {
             statusCode: 500,
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ Message: err }),
+            body: JSON.stringify({ 
+              Message: err, 
+              Output: resultJson
+            }),
             isBase64Encoded: false,
         }
     }
