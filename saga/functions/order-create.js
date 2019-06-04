@@ -4,6 +4,10 @@ const AWS = require('aws-sdk');
 const region = process.env.AWS_REGION;
 const stepFunctionClient = new AWS.StepFunctions({region: region});
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 exports.handler = async function(e, ctx) {
 
     try {
@@ -23,9 +27,19 @@ exports.handler = async function(e, ctx) {
 
         let result = { status: "RUNNING" };
         while (result.status === "RUNNING") {
-            result = await stepFunctionClient.describeExecution({ executionArn: executionArn }).promise();
+          result = await stepFunctionClient.describeExecution({ executionArn: executionArn }).promise();
+          await sleep(600);
         }
-        resultJson = JSON.parse(result.output)
+  
+        while (result.status === "SUCCEEDED" && (result.output === null || typeof result.output === 'undefined')) {
+          result = await stepFunctionClient.describeExecution({ executionArn: executionArn }).promise();
+          await sleep(600);
+        }
+
+        if (result.status === "SUCCEEDED") {
+          resultJson = JSON.parse(result.output);
+        };
+        
         if (result.status === "SUCCEEDED" && resultJson.OrderCreateResult && resultJson.OrderCreateResult.body) {
             return {
                 statusCode: 200,
@@ -37,7 +51,7 @@ exports.handler = async function(e, ctx) {
             };
         } else {
             return {
-                statusCode: 500,
+                statusCode: 550,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(result),
                 isBase64Encoded: false,
@@ -46,11 +60,10 @@ exports.handler = async function(e, ctx) {
     } catch (err) {
         console.log(err);
         return {
-            statusCode: 500,
+            statusCode: 555,
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
-              Message: err, 
-              Output: resultJson
+              Message: err 
             }),
             isBase64Encoded: false,
         }
