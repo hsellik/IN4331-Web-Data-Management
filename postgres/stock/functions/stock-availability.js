@@ -19,7 +19,7 @@ exports.handler = async function (e, ctx) {
   });
 
   const selectQuery = {
-    text: "SELECT * FROM Stock WHERE item_id = $1",
+    text: "SELECT * FROM Stock WHERE item_id = $1 AND quantity > 0",
     values: [item_id]
   };
 

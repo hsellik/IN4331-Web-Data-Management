@@ -28,7 +28,7 @@ exports.handler = async function(e, ctx) {
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
                 Message: "Successfully get availability of item " + item_id,
-                Data: JSON.stringify(data)
+                // Data: JSON.stringify(data)
             }),
         };
     } catch (err) {

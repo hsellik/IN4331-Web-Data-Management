@@ -16,8 +16,8 @@ exports.handler = async (event, context) => {
   });
 
   const insertQuery = {
-    text: 'INSERT INTO Orders(order_id, user_id, total_price) VALUES($1, $2, $3)',
-    values: [uuid, user_id, 0],
+    text: 'INSERT INTO Orders(order_id, user_id) VALUES($1, $2)',
+    values: [uuid, user_id],
   };
 
   try {
