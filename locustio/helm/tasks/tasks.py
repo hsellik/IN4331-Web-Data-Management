@@ -28,21 +28,26 @@ class goodFlowTasks(TaskSet):
       self.OrderID = response.json() # TODO: extract order_id
 
     @seq_task(3)
-    def add_stock(self):
+    def create_item(self):
       self.ItemID = str(uuid.uuid4())
+      response = self.client.post(f"/stock/item/create/")
+      self.ItemID = response.json() # TODO: extract item_id
+
+    @seq_task(4)
+    def add_stock(self):
       self.InitialStock = random.randint(1,101)
       self.client.post(f"/stock/add/{self.ItemID}/{self.InitialStock}")
 
-    @seq_task(4)
+    @seq_task(5)
     def add_item_to_order(self):
       for i in range(random.randint(1, self.InitialStock)):
         self.client.post(f"/orders/additem/{self.OrderID}/{self.ItemID}")
     
-    @seq_task(5)
+    @seq_task(6)
     def add_credit(self):
       self.client.post(f"/users/credit/add/{self.UserID}/{self.InitialStock}")
 
-    @seq_task(6)
+    @seq_task(7)
     def checkout(self):
       self.client.post(f"/orders/checkout/{self.OrderID}")
       self.interrupt()
@@ -60,16 +65,20 @@ class goodFlowTasks(TaskSet):
       self.OrderID = response.json() # TODO: extract order_id
 
     @seq_task(3)
-    def add_stock(self):
+    def create_item(self):
       self.ItemID = str(uuid.uuid4())
+      response = self.client.post(f"/stock/item/create/")
+      self.ItemID = response.json() # TODO: extract item_id
+
+    @seq_task(4)
+    def add_stock(self):
       self.InitialStock = random.randint(1,101)
       self.client.post(f"/stock/add/{self.ItemID}/{self.InitialStock}")
 
-    @seq_task(4)
+    @seq_task(5)
     def add_item_to_order(self):
       for i in range(random.randint(1, self.InitialStock)):
         self.client.post(f"/orders/additem/{self.OrderID}/{self.ItemID}")
-      self.interrupt()
 
 class badFlowTasks(TaskSet):
   @task(50)
@@ -85,8 +94,13 @@ class badFlowTasks(TaskSet):
       self.OrderID = response.json() # TODO: extract order_id
 
     @seq_task(3)
-    def add_item_to_order(self):
+    def create_item(self):
       self.ItemID = str(uuid.uuid4())
+      response = self.client.post(f"/stock/item/create/")
+      self.ItemID = response.json() # TODO: extract item_id
+
+    @seq_task(4)
+    def add_item_to_order(self):
       with self.client.post(f"/orders/additem/{self.OrderID}/{self.ItemID}", catch_response=True) as response:
         if response.status_code != 400:
           response.success()
@@ -105,17 +119,22 @@ class badFlowTasks(TaskSet):
       self.OrderID = response.json() # TODO: extract order_id
 
     @seq_task(3)
-    def add_stock(self):
+    def create_item(self):
       self.ItemID = str(uuid.uuid4())
+      response = self.client.post(f"/stock/item/create/")
+      self.ItemID = response.json() # TODO: extract item_id
+
+    @seq_task(4)
+    def add_stock(self):
       self.InitialStock = random.randint(1,101)
       self.client.post(f"/stock/add/{self.ItemID}/{self.InitialStock}")
 
-    @seq_task(4)
+    @seq_task(5)
     def add_item_to_order(self):
       for i in range(random.randint(1, self.InitialStock)):
         self.client.post(f"/orders/additem/{self.OrderID}/{self.ItemID}")
 
-    @seq_task(5)
+    @seq_task(6)
     def checkout(self):
       with self.client.post(f"/orders/checkout/{self.OrderID}", catch_response=True) as response:
         if response.status_code != 400:
