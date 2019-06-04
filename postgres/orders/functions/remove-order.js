@@ -5,7 +5,7 @@ exports.handler = async (event, context) => {
   const { order_id } = event.pathParameters;
 
   const deleteQuery = {
-    text: "DELETE FROM Order WHERE EXISTS order_id = $1",
+    text: "DELETE FROM Orders WHERE EXISTS order_id = $1",
     values: [order_id]
   };
 
@@ -40,7 +40,7 @@ exports.handler = async (event, context) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         Message: "Something wrong! Could not delete order " + order_id + " .",
-        Data: JSON.stringify(data.rows),
+        Data: JSON.stringify((data || {}).rows),
         Error: err
       })
     };
