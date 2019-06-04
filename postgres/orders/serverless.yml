@@ -2,7 +2,7 @@ service: postgres-orders-microservice
 
 package:
   excludeDevDependencies: false
-  
+
 custom:
   region: ${opt:region, self:provider.region}
 
@@ -14,7 +14,7 @@ provider:
   stage: dev
   region: us-east-1
   environment:
-    PGHOST: webdatamanagementorders.ce28ceiqtpkp.us-east-1.rds.amazonaws.com
+    PGHOST: PLACEHOLDER_PGHOST
     PGUSER: PLACEHOLDER-USERNAME
     PGDATABASE: PLACEHOLDER-DBNAME
     PGPASSWORD: PLACEHOLDER-PWD
@@ -95,7 +95,7 @@ resources:
   Resources:
     StockDB:
       Type: AWS::RDS::DBInstance
-      Properties: 
+      Properties:
         Engine: Postgres
         EngineVersion: 10.6
         DBInstanceIdentifier: "PLACEHOLDER-DBID"    # case insensitive

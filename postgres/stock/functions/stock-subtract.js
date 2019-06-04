@@ -42,9 +42,7 @@ exports.handler = async function (e, ctx) {
     for (let item of data.rows) {
       for (let orderItem of items) {
         if (item["item_id"] === orderItem["Item_ID"] && item["quantity"] > orderItem["quantity"]) {
-            console.log(`item id: ${item.item_id}`)
-            console.log(`order quantity: ${orderItem.quantity}`)
-            console.log(`item quantity: ${item.quantity}`)
+           
           satisfied++;
         }
       }

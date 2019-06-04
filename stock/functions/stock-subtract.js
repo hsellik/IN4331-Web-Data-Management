@@ -33,7 +33,7 @@ exports.handler = async function(e, ctx) {
         return await dynamoDB.update(params).promise();
     }
 
-    var data;
+    let data;
     try {
         const promises = Item.items.map(subtract);
         data = await Promise.all(promises);
