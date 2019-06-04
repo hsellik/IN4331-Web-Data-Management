@@ -1,5 +1,5 @@
 import uuid
-import json
+
 import random
 
 from locust import HttpLocust, TaskSet, task, TaskSequence, seq_task
@@ -23,21 +23,23 @@ class goodFlowTasks(TaskSet):
     @seq_task(1)
     def create_account(self):
       response = self.client.post(f"{usersService}/users/create", name="CreateUser")
-      print(response.json())
-      self.UserID = response.json() # TODO: extract user_id
+      print("Create account:")
+      print("User_ID: " + response.json()['User_ID'])
+      self.UserID = response.json()['User_ID']
+
 
     @seq_task(2)
     def create_order(self):
-      response = self.client.post(f"{sagasService}/orders/create", name="CreateOrder")
+      response = self.client.post(f"{sagasService}/orders/create/{self.UserID}", name="CreateOrder")
+      print("Order_ID")
       print(response.json())
       self.OrderID = response.json() # TODO: extract order_id
 
     @seq_task(3)
     def create_item(self):
-      self.ItemID = str(uuid.uuid4())
       response = self.client.post(f"{stockService}/stock/item/create/", name="CreateItem")
-      print(response.json())
-      self.ItemID = response.json() # TODO: extract item_id
+      print("ItemID: " + response.json()["Message"][25:])
+      self.ItemID = response.json()["Message"][25:]
 
     @seq_task(4)
     def add_stock(self):
