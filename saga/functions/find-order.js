@@ -26,12 +26,21 @@ exports.handler = async function(e, ctx) {
             result = await stepFunctionClient.describeExecution({ executionArn: executionArn }).promise();
         }
 
-        return {
-            statusCode: 200,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(result),
-            isBase64Encoded: false,
-        };
+        if (result.status === "SUCCEEDED") {
+            return {
+                statusCode: 200,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(result.output),
+                isBase64Encoded: false,
+            };
+        } else {
+            return {
+                statusCode: 500,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(result),
+                isBase64Encoded: false,
+            };
+        }
     } catch (err) {
         console.log(err);
         return {

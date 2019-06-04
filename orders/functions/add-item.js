@@ -70,8 +70,11 @@ exports.handler = async (event, context) => {
     }  
   } catch (err) {
     console.log(err);
-    responseBody = "Something went wrong.";
-    statusCode = 403;
+    responseBody = JSON.stringify({
+      Message: "Error",
+      Error: err
+    });
+    statusCode = 500;
   };
   
   const response = { 
