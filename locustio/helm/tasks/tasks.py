@@ -1,12 +1,12 @@
 import uuid
-
+import json
 import random
 
 from locust import HttpLocust, TaskSet, task, TaskSequence, seq_task
 
-usersService = ""
-stockService = ""
-sagasService = ""
+usersService = "https://0ku9sdii1j.execute-api.us-east-1.amazonaws.com/dev"
+stockService = "https://e3o2ksgaq0.execute-api.us-east-1.amazonaws.com/dev"
+sagasService = "https://ydmcjwu7e4.execute-api.us-east-1.amazonaws.com/dev"
 
 class ElbTasks(TaskSet):
 
@@ -31,14 +31,13 @@ class goodFlowTasks(TaskSet):
     @seq_task(2)
     def create_order(self):
       response = self.client.post(f"{sagasService}/orders/create/{self.UserID}", name="CreateOrder")
-      print("Order_ID")
-      print(response.json())
-      self.OrderID = response.json() # TODO: extract order_id
+      print("Order_ID: " + str(json.loads(response.json())["OrderCreateResult"]["body"]))
+      self.OrderID = json.loads(response.json())["OrderCreateResult"]["body"]
 
     @seq_task(3)
     def create_item(self):
-      response = self.client.post(f"{stockService}/stock/item/create/", name="CreateItem")
-      print("ItemID: " + response.json()["Message"][25:])
+      response = self.client.post(f"{stockService}/stock/item/create", name="CreateItem")
+      print("Item_ID: " + response.json()["Message"][25:])
       self.ItemID = response.json()["Message"][25:]
 
     @seq_task(4)
@@ -49,7 +48,7 @@ class goodFlowTasks(TaskSet):
     @seq_task(5)
     def add_item_to_order(self):
       for i in range(random.randint(1, self.InitialStock)):
-        self.client.post(f"{sagasService}/orders/additem/{self.OrderID}/{self.ItemID}", name="AddItemToOrder")
+        self.client.post(f"{sagasService}/orders/addItem/{self.OrderID}/{self.ItemID}", name="AddItemToOrder")
     
     @seq_task(6)
     def add_credit(self):
