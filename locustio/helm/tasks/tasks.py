@@ -31,9 +31,8 @@ class goodFlowTasks(TaskSet):
     @seq_task(2)
     def create_order(self):
       response = self.client.post(f"{sagasService}/orders/create/{self.UserID}", name="CreateOrder")
-      print("Order_ID: " + str(json.loads(response.json())["OrderCreateResult"]["body"]))
       self.OrderID = json.loads(response.json())["OrderCreateResult"]["body"]
-
+      print("User_ID: " + self.OrderID)
     @seq_task(3)
     def create_item(self):
       response = self.client.post(f"{stockService}/stock/item/create", name="CreateItem")
@@ -49,7 +48,7 @@ class goodFlowTasks(TaskSet):
     def add_item_to_order(self):
       for i in range(random.randint(1, self.InitialStock)):
         self.client.post(f"{sagasService}/orders/addItem/{self.OrderID}/{self.ItemID}", name="AddItemToOrder")
-    
+
     @seq_task(6)
     def add_credit(self):
       self.client.post(f"{usersService}/users/credit/add/{self.UserID}/{self.InitialStock}", name="AddCreditToUser")
