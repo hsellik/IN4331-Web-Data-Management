@@ -37,18 +37,18 @@ functions:
               paths:
                 item_id: true
 
-  # stock-subtract:
-  #   handler: functions/stock-subtract.handler
-  #   events:
-  #     - http:
-  #         path: /stock/subtract/{order_id}
-  #         method: POST
-  #         integration: lambda
-  #         private: false
-  #         request:
-  #           parameters:
-  #             paths:
-  #               order_id: true
+  stock-subtract:
+    handler: functions/stock-subtract.handler
+    events:
+      - http:
+          path: /stock/subtract/{order_id}
+          method: POST
+          integration: lambda
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
 
   stock-add:
     handler: functions/stock-add.handler
@@ -64,18 +64,18 @@ functions:
                 item_id: true
                 number: true
 
-  # stock-return:
-  #   handler: functions/stock-return.handler
-  #   events:
-  #     - http:
-  #         path: /stock/return/{order_id}
-  #         method: POST
-  #         integration: lambda
-  #         private: false
-  #         request:
-  #           parameters:
-  #             paths:
-  #               order_id: true
+  stock-return:
+    handler: functions/stock-return.handler
+    events:
+      - http:
+          path: /stock/return/{order_id}
+          method: POST
+          integration: lambda
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
 
   stock-create:
     handler: functions/stock-create.handler

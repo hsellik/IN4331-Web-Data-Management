@@ -25,7 +25,7 @@ exports.handler = async function(e, ctx) {
     }
 
     const updateQuery = {
-        text: 'UPDATE Users SET credit = credit - $1 WHERE credit >= $1 AND user_id = $2',
+        text: 'UPDATE Users SET credit = credit - $1 WHERE credit >= $1 AND user_id = $2 RETURNING *',
         values: [amount, user_id],
     };
 

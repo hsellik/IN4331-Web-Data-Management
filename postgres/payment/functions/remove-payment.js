@@ -15,7 +15,7 @@ exports.handler = async function(e, ctx) {
     });
 
     const deleteQuery = {
-        text: 'DELETE FROM Payments WHERE EXISTS order_id = $1 AND isPaid = FALSE RETURNING ',
+        text: 'DELETE FROM Payments WHERE order_id = $1 AND isPaid = FALSE RETURNING *',
         values: [order_id],
     };
 

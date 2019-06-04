@@ -2,16 +2,16 @@
 const { Pool } = require("pg");
 
 exports.handler = async (event, context) => {
-  const { order_id } = event.pathParameters;
-  const { item_id } = event.pathParameters;
+  const order_id = ((event.pathParameters || {})['order_id']) || event.order_id;
+  const item_id = ((event.pathParameters || {})['item_id']) || event.item_id;
 
   const updateQuery = {
-    text: 'UPDATE OrderRow SET quantity=quantity-1 WHERE order_id = $1 AND item_id = $2',
+    text: 'UPDATE OrderRow SET quantity=quantity-1 WHERE order_id = $1 AND item_id = $2 RETURNING *',
     values: [order_id, item_id],
   };
 
   const deleteQuery = {
-    text: 'DELETE FROM OrderRow WHERE EXISTS order_id = $1 AND item_id = $2 AND quantity = 1',
+    text: 'DELETE FROM OrderRow WHERE order_id = $1 AND item_id = $2 AND quantity = 1 RETURNING *',
     values: [order_id, item_id],
   };
 
@@ -23,8 +23,9 @@ exports.handler = async (event, context) => {
     port: process.env.PGPORT
   });
 
+  var data;
   try {
-    let data = await pool.query(deleteQuery);
+    data = await pool.query(deleteQuery);
     if (data.rows.length === 0) {
       data = await pool.query(updateQuery);
       if (data.rows.length === 0) {

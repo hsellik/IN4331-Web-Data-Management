@@ -5,7 +5,7 @@ const { Pool } = require("pg");
 
 exports.handler = async (event, context) => {
   const uuid = uuidv4();
-  const { user_id } = event.pathParameters;
+  const user_id = ((event.pathParameters || {})['user_id']) || event.user_id;
 
   const pool = new Pool({
     host: process.env.PGHOST,
@@ -16,12 +16,13 @@ exports.handler = async (event, context) => {
   });
 
   const insertQuery = {
-    text: 'INSERT INTO Orders(order_id, user_id, total_price) VALUES($1, $2, $3)',
+    text: 'INSERT INTO Orders(order_id, user_id, total_price) VALUES($1, $2, $3) RETURNING *',
     values: [uuid, user_id, 0],
   };
 
+  var data;
   try {
-    const data = await pool.query(insertQuery);
+    data = await pool.query(insertQuery);
 
     return {
       statusCode: 200,
