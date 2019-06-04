@@ -1,4 +1,7 @@
-service: saga-service 
+service: saga-microservice 
+
+custom:
+  region: ${opt:region, self:provider.region}
 
 plugins:
   - serverless-step-functions
@@ -7,7 +10,8 @@ plugins:
 provider:
   name: aws
   runtime: nodejs8.10
-
+  stage: dev
+  region: us-east-1
   iamRoleStatements:
     - Effect: "Allow"
       Action: 
@@ -18,27 +22,104 @@ provider:
         - "states:ListStateMachines"
         - "states:StartExecution"
         - "states:GetExecutionHistory"
+        - "states:DescribeExecution"
       Resource: "arn:aws:states:*:*:*"
+
+functions:
+  find-order:
+    handler: functions/find-order.handler
+    events:
+      - http:
+          path: /orders/find/{order_id}
+          method: GET
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+  order-add-item:
+    handler: functions/order-add-item.handler
+    events:
+      - http:
+          path: orders/addItem/{order_id}/{item_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+                item_id: true
+  order-create:
+    handler: functions/order-create.handler
+    events:
+      - http:
+          path: /orders/create/{user_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+  order-remove:
+    handler: functions/order-remove.handler
+    events:
+      - http:
+          path: /orders/remove/{order_id}
+          method: DELETE
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+  cancel-payment:
+    handler: functions/cancel-payment.handler
+    events:
+      - http:
+          path: /payment/cancelPayment/{user_id}/{order_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+                order_id: true
+  payment-pay:
+    handler: functions/payment-pay.handler
+    events:
+      - http:
+          path: /payment/pay/{user_id}/{order_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+                order_id: true
+  order-checkout:
+    handler: functions/order-checkout.handler
+    events:
+      - http:
+          path: /orders/checkout/{order_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
 
 stepFunctions:
   stateMachines: 
+
+    # ORDER FIND
     FindOrder:
       name: FindOrderStateMachine
-      events:
-        - http:
-            path: orders/find/{order_id}
-            method: GET
-            private: false
-            request:
-              template:
-                application/json: |                  
-                  {
-                    "input" : "{ \"order_id\": \"$input.params('order_id')\" }",
-                    "stateMachineArn":"arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:FindOrderStateMachine"
-                  }
-              parameters:
-                paths:
-                  order_id: true
       definition:
         Comment: "Applying the Saga pattern for the find endpoint of the order microservice"
         StartAt: PaymentStatus
@@ -73,24 +154,10 @@ stepFunctions:
             End: true
           Fail:
             Type: Fail
+
+    # ORDER ADD ITEM
     OrderAddItem:
       name: OrderAddItemStateMachine
-      events:
-        - http:
-            path: orders/addItem/{order_id}/{item_id}
-            method: POST
-            private: false
-            request:
-              template:
-                application/json: |                  
-                  {
-                    "input" : "{ \"order_id\": \"$input.params('order_id')\", \"item_id\": \"$input.params('item_id')\" }",
-                    "stateMachineArn":"arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:stateMachine:OrderAddItemStateMachine"
-                  }
-              parameters:
-                paths:
-                  order_id: true
-                  item_id: true
       definition:
         Comment: "Applying the Saga pattern for the addItem endpoint of the order microservice"
         StartAt: StockAvailability
@@ -125,5 +192,327 @@ stepFunctions:
             End: true
           Fail:
             Type: Fail
-            
+
+    # ORDER CREATE
+    OrderCreate:
+      name: OrderCreateStateMachine
+      definition:
+        Comment: "Applying the Saga pattern for the create endpoint of the order microservice"
+        StartAt: FindUser
+        States:
+          FindUser:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:users-microservice-${opt:stage}-find-user"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.FindUserError"
+              Next: Fail
+            ResultPath: "$.FindUserResult"
+            Next: FindUserStatusCode
+          FindUserStatusCode:
+            Type: Choice
+            Choices:
+            - Or:
+              - Variable: "$.FindUserResult.statusCode"
+                NumericEquals: 200
+              - Variable: "$.FindUserResult.statusCode"
+                NumericEquals: 404
+              Next: OrderCreate
+            Default: Fail
+          OrderCreate:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:orders-microservice-${opt:stage}-create-order"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.OrderCreateError"
+              Next: Fail
+            ResultPath: "$.OrderCreateResult"
+            End: true
+          Fail:
+            Type: Fail
+    
+    # ORDER REMOVE
+    OrderRemove:
+      name: OrderRemoveStateMachine
+      definition:
+        Comment: "Applying the Saga pattern for the remove endpoint of the order microservice"
+        StartAt: PaymentStatus
+        States:
+          PaymentStatus:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:payment-microservice-${opt:stage}-payment-status"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.PaymentStatusError"
+              Next: Fail
+            ResultPath: "$.PaymentStatusResult"
+            Next: PaymentResultStatusCode
+          PaymentResultStatusCode:
+            Type: Choice
+            Choices:
+            - Or:
+              - Variable: "$.PaymentStatusResult.statusCode"
+                NumericEquals: 200
+              - Variable: "$.PaymentStatusResult.statusCode"
+                NumericEquals: 404
+              Next: OrderRemove
+            Default: Fail
+          OrderRemove:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:orders-microservice-${opt:stage}-create-order"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.OrderRemoveError"
+              Next: Fail
+            ResultPath: "$.OrderRemoveResult"
+            Next: OrderRemoveResultChoice
+          OrderRemoveResultChoice:
+            Type: Choice
+            Choices:
+            - Variable: "$.OrderRemoveResult.removePayment"
+              BooleanEquals: true
+              Next: PaymentRemove
+            Default: FinalState
+          PaymentRemove: 
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:payment-microservice-${opt:stage}-remove-payment"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.PaymentRemoveError"
+              Next: Fail
+            ResultPath: "$.PaymentRemoveResult"
+            Next: OrderRemove 
+          FinalState: 
+            Type: Succeed
+          Fail:
+            Type: Fail
+
+    # CANCEL PAYMENT
+    PaymentCancel:
+      name: PaymentCancelStateMachine
+      definition:
+        Comment: "Applying the Saga pattern for the cancel endpoint of the payment microservice"
+        StartAt: FindOrder
+        States:
+          FindOrder:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:orders-microservice-${opt:stage}-find-order"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.FindOrderError"
+              Next: Fail
+            ResultPath: "$.FindOrderResult"
+            Next: FindOrderStatusCode
+          FindOrderStatusCode:
+            Type: Choice
+            Choices:
+            - Variable: "$.FindOrderResult.statusCode"
+              NumericEquals: 200
+              Next: CancelPayment
+            Default: Fail
+          CancelPayment:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:payment-microservice-${opt:stage}-cancel-payment"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.CancelPaymentError"
+              Next: Fail
+            ResultPath: "$.CancelPaymentResult"
+            Next: CancelPaymentStatusCode
+          CancelPaymentStatusCode: 
+            Type: Choice
+            Choices:
+            - Variable: "$.CancelPaymentResult.statusCode"
+              NumericEquals: 200
+              Next: UserAddCredit
+            Default: Fail
+          UserAddCredit:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:users-microservice-${opt:stage}-credit-add"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.UserAddCreditError"
+              Next: SetPaymentPaid
+            ResultPath: "$.UserAddCreditResult"
+            Next: UserAddCreditStatusCode
+          UserAddCreditStatusCode:
+            Type: Choice
+            Choices:
+            - Variable: "$.UserAddCreditResult.statusCode"
+              NumericEquals: 200
+              Next: StockAddItems
+            Default: SetPaymentPaid
+          StockAddItems:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:stock-microservice-${opt:stage}-stock-add"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.StockAddItemsError"
+              Next: RepayOrder
+            ResultPath: "$.StockAddItemsResult"
+            Next: StockAddItemsStatusCode
+          StockAddItemsStatusCode:
+            Type: Choice
+            Choices:
+            - Variable: "$.StockAddItemsResult.statusCode"
+              NumericEquals: 200
+              Next: FinalState
+            Default: RepayOrder
+          RepayOrder:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:saga-microservice-${opt:stage}-payment-pay"
+            ResultPath: "$.RepayOrderResult"
+            End: true
+          SetPaymentPaid:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:payment-microservice-${opt:stage}-pay"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.SetPaymentPaidError"
+              Next: UserAddCredit
+            ResultPath: "$.SetPaymentPaidResult"
+            Next: FinalState
+          FinalState:
+            Type: Succeed
+          Fail:
+            Type: Fail    
+
+    # PAYMENT PAY
+    PaymentPay:
+      name: PaymentPayStateMachine
+      definition:
+        Comment: "Applying the Saga pattern for the pay endpoint of the payment microservice"
+        StartAt: FindOrder
+        States:
+          FindOrder:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:orders-microservice-${opt:stage}-find-order"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.FindOrderError"
+              Next: Fail
+            ResultPath: "$.FindOrderResult"
+            Next: FindOrderStatusCode
+          FindOrderStatusCode:
+            Type: Choice
+            Choices:
+            - Variable: "$.FindOrderResult.statusCode"
+              NumericEquals: 200
+              Next: UserSubtractCredit
+            Default: Fail
+          UserSubtractCredit:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:users-microservice-${opt:stage}-credit-subtract"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.UserSubtractCreditError"
+              Next: Fail
+            ResultPath: "$.UserSubtractCreditResult"
+            Next: UserSubtractCreditStatusCode
+          UserSubtractCreditStatusCode:
+            Type: Choice
+            Choices:
+            - Variable: "$.UserSubtractCreditResult.statusCode"
+              NumericEquals: 200
+              Next: SetPaymentPaid
+            Default: Fail
+          SetPaymentPaid:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:payment-microservice-${opt:stage}-pay"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.SetPaymentPaidError"
+              Next: UserAddCredit
+            ResultPath: "$.SetPaymentPaidResult"
+            Next: SetPaymentPaidStatusCode
+          SetPaymentPaidStatusCode:
+            Type: Choice
+            Choices:
+            - Variable: "$.SetPaymentPaidResult.statusCode"
+              NumericEquals: 200
+              Next: FinalState
+            Default: UserAddCredit
+          UserAddCredit:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:users-microservice-${opt:stage}-credit-add"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.UserAddCreditError"
+              Next: Fail
+            ResultPath: "$.UserAddCreditResult"
+            Next: Fail
+          FinalState:
+            Type: Succeed
+          Fail:
+            Type: Fail 
+
+    # ORDER CHECKOUT
+    OrderCheckout:
+      name: OrderCheckoutStateMachine
+      definition:
+        Comment: "Applying the Saga pattern for the checkout endpoint of the orders microservice"
+        StartAt: FindOrder
+        States:
+          FindOrder:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:orders-microservice-${opt:stage}-find-order"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.FindOrderError"
+              Next: Fail
+            ResultPath: "$.FindOrderResult"
+            Next: FindOrderStatusCode
+          FindOrderStatusCode:
+            Type: Choice
+            Choices:
+            - Variable: "$.FindOrderResult.statusCode"
+              NumericEquals: 200
+              Next: PaymentPay
+            Default: Fail
+          PaymentPay:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:saga-microservice-${opt:stage}-payment-pay"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.PaymentPayError"
+              Next: Fail
+            ResultPath: "$.PaymentPayResult"
+            Next: PaymentPayStatusCode
+          PaymentPayStatusCode:
+            Type: Choice
+            Choices:
+            - Variable: "$.PaymentPayResult.statusCode"
+              NumericEquals: 200
+              Next: StockSubtract
+            Default: Fail
+          StockSubtract:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:stock-microservice-${opt:stage}-stock-subtract"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.StockSubtractError"
+              Next: CancelPayment
+            ResultPath: "$.StockSubtractResult"
+            Next: StockSubtractStatusCode
+          StockSubtractStatusCode:
+            Type: Choice
+            Choices:
+            - Variable: "$.StockSubtractResult.statusCode"
+              NumericEquals: 200
+              Next: FinalState
+            Default: CancelPayment
+          CancelPayment:
+            Type: Task
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:saga-microservice-${opt:stage}-cancel-payment"
+            Catch:
+            - ErrorEquals: ["States.ALL"]
+              ResultPath: "$.CancelPaymentError"
+              Next: Fail
+            ResultPath: "$.CancelPaymentResult"
+            End: true
+          FinalState:
+            Type: Succeed
+          Fail:
+            Type: Fail 
+
 End: true

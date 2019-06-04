@@ -13,7 +13,18 @@ exports.handler = async (event, context) => {
   let statusCode = 0;
 
   const uuid = uuidv4();
-  const { user_id } = event.pathParameters;
+  const user_id = ((event.pathParameters || {})['user_id']) || event.user_id;
+  const findUserStatusCode = ((event.FindUserResult.statusCode)) || 404;
+  
+  if (findUserStatusCode !== 200) {
+    return {
+      statusCode: 404,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        Message: "User not found"
+      })
+    }
+  }
 
   const searchParams = {
     TableName: "Orders",

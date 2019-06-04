@@ -39,7 +39,7 @@ exports.handler = async (event, context) => {
 
   try {
     const data = await documentClient.get(searchParams).promise();
-    if (data.Item) {
+    if (data.Item != null) {
       let found = false;
       data.Item.items.forEach(function(entry) {
         if (entry.Order_ID == itemId) {
@@ -62,16 +62,19 @@ exports.handler = async (event, context) => {
           ':newList': data.Item.items
         }
       };
-      const data = await documentClient.update(updateParams).promise();
-      responseBody = JSON.stringify(data);
+      const secondData = await documentClient.update(updateParams).promise();
+      responseBody = JSON.stringify(secondData);
       statusCode = 200;
     } else {
       throw 'Order not found.';
     }  
   } catch (err) {
     console.log(err);
-    responseBody = "Something went wrong.";
-    statusCode = 403;
+    responseBody = JSON.stringify({
+      Message: "Error",
+      Error: err
+    });
+    statusCode = 500;
   };
   
   const response = { 

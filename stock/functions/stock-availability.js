@@ -10,7 +10,7 @@ const dynamoDB = new AWS.DynamoDB.DocumentClient({region: region});
  * }
  */
 exports.handler = async function(e, ctx) {
-    const item_id = ((e.path || {})['item_id']) || (e['item_id']);
+    const item_id = ((e.pathParameters || {})['item_id']) || (e['item_id']);
 
     const params = {
         TableName: 'Stock',
@@ -23,20 +23,33 @@ exports.handler = async function(e, ctx) {
     try {
         data = await dynamoDB.get(params).promise();
 
-        return {
-            statusCode: 200,
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({
-                Message: "Successfully get availability of item " + item_id,
-                Data: JSON.stringify(data)
-            }),
-        };
+        if (data.Item == null) {
+            return {
+                statusCode: 404,
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    Message: "Item not found"
+                })
+            }
+        } else {
+            return {
+                statusCode: 200,
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    ItemId: item_id,
+                    quantity: data.Item.quantity,
+                    Message: "Successfully get availability of item " + item_id,
+                    Data: JSON.stringify(data)
+                }),
+            };
+        }
     } catch (err) {
+        console.log(err)
         return {
-            statusCode: 403,
+            statusCode: 500,
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
-                Message: "Something wrong! No " + item_id + " in the stock.",
+                Message: "Something wrong!",
                 Data: JSON.stringify(data),
                 Error: err
             }),
