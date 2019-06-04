@@ -11,8 +11,8 @@ const dynamoDB = new AWS.DynamoDB.DocumentClient({region: region});
  * }
  */
 exports.handler = async function(e, ctx) {
-    const item_id = ((e.path || {})['item_id']) || (e['item_id']);
-    let number = ((e.path || {})['number']) || (e['number']);
+    const item_id = ((e.path || {})['item_id']) || (e['item_id']) || ((e.pathParameters || {})['item_id']);
+    let number = ((e.path || {})['number']) || (e['number']) || ((e.pathParameters || {})['number']);
 
     number = parseInt(number, 10);
 
