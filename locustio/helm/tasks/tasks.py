@@ -18,7 +18,7 @@ class ElbTasks(TaskSet):
     self.client.post(f"/payment/pay/{user_id}/{order_id}", name="Pay")
 
 class goodFlowTasks(TaskSet):
-  @task(80)
+  @task(100)
   class completeCheckout(TaskSequence):
     @seq_task(1)
     def create_account(self):
@@ -58,25 +58,22 @@ class goodFlowTasks(TaskSet):
       self.client.post(f"{sagasService}/orders/checkout/{self.OrderID}", name="Checkout")
       self.interrupt()
 
-  @task(20)
+  @task(0)
   class justLooking(TaskSequence):
     @seq_task(1)
     def create_account(self):
       response = self.client.post(f"{usersService}/users/create", name="CreateUser")
-      print(response.json())
       self.UserID = response.json() # TODO: extract user_id
 
     @seq_task(2)
     def create_order(self):
       response = self.client.post(f"{sagasService}/orders/create", name="CreateOrder")
-      print(response.json())
       self.OrderID = response.json() # TODO: extract order_id
 
     @seq_task(3)
     def create_item(self):
       self.ItemID = str(uuid.uuid4())
       response = self.client.post(f"{stockService}/stock/item/create/", name="CreateItem")
-      print(response.json())
       self.ItemID = response.json() # TODO: extract item_id
 
     @seq_task(4)
@@ -95,7 +92,6 @@ class badFlowTasks(TaskSet):
     @seq_task(1)
     def create_account(self):
       response = self.client.post(f"{usersService}/users/create", name="CreateUser")
-      print(response.json())
       self.UserID = response.json() # TODO: extract user_id
 
     @seq_task(2)
@@ -154,8 +150,8 @@ class badFlowTasks(TaskSet):
 
 class ElbWarmer(HttpLocust):
   # Toggle task sets
-  task_set = ElbTasks
-  # task_set = goodFlowTasks
+  # task_set = ElbTasks
+  task_set = goodFlowTasks
   # task_set = badFlowTasks
   min_wait = 1000
   max_wait = 3000
