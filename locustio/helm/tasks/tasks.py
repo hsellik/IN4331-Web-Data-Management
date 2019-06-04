@@ -5,7 +5,7 @@ import random
 from locust import HttpLocust, TaskSet, task, TaskSequence, seq_task
 
 usersService = "https://0ku9sdii1j.execute-api.us-east-1.amazonaws.com/dev"
-stockService = "https://e3o2ksgaq0.execute-api.us-east-1.amazonaws.com/dev"
+stockService = "https://f6r12yon57.execute-api.us-east-1.amazonaws.com/dev"
 sagasService = "https://ydmcjwu7e4.execute-api.us-east-1.amazonaws.com/dev"
 
 class ElbTasks(TaskSet):
@@ -27,17 +27,18 @@ class goodFlowTasks(TaskSet):
       print("User_ID: " + response.json()['User_ID'])
       self.UserID = response.json()['User_ID']
 
-
     @seq_task(2)
     def create_order(self):
       response = self.client.post(f"{sagasService}/orders/create/{self.UserID}", name="CreateOrder")
-      self.OrderID = json.loads(response.json())["OrderCreateResult"]["body"]
-      print("User_ID: " + self.OrderID)
+      if response.ok:
+        self.OrderID = response.json()['Order_ID']
+        print("Order_ID: " + self.OrderID)
+
     @seq_task(3)
     def create_item(self):
       response = self.client.post(f"{stockService}/stock/item/create", name="CreateItem")
-      print("Item_ID: " + response.json()["Message"][25:])
-      self.ItemID = response.json()["Message"][25:]
+      print("Item_ID: " + response.json()['Item_ID'])
+      self.ItemID = response.json()['Item_ID']
 
     @seq_task(4)
     def add_stock(self):
@@ -109,7 +110,7 @@ class badFlowTasks(TaskSet):
     def add_item_to_order(self):
       with self.client.post(f"{sagasService}/orders/additem/{self.OrderID}/{self.ItemID}",
                             catch_response=True, name="FailedAddItemToOrder") as response:
-        if response.status_code != 400:
+        if response.status_code != 200:
           response.success()
       self.interrupt()
 
@@ -144,7 +145,7 @@ class badFlowTasks(TaskSet):
     @seq_task(6)
     def checkout(self):
       with self.client.post(f"{sagasService}/orders/checkout/{self.OrderID}", catch_response=True, name="FailedCheckout") as response:
-        if response.status_code != 400:
+        if response.status_code != 200:
           response.success()
       self.interrupt()
 

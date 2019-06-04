@@ -28,6 +28,7 @@ exports.handler = async function(e, ctx) {
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
                 Message: "Successfully create item " + item_id,
+                Item_ID: item_id,
                 Data: JSON.stringify(data)
             }),
         };

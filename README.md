@@ -19,3 +19,9 @@ Example
 * `./build-all.sh remove <stage> <region> <aws_profile>`  
 Example  
 * `./build-all.sh remove dev us-east-1 default`
+
+## (Re)deploying Single AWS Function  
+To save time and re-deploy only a single function after modifications, use:  
+* `serverless deploy function -f <function> -s <stage> -r <region>`
+Example
+* `serverless deploy function -f pay -s dev -r us-east-1`
