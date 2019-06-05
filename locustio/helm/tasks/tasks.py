@@ -6,7 +6,7 @@ from locust import HttpLocust, TaskSet, task, TaskSequence, seq_task
 
 usersService = "https://0ku9sdii1j.execute-api.us-east-1.amazonaws.com/dev"
 stockService = "https://f6r12yon57.execute-api.us-east-1.amazonaws.com/dev"
-sagasService = "https://ydmcjwu7e4.execute-api.us-east-1.amazonaws.com/dev"
+sagasService = "https://gt0u5bgjkb.execute-api.us-east-1.amazonaws.com/dev"
 
 class ElbTasks(TaskSet):
 
@@ -40,24 +40,24 @@ class goodFlowTasks(TaskSet):
       print("Item_ID: " + response.json()['Item_ID'])
       self.ItemID = response.json()['Item_ID']
 
-    @seq_task(4)
-    def add_stock(self):
-      self.InitialStock = random.randint(1,101)
-      self.client.post(f"{stockService}/stock/add/{self.ItemID}/{self.InitialStock}", name="AddStock")
+    # @seq_task(4)
+    # def add_stock(self):
+    #   self.InitialStock = random.randint(1,101)
+    #   self.client.post(f"{stockService}/stock/add/{self.ItemID}/{self.InitialStock}", name="AddStock")
 
-    @seq_task(5)
-    def add_item_to_order(self):
-      for i in range(random.randint(1, self.InitialStock)):
-        self.client.post(f"{sagasService}/orders/addItem/{self.OrderID}/{self.ItemID}", name="AddItemToOrder")
+    # @seq_task(5)
+    # def add_item_to_order(self):
+    #   for i in range(random.randint(1, self.InitialStock)):
+    #     self.client.post(f"{sagasService}/orders/addItem/{self.OrderID}/{self.ItemID}", name="AddItemToOrder")
 
-    @seq_task(6)
-    def add_credit(self):
-      self.client.post(f"{usersService}/users/credit/add/{self.UserID}/{self.InitialStock}", name="AddCreditToUser")
+    # @seq_task(6)
+    # def add_credit(self):
+    #   self.client.post(f"{usersService}/users/credit/add/{self.UserID}/{self.InitialStock}", name="AddCreditToUser")
 
-    @seq_task(7)
-    def checkout(self):
-      self.client.post(f"{sagasService}/orders/checkout/{self.OrderID}", name="Checkout")
-      self.interrupt()
+    # @seq_task(7)
+    # def checkout(self):
+    #   self.client.post(f"{sagasService}/orders/checkout/{self.OrderID}", name="Checkout")
+    #   self.interrupt()
 
   @task(0)
   class justLooking(TaskSequence):
