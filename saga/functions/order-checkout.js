@@ -5,6 +5,22 @@ const region = process.env.AWS_REGION;
 const lambda = new AWS.Lambda();
 
 const rollbackFromNoStock = async (subtractedItems, user_id, credit) => {
+  for (let i = 0; i < subtractedItems.length; i++) { 
+    const addItem = {
+      FunctionName: "stock-microservice-dev-stock-add", 
+      InvocationType: "RequestResponse", 
+      Payload: JSON.stringify({
+        "item_id": subtractedItems.Item_ID,
+        "number": subtractedItems.quantity
+      })
+    }
+
+    const addItemResult = await lambda.invoke(addItem).promise().then(res => res.Payload);
+    if (JSON.parse(addItemResult).statusCode !== 200) {
+      throw "Unable to restock items from order, manual fix necessary."
+    }
+  }
+
   const addCredit = {
     FunctionName: "users-microservice-dev-credit-add", 
     InvocationType: "RequestResponse", 
@@ -16,13 +32,13 @@ const rollbackFromNoStock = async (subtractedItems, user_id, credit) => {
   
   const addCreditResult = await lambda.invoke(addCredit).promise().then(res => res.Payload);
   if (JSON.parse(addCreditResult).statusCode !== 200) {
-    throw "Unable to add credit to user account, manual fix necessary."
+    throw "Unable to refund credit to user account, manual fix necessary."
   }
 
   return {
     statusCode: 412,
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ Message: "No STOCK!" }),
+    body: JSON.stringify({ Message: "No STOCK or unable to set pay to true!" }),
     isBase64Encoded: false,
   }
 }
@@ -91,8 +107,22 @@ exports.handler = async function(e, ctx) {
           }
           subtractedItems.push({ 
             "item_id": JSON.parse(order.body).Item.items[i].Item_ID,
-            "number": JSON.parse(order.body).Item.items[i].quantity
+            "quantity": JSON.parse(order.body).Item.items[i].quantity
           })
+        }
+
+        const setPaymentStatus = {
+          FunctionName: "payment-microservice-dev-pay", 
+          InvocationType: "RequestResponse", 
+          Payload: JSON.stringify({
+            "order_id": orderId,
+            "user_id": JSON.parse(order.body).Item.User_ID,
+          })
+        }
+        
+        const setPaymentStatusResult = await lambda.invoke(setPaymentStatus).promise().then(res => res.Payload);
+        if (JSON.parse(setPaymentStatusResult).statusCode !== 200){
+          return await rollbackFromNoStock(subtractedItems, JSON.parse(order.body).Item.User_ID, JSON.parse(order.body).Item.total_price)
         }
 
         return {
