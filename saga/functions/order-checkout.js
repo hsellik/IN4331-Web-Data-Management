@@ -2,45 +2,106 @@ console.log('Starting order checkout saga');
 
 const AWS = require('aws-sdk');
 const region = process.env.AWS_REGION;
-const stepFunctionClient = new AWS.StepFunctions({region: region});
+const lambda = new AWS.Lambda();
+
+const rollbackFromNoStock = async (subtractedItems, user_id, credit) => {
+  const addCredit = {
+    FunctionName: "users-microservice-dev-credit-add", 
+    InvocationType: "RequestResponse", 
+    Payload: JSON.stringify({
+      "user_id": user_id,
+      "amount": credit
+    })
+  }
+  
+  const addCreditResult = await lambda.invoke(addCredit).promise().then(res => res.Payload);
+  if (JSON.parse(addCreditResult).statusCode !== 200) {
+    throw "Unable to add credit to user account, manual fix necessary."
+  }
+
+  return {
+    statusCode: 412,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ Message: "No STOCK!" }),
+    isBase64Encoded: false,
+  }
+}
 
 exports.handler = async function(e, ctx) {
 
     try {
-        const AWSAccountId = e.requestContext.accountId;
         const orderId = ((e.pathParameters || {})['order_id']) || e.order_id;
 
-        const stepFunctionArn = `arn:aws:states:${region}:${AWSAccountId}:stateMachine:OrderCheckoutStateMachine`;
-        const stepFunctionExecutionParams = {
-            stateMachineArn: stepFunctionArn,
-            input: JSON.stringify({
-                order_id: orderId,
-            }),
+        const findOrder = {
+          FunctionName: "orders-microservice-dev-find-order", 
+          InvocationType: "RequestResponse", 
+          Payload: JSON.stringify({
+            "order_id": orderId,
+          })
         }
         
-        const startExecutionResult = await stepFunctionClient.startExecution(stepFunctionExecutionParams).promise();
-        const executionArn = startExecutionResult.executionArn;
+        const findOrderResult = await lambda.invoke(findOrder).promise().then(res => res.Payload);
+        if (JSON.parse(findOrderResult).statusCode !== 200) {
+          throw "Couldn't find order in order table."
+        }
+        const order = JSON.parse(findOrderResult);
 
-        let result = { status: "RUNNING" };
-        while (result.status === "RUNNING") {
-            result = await stepFunctionClient.describeExecution({ executionArn: executionArn }).promise();
+        const getPaymentStatus = {
+          FunctionName: "payment-microservice-dev-payment-status", 
+          InvocationType: "RequestResponse", 
+          Payload: JSON.stringify({
+            "order_id": orderId,
+          })
+        }
+        
+        const getPaymentStatusResult = await lambda.invoke(getPaymentStatus).promise().then(res => res.Payload);
+        if (JSON.parse(getPaymentStatusResult).statusCode === 200 && 
+            JSON.parse(JSON.parse(getPaymentStatusResult).body).Data.Item.isPaid === true) {
+              throw "Order is already paid."
+        }
+          
+        const subtractCredit = {
+          FunctionName: "users-microservice-dev-credit-subtract", 
+          InvocationType: "RequestResponse", 
+          Payload: JSON.stringify({
+            "user_id": JSON.parse(order.body).Item.User_ID,
+            "amount": JSON.parse(order.body).Item.total_price
+          })
+        }
+        
+        const subtractCreditResult = await lambda.invoke(subtractCredit).promise().then(res => res.Payload);
+        if (JSON.parse(subtractCreditResult).statusCode !== 200) {
+          throw "User does not have enough credits."
         }
 
-        if (result.status === "SUCCEEDED") {
-            return {
-                statusCode: 200,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(result.output),
-                isBase64Encoded: false,
-            };
-        } else {
-            return {
-                statusCode: 500,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(result),
-                isBase64Encoded: false,
-            };
+        let subtractedItems = [];
+
+        for (let i = 0; i < JSON.parse(order.body).Item.items.length; i++) { 
+          const subtractItem = {
+            FunctionName: "stock-microservice-dev-stock-subtract", 
+            InvocationType: "RequestResponse", 
+            Payload: JSON.stringify({
+              "item_id": JSON.parse(order.body).Item.items[i].Item_ID,
+              "number": JSON.parse(order.body).Item.items[i].quantity
+            })
+          }
+          const subtractItemResult = await lambda.invoke(subtractItem).promise().then(res => res.Payload);
+          if (JSON.parse(subtractItemResult).statusCode !== 200) {
+            return await rollbackFromNoStock(subtractedItems, JSON.parse(order.body).Item.User_ID, JSON.parse(order.body).Item.total_price)
+          }
+          subtractedItems.push({ 
+            "item_id": JSON.parse(order.body).Item.items[i].Item_ID,
+            "number": JSON.parse(order.body).Item.items[i].quantity
+          })
         }
+
+        return {
+          statusCode: 200,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ Message: "Good for now" }),
+          isBase64Encoded: false,
+        }
+
     } catch (err) {
         console.log(err);
         return {

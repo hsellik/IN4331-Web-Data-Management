@@ -13,13 +13,6 @@ exports.handler = async (event, context) => {
   let responseHeaders = { "Content-Type": "application/json" };
 
   const orderId = ((event.pathParameters || {})['order_id']) || (event.order_id);
-  const paymentStatusCode = ((event.PaymentStatusResult.statusCode)) || 404;
-  
-  let paymentSuccessful = false;
-  if (paymentStatusCode === 200) {
-    const response = JSON.parse(event.PaymentStatusResult.body);
-    paymentSuccessful = response.Data.isPaid;
-  }
 
   const searchParams = {
     TableName: "Orders",
@@ -34,7 +27,6 @@ exports.handler = async (event, context) => {
       statusCode = 200;
       responseBody = JSON.stringify({
         ...data,
-        isPaid: paymentSuccessful,
       });
     } else {
       statusCode = 404;
