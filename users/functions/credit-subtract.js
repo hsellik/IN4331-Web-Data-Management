@@ -10,14 +10,6 @@ exports.handler = async function(e, ctx) {
     const amountRaw = ((e.pathParameters || {})['amount']) || e.amount;
 
     const amount = parseInt(amountRaw, 10);
-    if (amount == NaN) { // TODO: This doesn't seem to work, not sure why
-        callback(null, {
-            statusCode: 400,
-            headers: { "Content-type": "application/json" },
-            body: JSON.stringify({ message: `Amount parameter is not a number: \"${amountRaw}\"` }),
-        });
-        return;
-    }
 
     const getParams = {
         TableName: 'Users',
@@ -39,12 +31,6 @@ exports.handler = async function(e, ctx) {
                 headers: { "Content-type": "application/json" },
                 body: JSON.stringify({ Message: "credit not found in User item.", item: data.Item }),
             }
-        } else if (data.Item.credit < amount) {
-            return {
-                statusCode: 412,
-                headers: { "Content-type": "application/json" },
-                body: JSON.stringify({ Message: `Credit not sufficient; current credit: ${data.Item.credit}` }),
-            };
         } else {
             try {
                 const updateParams = {
