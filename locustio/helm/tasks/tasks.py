@@ -40,15 +40,15 @@ class goodFlowTasks(TaskSet):
       print("Item_ID: " + response.json()['Item_ID'])
       self.ItemID = response.json()['Item_ID']
 
-    # @seq_task(4)
-    # def add_stock(self):
-    #   self.InitialStock = random.randint(1,101)
-    #   self.client.post(f"{stockService}/stock/add/{self.ItemID}/{self.InitialStock}", name="AddStock")
+    @seq_task(4)
+    def add_stock(self):
+      self.InitialStock = random.randint(1,11)
+      self.client.post(f"{stockService}/stock/add/{self.ItemID}/{self.InitialStock}", name="AddStock")
 
-    # @seq_task(5)
-    # def add_item_to_order(self):
-    #   for i in range(random.randint(1, self.InitialStock)):
-    #     self.client.post(f"{sagasService}/orders/addItem/{self.OrderID}/{self.ItemID}", name="AddItemToOrder")
+    @seq_task(5)
+    def add_item_to_order(self):
+      for i in range(random.randint(1, self.InitialStock)):
+        self.client.post(f"{sagasService}/orders/addItem/{self.OrderID}/{self.ItemID}", name="AddItemToOrder")
 
     # @seq_task(6)
     # def add_credit(self):

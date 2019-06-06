@@ -14,21 +14,6 @@ exports.handler = async (event, context) => {
 
   const orderId = ((event.pathParameters || {})['order_id']) || (event.order_id);
   const itemId = ((event.pathParameters || {})['item_id']) || (event.item_id);
-  const stockAvailabilityStatusCode = ((event.StockAvailabilityResult.statusCode)) || 404;
-  
-  let itemAvailable = false;
-  if (stockAvailabilityStatusCode === 200) {
-    const response = JSON.parse(event.StockAvailabilityResult.body);
-    itemAvailable = (response.quantity > 0);
-  }
-
-  if (!itemAvailable) {
-    return {
-      statusCode: 412,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ Message: "Item is not available" })
-    }
-  }
 
   const searchParams = {
     TableName: "Orders",
@@ -42,7 +27,7 @@ exports.handler = async (event, context) => {
     if (data.Item != null) {
       let found = false;
       data.Item.items.forEach(function(entry) {
-        if (entry.Order_ID == itemId) {
+        if (entry.Item_ID == itemId) {
           entry.quantity += 1;
           found = true;
         }
@@ -50,16 +35,19 @@ exports.handler = async (event, context) => {
       if (found == false) {
         data.Item.items.push({ Item_ID: itemId, quantity: 1 })
       };
+      data.Item.total_price += 1;
       const updateParams = {
         TableName: 'Orders',
         Key: { Order_ID: orderId },
-        ReturnValues: 'UPDATED_NEW',
-        UpdateExpression: 'set #items = :newList',
+        ReturnValues: 'ALL_NEW',
+        UpdateExpression: 'set #items = :newList, #total_price = :newTotalPrice',
         ExpressionAttributeNames: {
-          '#items': 'items'
+          '#items': 'items',
+          '#total_price': 'total_price'
         },
         ExpressionAttributeValues: {
-          ':newList': data.Item.items
+          ':newList': data.Item.items,
+          ':newTotalPrice': data.Item.total_price
         }
       };
       const secondData = await documentClient.update(updateParams).promise();

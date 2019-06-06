@@ -5,7 +5,7 @@ const lambda = new AWS.Lambda();
 
 module.exports.handler = async function(e, ctx) {
   const user_id = ((e.pathParameters || {})['user_id']) || e.user_id;
-
+  
   const findUser = {
     FunctionName: "users-microservice-dev-find-user", 
     InvocationType: "RequestResponse", 
