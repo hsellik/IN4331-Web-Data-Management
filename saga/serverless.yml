@@ -42,7 +42,7 @@ functions:
     handler: functions/order-add-item.handler
     events:
       - http:
-          path: orders/addItem/{order_id}/{item_id}
+          path: /orders/addItem/{order_id}/{item_id}
           method: POST
           integration: lambda-proxy
           private: false

@@ -35,7 +35,7 @@ exports.handler = async function(e, ctx) {
                 return {
                   statusCode: 200,
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.parse(addItemToOrderResult.body),
+                  body: JSON.parse(addItemToOrderResult).body,
                   isBase64Encoded: false
                 }
               } else {
