@@ -15,12 +15,14 @@ exports.handler = async function(e, ctx) {
     });
 
     const deleteQuery = {
-        text: 'DELETE FROM Users WHERE EXISTS user_id = $1',
+        text: 'DELETE FROM Users WHERE user_id = $1 RETURNING *',
         values: [user_id],
     };
 
     try {
+        console.log("there");
         const data = await pool.query(deleteQuery);
+        console.log("here");
         if (data.rows.length === 0) {
             return {
                 statusCode: 404,

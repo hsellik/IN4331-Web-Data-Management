@@ -22,7 +22,7 @@ exports.handler = async function (e, ctx) {
 
   async function subtract(item) {
     const updateQuery = {
-      text: "UPDATE Stock SET quantity = quantity - $1 WHERE item_id = $2",
+      text: "UPDATE Stock SET quantity = quantity - $1 WHERE item_id = $2 RETURNING *",
       values: [item.quantity, item.Item_ID]
     };
     // return await dynamoDB.update(params).promise();
@@ -41,7 +41,8 @@ exports.handler = async function (e, ctx) {
     let satisfied = 0;
     for (let item of data.rows) {
       for (let orderItem of items) {
-        if (item["item_id"] === orderItem["Item_ID"] && orderItem["quantity"] > item["quantity"]) {
+        if (item["item_id"] === orderItem["Item_ID"] && item["quantity"] > orderItem["quantity"]) {
+           
           satisfied++;
         }
       }
@@ -50,13 +51,12 @@ exports.handler = async function (e, ctx) {
   }
 
   try {
-    if (!checkQuantity(Item.items)) {
+    if (!(await checkQuantity(Item.items))) {
       return {
         statusCode: 403,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          Message: "Something wrong! Not enough items in stock for order" + order_id,
-          Data: JSON.stringify(data)
+          Message: "Something wrong! Not enough items in stock for order" + order_id
         })
       };
     }
@@ -69,7 +69,7 @@ exports.handler = async function (e, ctx) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         Message: "Successfully subtract items from stock of order " + order_id,
-        Data: JSON.stringify(data)
+        Data: JSON.stringify(data.rows)
       })
     };
   } catch (err) {
@@ -78,7 +78,6 @@ exports.handler = async function (e, ctx) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         Message: "Something wrong! Unable to subtract items from stock of order" + order_id,
-        Data: JSON.stringify(data),
         Error: err
       }),
     };

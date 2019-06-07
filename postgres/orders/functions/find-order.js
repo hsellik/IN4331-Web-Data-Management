@@ -3,10 +3,10 @@
 const { Pool } = require("pg");
 
 exports.handler = async (event, context) => {
-  const { order_id } = event.pathParameters;
+  const order_id = ((event.pathParameters || {})['order_id']) || event.order_id;
 
   const selectQuery = {
-    text: 'SELECT * FROM Orders JOIN OrderRow ON Orders.order_id = OrderRow.order_id WHERE Orders.order_id = $1',
+    text: 'SELECT * FROM Orders LEFT JOIN OrderRow ON Orders.order_id = OrderRow.order_id WHERE Orders.order_id = $1',
     values: [order_id],
   };
 
@@ -18,8 +18,9 @@ exports.handler = async (event, context) => {
     port: process.env.PGPORT
   });
 
+  var data;
   try {
-    const data = await pool.query(selectQuery);
+    data = await pool.query(selectQuery);
     if (data.rows.length === 0) {
       return {
         statusCode: 404,

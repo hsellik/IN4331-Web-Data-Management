@@ -15,81 +15,81 @@ provider:
   region: us-east-1
   environment:
     PGHOST: PLACEHOLDER_PGHOST
-    PGUSER: master
-    PGDATABASE: DBOrders
-    PGPASSWORD: master-pwd
+    PGUSER: PLACEHOLDER-USERNAME
+    PGDATABASE: PLACEHOLDER-DBNAME
+    PGPASSWORD: PLACEHOLDER-PWD
     PGPORT: 5432
 
 functions:
   # -----------------------------
   # Order functions
   # -----------------------------
-   create-order:
-     handler: functions/create-order.handler
-     events:
-       - http:
-           path: /orders/create/{user_id}
-           method: POST
-           integration: lambda-proxy
-           private: false
-           request:
-             parameters:
-               paths:
-                 user_id: true
+  create-order:
+    handler: functions/create-order.handler
+    events:
+      - http:
+          path: /orders/create/{user_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
 
-   find-order:
-     handler: functions/find-order.handler
-     events:
-       - http:
-           path: /orders/find/{order_id}
-           method: GET
-           integration: lambda-proxy
-           private: false
-           request:
-             parameters:
-               paths:
-                 order_id: true
+  find-order:
+    handler: functions/find-order.handler
+    events:
+      - http:
+          path: /orders/find/{order_id}
+          method: GET
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
 
-   remove-order:
-     handler: functions/remove-order.handler
-     events:
-       - http:
-           path: /orders/remove/{order_id}
-           method: DELETE
-           integration: lambda-proxy
-           private: false
-           request:
-             parameters:
-               paths:
-                 order_id: true
+  remove-order:
+    handler: functions/remove-order.handler
+    events:
+      - http:
+          path: /orders/remove/{order_id}
+          method: DELETE
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
 
-   add-item:
-     handler: functions/add-item.handler
-     events:
-       - http:
-           path: /orders/addItem/{order_id}/{item_id}
-           method: POST
-           integration: lambda-proxy
-           private: false
-           request:
-             parameters:
-               paths:
-                 order_id: true
-                 item_id: true
+  add-item:
+    handler: functions/add-item.handler
+    events:
+      - http:
+          path: /orders/addItem/{order_id}/{item_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+                item_id: true
 
-   remove-item:
-     handler: functions/remove-item.handler
-     events:
-       - http:
-           path: /orders/removeItem/{order_id}/{item_id}
-           method: DELETE
-           integration: lambda-proxy
-           private: false
-           request:
-             parameters:
-               paths:
-                 order_id: true
-                 item_id: true
+  remove-item:
+    handler: functions/remove-item.handler
+    events:
+      - http:
+          path: /orders/removeItem/{order_id}/{item_id}
+          method: DELETE
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+                item_id: true
 
 resources:
   Resources:
@@ -98,11 +98,11 @@ resources:
       Properties:
         Engine: Postgres
         EngineVersion: 10.6
-        DBInstanceIdentifier: "WebDataManagementOrders"    # case insensitive
-        DBName: "DBOrders"                # case sensitive
-        MasterUsername: "master"
-        MasterUserPassword: "master-pwd"
-        DBInstanceClass: "db.t2.micro"
+        DBInstanceIdentifier: "PLACEHOLDER-DBID"    # case insensitive
+        DBName: "PLACEHOLDER-DBNAME"                # case sensitive
+        MasterUsername: "PLACEHOLDER-USERNAME"
+        MasterUserPassword: "PLACEHOLDER-PWD"
+        DBInstanceClass: "PLACEHOLDER-DBINSTANCE-CLASS"
         AllocatedStorage: 20
         Port: 5432
         PubliclyAccessible: true

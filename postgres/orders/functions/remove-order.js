@@ -2,10 +2,10 @@
 
 exports.handler = async (event, context) => {
   const { Pool } = require("pg");
-  const { order_id } = event.pathParameters;
+  const order_id = ((event.pathParameters || {})['order_id']) || event.order_id;
 
   const deleteQuery = {
-    text: "DELETE FROM Orders WHERE EXISTS order_id = $1",
+    text: "DELETE FROM Orders WHERE order_id = $1 RETURNING *",
     values: [order_id]
   };
 
@@ -17,8 +17,9 @@ exports.handler = async (event, context) => {
     port: process.env.PGPORT
   });
 
+  var data;
   try {
-    const data = await pool.query(deleteQuery);
+    data = await pool.query(deleteQuery);
     if (data.rows.length === 0) {
       return {
         statusCode: 404,
