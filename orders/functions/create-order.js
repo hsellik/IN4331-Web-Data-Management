@@ -14,17 +14,17 @@ exports.handler = async (event, context) => {
 
   const uuid = uuidv4();
   const user_id = ((event.pathParameters || {})['user_id']) || event.user_id;
-  const findUserStatusCode = ((event.FindUserResult.statusCode)) || 404;
+  // const findUserStatusCode = ((event.FindUserResult.statusCode)) || 404;
   
-  if (findUserStatusCode !== 200) {
-    return {
-      statusCode: 404,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        Message: "User not found"
-      })
-    }
-  }
+  // if (findUserStatusCode !== 200) {
+  //   return {
+  //     statusCode: 404,
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({
+  //       Message: "User not found"
+  //     })
+  //   }
+  // }
 
   const searchParams = {
     TableName: "Orders",
@@ -48,8 +48,14 @@ exports.handler = async (event, context) => {
         }
       };
       const data = await documentClient.put(putParams).promise();
-      responseBody = uuid;
-      statusCode = 200;
+      return {
+        statusCode: 200,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            Order_ID: uuid,
+        }),
+        isBase64Encoded: false,
+      };
     }  
   } catch (err) {
     console.log(err);

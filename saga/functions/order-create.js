@@ -1,71 +1,50 @@
-console.log('Starting order create saga');
+'use strict'
 
-const AWS = require('aws-sdk');
-const region = process.env.AWS_REGION;
-const stepFunctionClient = new AWS.StepFunctions({region: region});
+const AWS = require('aws-sdk')
+const lambda = new AWS.Lambda();
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-exports.handler = async function(e, ctx) {
-
-    try {
-        const AWSAccountId = e.requestContext.accountId;
-        const userId = ((e.pathParameters || {})['user_id']) || e.user_id;
-
-        const stepFunctionArn = `arn:aws:states:${region}:${AWSAccountId}:stateMachine:OrderCreateStateMachine`;
-        const stepFunctionExecutionParams = {
-            stateMachineArn: stepFunctionArn,
-            input: JSON.stringify({
-                user_id: userId,
-            }),
-        }
-        
-        const startExecutionResult = await stepFunctionClient.startExecution(stepFunctionExecutionParams).promise();
-        const executionArn = startExecutionResult.executionArn;
-
-        let result = { status: "RUNNING" };
-        while (result.status === "RUNNING") {
-          result = await stepFunctionClient.describeExecution({ executionArn: executionArn }).promise();
-          await sleep(600);
-        }
+module.exports.handler = async function(e, ctx) {
+  const user_id = ((e.pathParameters || {})['user_id']) || e.user_id;
   
-        while (result.status === "SUCCEEDED" && (result.output === null || typeof result.output === 'undefined')) {
-          result = await stepFunctionClient.describeExecution({ executionArn: executionArn }).promise();
-          await sleep(600);
-        }
+  const findUser = {
+    FunctionName: "users-microservice-dev-find-user", 
+    InvocationType: "RequestResponse", 
+    Payload: JSON.stringify({"user_id": user_id})
+  }
 
-        if (result.status === "SUCCEEDED") {
-          resultJson = JSON.parse(result.output);
-        };
-        
-        if (result.status === "SUCCEEDED" && resultJson.OrderCreateResult && resultJson.OrderCreateResult.body) {
-            return {
-                statusCode: 200,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  Order_ID: resultJson.OrderCreateResult.body,
-                 }),
-                isBase64Encoded: false,
-            };
-        } else {
-            return {
-                statusCode: 550,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(result),
-                isBase64Encoded: false,
-            };
-        }
-    } catch (err) {
-        console.log(err);
-        return {
-            statusCode: 555,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-              Message: err 
-            }),
-            isBase64Encoded: false,
-        }
+  const createOrder = {
+    FunctionName: "orders-microservice-dev-create-order", 
+    InvocationType: "RequestResponse", 
+    Payload: JSON.stringify({"user_id": user_id})
+  }
+
+  try {
+    const findUserResult = await lambda.invoke(findUser).promise().then(res => res.Payload);
+
+    if(JSON.parse(findUserResult).statusCode == 200) {
+      const createOrderResult = await lambda.invoke(createOrder).promise().then(res => res.Payload);
+      return JSON.parse(createOrderResult);
+    } else {
+      return {
+        statusCode: 404,
+        headers: { 
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ Message: "User not found, could not create order." }),
+        isBase64Encoded: false,
+      };
     }
-};
+  } catch (err) {
+    return {
+        statusCode: 501,
+        headers: { 
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          Message: err,
+          Body: "Failed to create an order." 
+        }),
+        isBase64Encoded: false,
+    };
+  }
+}

@@ -30,6 +30,7 @@ exports.handler = async (event, context) => {
         if (entry.Item_ID == item_id) {
           entry.quantity -= 1;
           found = true;
+          data.Item.total_price -= 1;
         }
       });
       if (found == false) {
@@ -39,12 +40,14 @@ exports.handler = async (event, context) => {
         TableName: 'Orders',
         Key: { Order_ID: order_id },
         ReturnValues: 'UPDATED_NEW',
-        UpdateExpression: 'set #items = :newList',
+        UpdateExpression: 'set #items = :newList, #total_price = :newTotalPrice',
         ExpressionAttributeNames: {
-          '#items': 'items'
+          '#items': 'items',
+          '#total_price': 'total_price'
         },
         ExpressionAttributeValues: {
-          ':newList': data.Item.items
+          ':newList': data.Item.items,
+          ':newTotalPrice': data.Item.total_price
         }
       };
       const data = await documentClient.update(updateParams).promise();

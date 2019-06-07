@@ -7,8 +7,6 @@ const dynamoDB = new AWS.DynamoDB.DocumentClient({region: region});
 exports.handler = async function (e, ctx) {
 
     const order_id = ((e.pathParameters || {})['order_id']) || (e.order_id);
-    const user_id = ((e.pathParameters || {})['user_id']) || (e.user_id);
-
 
     // If not in DB, create new with Order_ID = order_id and isPaid = true
     // If exists, update only, if it is not paid

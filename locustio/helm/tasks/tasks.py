@@ -6,7 +6,7 @@ from locust import HttpLocust, TaskSet, task, TaskSequence, seq_task
 
 usersService = "https://0ku9sdii1j.execute-api.us-east-1.amazonaws.com/dev"
 stockService = "https://f6r12yon57.execute-api.us-east-1.amazonaws.com/dev"
-sagasService = "https://ydmcjwu7e4.execute-api.us-east-1.amazonaws.com/dev"
+sagasService = "https://gt0u5bgjkb.execute-api.us-east-1.amazonaws.com/dev"
 
 class ElbTasks(TaskSet):
 
@@ -17,8 +17,8 @@ class ElbTasks(TaskSet):
     user_id = 1
     self.client.post(f"/payment/pay/{user_id}/{order_id}", name="Pay")
 
-class goodFlowTasks(TaskSet):
-  @task(100)
+class tasks(TaskSet):
+  @task(1)
   class completeCheckout(TaskSequence):
     @seq_task(1)
     def create_account(self):
@@ -42,7 +42,7 @@ class goodFlowTasks(TaskSet):
 
     @seq_task(4)
     def add_stock(self):
-      self.InitialStock = random.randint(1,101)
+      self.InitialStock = random.randint(1,11)
       self.client.post(f"{stockService}/stock/add/{self.ItemID}/{self.InitialStock}", name="AddStock")
 
     @seq_task(5)
@@ -59,88 +59,84 @@ class goodFlowTasks(TaskSet):
       self.client.post(f"{sagasService}/orders/checkout/{self.OrderID}", name="Checkout")
       self.interrupt()
 
-  @task(0)
+  @task(1)
   class justLooking(TaskSequence):
     @seq_task(1)
     def create_account(self):
       response = self.client.post(f"{usersService}/users/create", name="CreateUser")
-      self.UserID = response.json() # TODO: extract user_id
+      self.UserID = response.json()['User_ID']
 
     @seq_task(2)
     def create_order(self):
-      response = self.client.post(f"{sagasService}/orders/create", name="CreateOrder")
-      self.OrderID = response.json() # TODO: extract order_id
+      response = self.client.post(f"{sagasService}/orders/create/{self.UserID}", name="CreateOrder")
+      self.OrderID = response.json()['Order_ID']
 
     @seq_task(3)
     def create_item(self):
-      self.ItemID = str(uuid.uuid4())
       response = self.client.post(f"{stockService}/stock/item/create/", name="CreateItem")
-      self.ItemID = response.json() # TODO: extract item_id
+      self.ItemID = response.json()['Item_ID']
 
     @seq_task(4)
     def add_stock(self):
-      self.InitialStock = random.randint(1,101)
+      self.InitialStock = random.randint(1,11)
       self.client.post(f"{stockService}/stock/add/{self.ItemID}/{self.InitialStock}", name="AddStock")
 
     @seq_task(5)
     def add_item_to_order(self):
       for i in range(random.randint(1, self.InitialStock)):
-        self.client.post(f"{sagasService}/orders/additem/{self.OrderID}/{self.ItemID}", name="AddItemToOrder")
+        self.client.post(f"{sagasService}/orders/addItem/{self.OrderID}/{self.ItemID}", name="AddItemToOrder")
 
-class badFlowTasks(TaskSet):
-  @task(50)
+  @task(1)
   class noStockTask(TaskSequence):
     @seq_task(1)
     def create_account(self):
       response = self.client.post(f"{usersService}/users/create", name="CreateUser")
-      self.UserID = response.json() # TODO: extract user_id
+      self.UserID = response.json()['User_ID']
 
     @seq_task(2)
     def create_order(self):
-      response = self.client.post(f"{sagasService}/orders/create", name="CreateOrder")
-      self.OrderID = response.json() # TODO: extract order_id
+      response = self.client.post(f"{sagasService}/orders/create/{self.UserID}", name="CreateOrder")
+      self.OrderID = response.json()['Order_ID']
 
     @seq_task(3)
     def create_item(self):
-      self.ItemID = str(uuid.uuid4())
       response = self.client.post(f"{stockService}/stock/item/create/", name="CreateItem")
-      self.ItemID = response.json() # TODO: extract item_id
+      self.ItemID = response.json()['Item_ID']
 
     @seq_task(4)
     def add_item_to_order(self):
-      with self.client.post(f"{sagasService}/orders/additem/{self.OrderID}/{self.ItemID}",
+      with self.client.post(f"{sagasService}/orders/addItem/{self.OrderID}/{self.ItemID}",
                             catch_response=True, name="FailedAddItemToOrder") as response:
         if response.status_code != 200:
           response.success()
       self.interrupt()
 
-  @task(50)
+  @task(1)
   class noCreditTask(TaskSequence):
     @seq_task(1)
     def create_account(self):
       response = self.client.post(f"{usersService}/users/create", name="CreateUser")
-      self.UserID = response.json() # TODO: extract user_id
+      self.UserID = response.json()['User_ID']
 
     @seq_task(2)
     def create_order(self):
-      response = self.client.post(f"{sagasService}/orders/create", name="CreateOrder")
-      self.OrderID = response.json() # TODO: extract order_id
+      response = self.client.post(f"{sagasService}/orders/create/{self.UserID}", name="CreateOrder")
+      self.OrderID = response.json()['Order_ID']
 
     @seq_task(3)
     def create_item(self):
-      self.ItemID = str(uuid.uuid4())
       response = self.client.post(f"{stockService}/stock/item/create/", name="CreateItem")
-      self.ItemID = response.json() # TODO: extract item_id
+      self.ItemID = response.json()['Item_ID']
 
     @seq_task(4)
     def add_stock(self):
-      self.InitialStock = random.randint(1,101)
+      self.InitialStock = random.randint(1,11)
       self.client.post(f"{stockService}/stock/add/{self.ItemID}/{self.InitialStock}", name="AddStock")
 
     @seq_task(5)
     def add_item_to_order(self):
       for i in range(random.randint(1, self.InitialStock)):
-        self.client.post(f"{sagasService}/orders/additem/{self.OrderID}/{self.ItemID}", name="AddItemToOrder")
+        self.client.post(f"{sagasService}/orders/addItem/{self.OrderID}/{self.ItemID}", name="AddItemToOrder")
 
     @seq_task(6)
     def checkout(self):
@@ -152,7 +148,6 @@ class badFlowTasks(TaskSet):
 class ElbWarmer(HttpLocust):
   # Toggle task sets
   # task_set = ElbTasks
-  task_set = goodFlowTasks
-  # task_set = badFlowTasks
+  task_set = tasks
   min_wait = 1000
   max_wait = 3000

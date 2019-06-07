@@ -15,7 +15,7 @@ exports.handler = async function(e, ctx) {
         TableName: 'Stock',
         Item:{
             "Item_ID": item_id,
-            "quantity": 100
+            "quantity": 0
         }
     };
 

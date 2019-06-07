@@ -2,44 +2,58 @@ console.log('Starting order add item saga');
 
 const AWS = require('aws-sdk');
 const region = process.env.AWS_REGION;
-const stepFunctionClient = new AWS.StepFunctions({region: region});
+const lambda = new AWS.Lambda();
 
 exports.handler = async function(e, ctx) {
 
     try {
-        const AWSAccountId = e.requestContext.accountId;
         const orderId = ((e.pathParameters || {})['order_id']) || e.order_id;
         const itemId = ((e.pathParameters || {})['item_id']) || e.item_id;
 
-        const stepFunctionArn = `arn:aws:states:${region}:${AWSAccountId}:stateMachine:OrderAddItemStateMachine`;
-        const stepFunctionExecutionParams = {
-            stateMachineArn: stepFunctionArn,
-            input: JSON.stringify({
-                order_id: orderId,
-                item_id: itemId,
-            }),
+        const checkAvailability = {
+          FunctionName: "stock-microservice-dev-stock-availability", 
+          InvocationType: "RequestResponse", 
+          Payload: JSON.stringify({"item_id": itemId})
         }
-        
-        const startExecutionResult = await stepFunctionClient.startExecution(stepFunctionExecutionParams).promise();
-        const executionArn = startExecutionResult.executionArn;
-
-        let result = { status: "RUNNING" };
-        while (result.status === "RUNNING") {
-            result = await stepFunctionClient.describeExecution({ executionArn: executionArn }).promise();
+      
+        const addItemToOrder = {
+          FunctionName: "orders-microservice-dev-add-item", 
+          InvocationType: "RequestResponse", 
+          Payload: JSON.stringify({
+            "order_id": orderId,
+            "item_id": itemId
+          })
         }
 
-        if (result.status === "SUCCEEDED") {
-            return {
-                statusCode: 200,
+        const checkAvailabilityResult = await lambda.invoke(checkAvailability).promise().then(res => res.Payload);
+
+        if (JSON.parse(checkAvailabilityResult).statusCode == 200) {
+            const body = JSON.parse(JSON.parse(checkAvailabilityResult).body);
+            if (body.quantity !== null && body.quantity > 0) {
+              const addItemToOrderResult = await lambda.invoke(addItemToOrder).promise().then(res => res.Payload);
+              if (JSON.parse(addItemToOrderResult).statusCode == 200) {
+                return {
+                  statusCode: 200,
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.parse(addItemToOrderResult).body,
+                  isBase64Encoded: false
+                }
+              } else {
+                throw "Some error at order microservice."
+              }
+            } else {
+              return {
+                statusCode: 404,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(result.output),
+                body: { "Message": "Not enough items in stock" },
                 isBase64Encoded: false,
-            };
+              };
+            }
         } else {
             return {
-                statusCode: 500,
+                statusCode: 404,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(result),
+                body: { "Message": "Item not found or internal error at stock microservice." },
                 isBase64Encoded: false,
             };
         }
