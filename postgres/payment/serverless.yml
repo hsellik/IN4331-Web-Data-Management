@@ -1,0 +1,95 @@
+service: postgres-payment-microservice
+
+package:
+  excludeDevDependencies: false
+  
+custom:
+  region: ${opt:region, self:provider.region}
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  memorySize: 512 # optional, in MB, default is 1024
+  timeout: 10 # optional, in seconds, default is 6
+  stage: dev
+  region: us-east-1
+  environment:
+    PGHOST: PLACEHOLDER_PGHOST
+    PGUSER: PLACEHOLDER-USERNAME
+    PGDATABASE: PLACEHOLDER-DBNAME
+    PGPASSWORD: PLACEHOLDER-PWD
+    PGPORT: 5432
+
+functions:
+  # -----------------------------
+  # Payment functions
+  # -----------------------------
+  cancel-payment:
+    handler: functions/cancel-payment.handler
+    events:
+      - http:
+          path: /payment/cancelPayment/{user_id}/{order_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+                order_id: true
+
+  pay:
+    handler: functions/pay.handler
+    events:
+      - http:
+          path: /payment/pay/{user_id}/{order_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+                order_id: true
+
+  payment-status:
+    handler: functions/payment-status.handler
+    events:
+      - http:
+          path: /payment/status/{order_id}
+          method: GET
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+
+  remove-payment:
+    handler: functions/remove-payment.handler
+    events:
+      - http:
+          path: /payment/remove/{order_id}
+          method: DELETE
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+
+resources:
+  Resources:
+    StockDB:
+      Type: AWS::RDS::DBInstance
+      Properties: 
+        Engine: Postgres
+        EngineVersion: 10.6
+        DBInstanceIdentifier: "PLACEHOLDER-DBID"    # case insensitive
+        DBName: "PLACEHOLDER-DBNAME"                # case sensitive
+        MasterUsername: "PLACEHOLDER-USERNAME"
+        MasterUserPassword: "PLACEHOLDER-PWD"
+        DBInstanceClass: "PLACEHOLDER-DBINSTANCE-CLASS"
+        AllocatedStorage: 20
+        Port: 5432
+        PubliclyAccessible: true

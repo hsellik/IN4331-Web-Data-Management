@@ -90,4 +90,17 @@ functions:
               paths:
                 order_id: true
 
+  order-find:
+    handler: functions/find-order.handler
+    events:
+      - http:
+          path: /orders/find/{order_id}
+          method: GET
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+
 End: true

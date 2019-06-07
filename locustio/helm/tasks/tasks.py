@@ -6,6 +6,7 @@ import random
 from locust import HttpLocust, TaskSet, task, TaskSequence, seq_task
 
 usersService = "https://0ku9sdii1j.execute-api.us-east-1.amazonaws.com/dev"
+orderService = "https://w1vv2o7j00.execute-api.us-east-1.amazonaws.com/dev"
 stockService = "https://f6r12yon57.execute-api.us-east-1.amazonaws.com/dev"
 sagasService = "https://gt0u5bgjkb.execute-api.us-east-1.amazonaws.com/dev"
 paymentService = "https://aebpr3kvd8.execute-api.us-east-1.amazonaws.com/dev"
