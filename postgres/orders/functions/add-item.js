@@ -2,8 +2,8 @@
 const { Pool } = require("pg");
 
 exports.handler = async (event, context) => {
-  const order_id = ((event.pathParameters || {})['order_id']) || event.order_id;
-  const item_id = ((event.pathParameters || {})['item_id']) || event.item_id;
+  const order_id = ((event.pathParameters || {})["order_id"]) || event.order_id;
+  const item_id = ((event.pathParameters || {})["item_id"]) || event.item_id;
 
   const insertQuery = {
     text: "INSERT INTO OrderRow VALUES($1, $2, $3) RETURNING *",
@@ -12,6 +12,11 @@ exports.handler = async (event, context) => {
 
   const updateQuery = {
     text: "UPDATE OrderRow SET quantity = quantity + 1 WHERE order_id = $1 AND item_id = $2 RETURNING *",
+    values: [order_id, item_id]
+  };
+
+  const updateOrderQuery = {
+    text: "UPDATE Orders SET total_price = total_price + 1 WHERE order_id = $1 RETURNING *",
     values: [order_id, item_id]
   };
 
@@ -29,11 +34,12 @@ exports.handler = async (event, context) => {
     if (data.rows.length === 0) {
       data = await pool.query(insertQuery);
     }
+    await pool.query(updateOrderQuery);
 
     return {
       statusCode: 200,
       headers: { "Content-type": "application/json" },
-      body: JSON.stringify(data.rows)
+      body: JSON.stringify({Item: data.rows[0]})
     };
 
 

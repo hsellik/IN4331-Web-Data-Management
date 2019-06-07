@@ -41,13 +41,13 @@ exports.handler = async function(e, ctx) {
             return {
                 statusCode: 500,
                 headers: { "Content-type": "application/json" },
-                body: JSON.stringify({ Message: "Credit not found in User item.", item: data.rows }),
+                body: JSON.stringify({ Message: "Credit not found in User item.", item: data.rows[0] }),
             }
         }
         return {
             statusCode: 200,
             headers: { "Content-type": "application/json" },
-            body: JSON.stringify(data.rows),
+            body: JSON.stringify(data.rows[0]),
         };
     } catch (err) {
         return {

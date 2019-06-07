@@ -34,7 +34,7 @@ exports.handler = async function(e, ctx) {
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
                 Message: "Successfully cancelled payment! ID: " + order_id + " Data: " ,
-                Data: JSON.stringify(data.rows)
+                Data: JSON.stringify({Item: data.rows[0]})
             }),
         };
     } catch (err) {

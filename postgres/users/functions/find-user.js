@@ -34,7 +34,7 @@ exports.handler = async function(e, ctx) {
             return {
                 statusCode: 200,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data.rows),
+                body: JSON.stringify(data.rows[0]),
                 isBase64Encoded: false,
             };
         }

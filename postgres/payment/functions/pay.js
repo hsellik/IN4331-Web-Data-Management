@@ -30,8 +30,8 @@ exports.handler = async function (e, ctx) {
     };
 
     try {
-        const insert = await pool.query(insertQuery);
-        if (insert.rows.length === 0) {
+        const data = await pool.query(insertQuery);
+        if (data.rows.length === 0) {
             await pool.query(updateQuery);
         }
 
@@ -40,7 +40,7 @@ exports.handler = async function (e, ctx) {
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
                 Message: "Successfully paid for order! ID: " + order_id,
-                Data: JSON.stringify(data.rows)
+                Data: JSON.stringify({Item: data.rows[0]})
             }),
         };
     } catch (err) {

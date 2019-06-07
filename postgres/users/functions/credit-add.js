@@ -37,17 +37,17 @@ exports.handler = async function(e, ctx) {
                 headers: { "Content-type": "application/json" },
                 body: JSON.stringify({ Message: "User not found" }),
             }
-        } else if (data.rows.credit === null) {
+        } else if (data.rows[0].credit === null) {
             return {
                 statusCode: 500,
                 headers: { "Content-type": "application/json" },
-                body: JSON.stringify({ Message: "Credit not found in User item.", item: data.rows }),
+                body: JSON.stringify({ Message: "Credit not found in User item.", item: data.rows[0] }),
             }
         }
         return {
             statusCode: 200,
             headers: { "Content-type": "application/json" },
-            body: JSON.stringify(data.rows),
+            body: JSON.stringify(data.rows[0]),
         };
 
     } catch (err) {

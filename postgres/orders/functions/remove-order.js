@@ -3,6 +3,7 @@
 exports.handler = async (event, context) => {
   const { Pool } = require("pg");
   const order_id = ((event.pathParameters || {})['order_id']) || event.order_id;
+  const paymentStatusCode = ((event.PaymentStatusResult || {}).statusCode) || 404;
 
   const deleteQuery = {
     text: "DELETE FROM Orders WHERE order_id = $1 RETURNING *",
@@ -17,23 +18,29 @@ exports.handler = async (event, context) => {
     port: process.env.PGPORT
   });
 
-  var data;
+  let data;
+  let removePayment;
   try {
+    removePayment = false;
+    if (paymentStatusCode === 200) {
+      const response = JSON.parse(event.PaymentStatusResult.body);
+      removePayment = (response.Data.isPaid === false);
+    }
+
     data = await pool.query(deleteQuery);
     if (data.rows.length === 0) {
       return {
         statusCode: 404,
         headers: { "Content-type": "application/json" },
-        body: JSON.stringify({ Message: "Order not found " + order_id })
+        body: JSON.stringify({ Message: "Order not found " + order_id }),
+        removePayment
       };
     }
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        Message: "Successfully removed order " + order_id ,
-        Data: JSON.stringify(data.rows)
-      })
+      removePayment,
+      body: order_id
     };
   } catch (err) {
     return {
@@ -43,7 +50,8 @@ exports.handler = async (event, context) => {
         Message: "Something wrong! Could not delete order " + order_id + " .",
         Data: JSON.stringify((data || {}).rows),
         Error: err
-      })
+      }),
+      removePayment
     };
   }
 

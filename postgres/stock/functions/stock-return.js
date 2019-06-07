@@ -37,7 +37,7 @@ exports.handler = async function(e, ctx) {
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
                 Message: "Successfully return items of order " + order_id,
-                Data: JSON.stringify(data)
+                Data: JSON.stringify({Item: data.rows[0]})
             }),
         };
     } catch (err) {
@@ -46,7 +46,7 @@ exports.handler = async function(e, ctx) {
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
                 Message: "Something wrong! Unable to return items of order" + order_id,
-                Data: JSON.stringify(data),
+                Data: JSON.stringify({Item: data.rows[0]}),
                 Error: err
             }),
         };

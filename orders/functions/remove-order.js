@@ -12,11 +12,12 @@ exports.handler = async (event, context) => {
   let statusCode = 0;
   let headers = { "Content-Type": "application/json" };
 
+  let removePayment;
   try {
     const orderId = ((event.pathParameters || {})["order_id"]) || (event.order_id);
     const paymentStatusCode = ((event.PaymentStatusResult || {}).statusCode) || 404;
 
-    let removePayment = false;
+    removePayment = false;
     if (paymentStatusCode === 200) {
       const response = JSON.parse(event.PaymentStatusResult.body);
       removePayment = (response.Data.isPaid === false);

@@ -24,12 +24,15 @@ exports.handler = async (event, context) => {
   try {
     data = await pool.query(insertQuery);
 
+    if (data.rows.length === 0) {
+      throw "Duplicate ID tried to be written.";
+    }
+
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        Message: "Successfully created order.",
-        Data: JSON.stringify(data.rows)
+        Order_ID: uuid
       })
     };
   } catch (err) {

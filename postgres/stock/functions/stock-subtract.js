@@ -42,7 +42,7 @@ exports.handler = async function (e, ctx) {
     for (let item of data.rows) {
       for (let orderItem of items) {
         if (item["item_id"] === orderItem["Item_ID"] && item["quantity"] > orderItem["quantity"]) {
-           
+
           satisfied++;
         }
       }
@@ -69,7 +69,7 @@ exports.handler = async function (e, ctx) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         Message: "Successfully subtract items from stock of order " + order_id,
-        Data: JSON.stringify(data.rows)
+        Data: JSON.stringify({ Item: data.rows[0] })
       })
     };
   } catch (err) {
@@ -78,8 +78,9 @@ exports.handler = async function (e, ctx) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         Message: "Something wrong! Unable to subtract items from stock of order" + order_id,
+        Data: JSON.stringify({ Item: data.rows[0] }),
         Error: err
-      }),
+      })
     };
   }
-}
+};

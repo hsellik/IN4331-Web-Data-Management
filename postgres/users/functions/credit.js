@@ -31,13 +31,13 @@ exports.handler = async function(e, ctx) {
             return {
                 statusCode: 500,
                 headers: { "Content-type": "application/json" },
-                body: JSON.stringify({ Message: "Credit not found in User item", data: data.Item }),
+                body: JSON.stringify({ Message: "Credit not found in User item", data: data.rows[0] }),
             }
         } else {
             return {
                 statusCode: 200,
                 headers: { "Content-type": "application/json" },
-                body: JSON.stringify({ credit: data.rows }),
+                body: JSON.stringify({ credit: data.rows[0].credit }),
             }
         }
     } catch (err) {

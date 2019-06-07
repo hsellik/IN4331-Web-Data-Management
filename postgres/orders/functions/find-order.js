@@ -18,6 +18,17 @@ exports.handler = async (event, context) => {
     port: process.env.PGPORT
   });
 
+  const extractItemsArray = data => {
+    const result = [];
+    for (let row of data.rows) {
+      result.push({
+        Item_ID: row.Item_ID,
+        quantity: row.quantity
+      });
+    }
+    return result;
+  };
+
   var data;
   try {
     data = await pool.query(selectQuery);
@@ -32,8 +43,12 @@ exports.handler = async (event, context) => {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        Message: "Successfully retrieved order " + order_id,
-        Data: JSON.stringify(data.rows)
+        Item: {
+          total_price: data.rows[0].total_price,
+          User_ID: data.rows[0].User_ID,
+          Order_ID: order_id,
+          items: extractItemsArray(data)
+        }
       })
     };
   } catch (err) {

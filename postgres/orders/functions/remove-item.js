@@ -15,6 +15,11 @@ exports.handler = async (event, context) => {
     values: [order_id, item_id],
   };
 
+  const updateOrderQuery = {
+    text: "UPDATE Orders SET total_price = total_price - 1 WHERE order_id = $1 RETURNING *",
+    values: [order_id, item_id]
+  };
+
   const pool = new Pool({
     host: process.env.PGHOST,
     user: process.env.PGUSER,
@@ -35,12 +40,13 @@ exports.handler = async (event, context) => {
           body: JSON.stringify({ Message: "Item not found" })
         };
       }
+      await pool.query(updateOrderQuery);
       return {
         statusCode: 200,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           Message: "Successfully removed item " + item_id,
-          Data: JSON.stringify(data.rows)
+          Data: JSON.stringify({Item: data.rows[0]})
         })
       };
     }

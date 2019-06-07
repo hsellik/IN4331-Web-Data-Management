@@ -39,7 +39,7 @@ exports.handler = async function (e, ctx) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         Message: "Successfully retrieved availability of item " + item_id,
-        Data: JSON.stringify(data.rows)
+        Data: JSON.stringify({Item: data.rows[0]})
       })
     };
   } catch (err) {
@@ -48,7 +48,7 @@ exports.handler = async function (e, ctx) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         Message: "Something wrong! No " + item_id + " in the stock.",
-        Data: JSON.stringify(data.rows),
+        Data: JSON.stringify({Item: data.rows[0]}),
         Error: err
       })
     };
