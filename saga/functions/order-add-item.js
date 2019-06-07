@@ -45,7 +45,7 @@ exports.handler = async function(e, ctx) {
               return {
                 statusCode: 404,
                 headers: { "Content-Type": "application/json" },
-                body: { "Message": "Not enough items in stock" },
+                body: JSON.stringify({ "Message": "Not enough items in stock" }),
                 isBase64Encoded: false,
               };
             }
@@ -53,7 +53,7 @@ exports.handler = async function(e, ctx) {
             return {
                 statusCode: 404,
                 headers: { "Content-Type": "application/json" },
-                body: { "Message": "Item not found or internal error at stock microservice." },
+                body: JSON.stringify({ "Message": "Item not found or internal error at stock microservice." }),
                 isBase64Encoded: false,
             };
         }

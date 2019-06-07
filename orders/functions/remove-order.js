@@ -14,40 +14,28 @@ exports.handler = async (event, context) => {
 
   try {
     const orderId = ((event.pathParameters || {})['order_id']) || (event.order_id);
-    const paymentStatusCode = ((event.PaymentStatusResult || {}).statusCode) || 404;
-    
-    let removePayment = false;
-    if (paymentStatusCode === 200) {
-      const response = JSON.parse(event.PaymentStatusResult.body);
-      removePayment = (response.Data.isPaid === false);
-    }
 
     const params = {
-      TableName: "orders",
+      TableName: "Orders",
       Key: {
         Order_ID: orderId
       }
     };
 
-    if (paymentStatusCode === 404 || removePayment) {
-      await documentClient.delete(params).promise();
-      responseBody = orderId;
-      statusCode = 200;
-    } else {
-      responseBody = JSON.stringify({ Message: "Order is already paid and thus not removed" });
-      statusCode = 200;
-    }
+    await documentClient.delete(params).promise();
+    responseBody = { OrderId: orderId };
+    statusCode = 200;
+    
   } catch (err) {
     console.log(err);
-    responseBody = "Something went wrong.";
+    responseBody = { Message: "Something went wrong." };
     statusCode = 500;
   }
   
   const response = {
     statusCode: statusCode,
     headers: headers,
-    removePayment: removePayment,
-    body: responseBody
+    body: JSON.stringify(responseBody)
   };
   
   return response;
