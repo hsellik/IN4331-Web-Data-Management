@@ -40,7 +40,7 @@ After that you need to change quotas in Google Cloud Console:
 * Regional (us-east1) In-use IP addresses = 9
 ![Change quotas in Google Cloud Console](readme-images/change-quotas.png)  
 After this you can deploy a cluster  
-* `gcloud beta container clusters create --machine-type n1-highcpu-4 locust-cluster --zone us-east1 --preemptible`  
+* `gcloud beta container clusters create --machine-type n1-highcpu-64 locust-cluster --zone us-east1 --preemptible`  
 You should end up something like:
 ```
 NAME            LOCATION      MASTER_VERSION  MASTER_IP      MACHINE_TYPE   NODE_VERSION   NUM_NODES  STATUS

@@ -16,7 +16,7 @@ service:
   extraLabels: {}
 master:
   config:
-    target-host: https://6ull6qibde.execute-api.us-east-1.amazonaws.com/dev
+    target-host:
   resources:
     limits:
       cpu: 100m
@@ -32,7 +32,7 @@ worker:
 
     # all files from specified configmap (or tasks folder) are mounted under `/locust-tasks`
     locust-script: "/locust-tasks/tasks.py"
-  replicaCount: 20
+  replicaCount: 400
   resources:
     limits:
       cpu: 100m

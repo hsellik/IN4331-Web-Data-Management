@@ -1,3 +1,4 @@
+import resource
 import uuid
 import json
 import random
@@ -7,6 +8,9 @@ from locust import HttpLocust, TaskSet, task, TaskSequence, seq_task
 usersService = "https://0ku9sdii1j.execute-api.us-east-1.amazonaws.com/dev"
 stockService = "https://f6r12yon57.execute-api.us-east-1.amazonaws.com/dev"
 sagasService = "https://gt0u5bgjkb.execute-api.us-east-1.amazonaws.com/dev"
+paymentService = "https://aebpr3kvd8.execute-api.us-east-1.amazonaws.com/dev"
+
+resource.setrlimit(resource.RLIMIT_STACK, (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
 
 class ElbTasks(TaskSet):
 
@@ -15,7 +19,7 @@ class ElbTasks(TaskSet):
   def index(self):
     order_id = str(uuid.uuid4())
     user_id = 1
-    self.client.post(f"/payment/pay/{user_id}/{order_id}", name="Pay")
+    self.client.post(f"{paymentService}/payment/pay/{user_id}/{order_id}", name="Pay")
 
 class tasks(TaskSet):
   @task(1)
