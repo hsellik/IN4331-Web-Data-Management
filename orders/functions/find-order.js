@@ -1,22 +1,23 @@
-'use strict';
-const AWS = require('aws-sdk');
+"use strict";
+const AWS = require("aws-sdk");
 
 const region = process.env.AWS_REGION;
-AWS.config.update({ region: region});
+AWS.config.update({ region: region });
 
 exports.handler = async (event, context) => {
-  const ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08"});
-  const documentClient = new AWS.DynamoDB.DocumentClient({ region: region});
+  const ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08" });
+  const documentClient = new AWS.DynamoDB.DocumentClient({ region: region });
 
   let responseBody = "";
   let statusCode = 0;
+  let responseHeaders = { "Content-Type": "application/json" };
 
-  const { order_id } = event.pathParameters;
+  const orderId = ((event.pathParameters || {})["order_id"]) || (event.order_id);
 
   const searchParams = {
     TableName: "Orders",
     Key: {
-      Order_ID: order_id
+      Order_ID: orderId
     }
   };
 
@@ -24,18 +25,22 @@ exports.handler = async (event, context) => {
     const data = await documentClient.get(searchParams).promise();
     if (data.Item) {
       statusCode = 200;
-      responseBody = JSON.stringify(data);
+      responseBody = JSON.stringify({
+        ...data
+      });
     } else {
-      throw 'Could not find ID.';
+      statusCode = 404;
+      responseBody = JSON.stringify({ Message: "Could not find order" });
     }
   } catch (err) {
     console.log(err);
-    responseBody = "Something went wrong.";
-    statusCode = 403;
+    responseBody = JSON.stringify({ Message: "Something went wrong" });
+    statusCode = 500;
   }
 
   const response = {
     statusCode: statusCode,
+    headers: responseHeaders,
     body: responseBody
   };
 

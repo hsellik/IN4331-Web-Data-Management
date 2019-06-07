@@ -1,0 +1,93 @@
+service: saga-microservice 
+
+custom:
+  region: ${opt:region, self:provider.region}
+
+plugins:
+  - serverless-step-functions
+  - serverless-pseudo-parameters
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action: 
+        - "lambda:InvokeFunction"
+      Resource: "arn:aws:lambda:*:*:*"
+    - Effect: "Allow"
+      Action: 
+        - "states:ListStateMachines"
+        - "states:StartExecution"
+        - "states:GetExecutionHistory"
+        - "states:DescribeExecution"
+      Resource: "arn:aws:states:*:*:*"
+
+functions:
+  order-add-item:
+    handler: functions/order-add-item.handler
+    events:
+      - http:
+          path: /orders/addItem/{order_id}/{item_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+                item_id: true
+  order-create:
+    handler: functions/order-create.handler
+    events:
+      - http:
+          path: /orders/create/{user_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+  order-remove:
+    handler: functions/order-remove.handler
+    events:
+      - http:
+          path: /orders/remove/{order_id}
+          method: DELETE
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+  cancel-payment:
+    handler: functions/cancel-payment.handler
+    events:
+      - http:
+          path: /payment/cancelPayment/{user_id}/{order_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+                order_id: true
+
+  order-checkout:
+    handler: functions/order-checkout.handler
+    events:
+      - http:
+          path: /orders/checkout/{order_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+
+End: true

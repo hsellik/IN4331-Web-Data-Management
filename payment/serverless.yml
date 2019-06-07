@@ -1,4 +1,4 @@
-service: payment-service
+service: payment-microservice
 
 custom:
   region: ${opt:region, self:provider.region}

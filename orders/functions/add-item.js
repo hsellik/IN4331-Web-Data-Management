@@ -1,63 +1,69 @@
-'use strict';
-const AWS = require('aws-sdk');
-const uuidv4 = require('uuid/v4');
+"use strict";
+const AWS = require("aws-sdk");
+const uuidv4 = require("uuid/v4");
 
 const region = process.env.AWS_REGION;
-AWS.config.update({ region: region});
+AWS.config.update({ region: region });
 
 exports.handler = async (event, context) => {
-  const ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08"});
-  const documentClient = new AWS.DynamoDB.DocumentClient({ region: region});
+  const ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08" });
+  const documentClient = new AWS.DynamoDB.DocumentClient({ region: region });
 
   let responseBody = "";
   let statusCode = 0;
 
-  const { order_id } = event.pathParameters;
-  const { item_id } = event.pathParameters;
+  const orderId = ((event.pathParameters || {})["order_id"]) || (event.order_id);
+  const itemId = ((event.pathParameters || {})["item_id"]) || (event.item_id);
 
   const searchParams = {
     TableName: "Orders",
     Key: {
-      Order_ID: order_id
+      Order_ID: orderId
     }
   };
 
   try {
     const data = await documentClient.get(searchParams).promise();
-    if (data.Item) {
+    if (data.Item != null) {
       let found = false;
-      data.Item.items.forEach(function(entry) {
-        if (entry.Order_ID == item_id) {
+      data.Item.items.forEach(function (entry) {
+        if (entry.Item_ID == itemId) {
           entry.quantity += 1;
           found = true;
         }
       });
-      if (found == false) {
-        data.Item.items.push({ Item_ID: item_id, quantity: 1 })
-      };
+      if (!found) {
+        data.Item.items.push({ Item_ID: itemId, quantity: 1 });
+      }
+      data.Item.total_price += 1;
       const updateParams = {
-        TableName: 'Orders',
-        Key: { Order_ID: order_id },
-        ReturnValues: 'UPDATED_NEW',
-        UpdateExpression: 'set #items = :newList',
+        TableName: "Orders",
+        Key: { Order_ID: orderId },
+        ReturnValues: "ALL_NEW",
+        UpdateExpression: "set #items = :newList, #total_price = :newTotalPrice",
         ExpressionAttributeNames: {
-          '#items': 'items'
+          "#items": "items",
+          "#total_price": "total_price"
         },
         ExpressionAttributeValues: {
-          ':newList': data.Item.items
+          ":newList": data.Item.items,
+          ":newTotalPrice": data.Item.total_price
         }
       };
-      const data = await documentClient.update(updateParams).promise();
-      responseBody = JSON.stringify(data);
+      const secondData = await documentClient.update(updateParams).promise();
+      responseBody = JSON.stringify(secondData);
       statusCode = 200;
     } else {
-      throw 'Order not found.';
+      throw "Order not found.";
     }
   } catch (err) {
     console.log(err);
-    responseBody = "Something went wrong.";
-    statusCode = 403;
-  };
+    responseBody = JSON.stringify({
+      Message: "Error",
+      Error: err
+    });
+    statusCode = 500;
+  }
 
   const response = {
     statusCode: statusCode,

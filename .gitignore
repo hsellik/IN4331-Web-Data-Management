@@ -1,6 +1,4 @@
-# node modules
-node_modules
-
-package-lock.json
 .idea
 .serverless
+node_modules
+package-lock.json

@@ -20,7 +20,14 @@ Example
 * `./build-all.sh remove <stage> <region> <aws_profile>`  
 Example  
 * `./build-all.sh remove dev us-east-1 default`
-## Configuration
+
+## (Re)deploying Single AWS Function  
+To save time and re-deploy only a single function after modifications, use:  
+* `serverless deploy function -f <function> -s <stage> -r <region>`
+Example
+* `serverless deploy function -f pay -s dev -r us-east-1`
+
+## Configuration Postgres
 * Config database settings in `db.config` under each microservice directory.
   * `DB_IDENTIFIER` (a unique DB instance ID)
   * `PGPORT`
@@ -52,4 +59,4 @@ JSON.stringify(data.rows)
 ## TODO
 * Complete `CREATE_TABLE` for other microservices. **Done.**
 * Test the deployment script for other microservices. **Stock and orders tested**
-* Migrate DynamoDB to PostGreSql and test the functionalities. **On progress** 
+* Migrate DynamoDB to PostGreSql and test the functionalities. **In progress** 

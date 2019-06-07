@@ -91,7 +91,10 @@ functions:
 
 resources:
   Resources:
-    usersTable:
+    # -----------------------------
+    # Order table
+    # -----------------------------
+    orderTable:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: Orders
@@ -101,6 +104,4 @@ resources:
         KeySchema:
           - AttributeName: Order_ID
             KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
+        BillingMode: PAY_PER_REQUEST

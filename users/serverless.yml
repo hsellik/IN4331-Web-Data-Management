@@ -100,6 +100,9 @@ functions:
 
 resources:
   Resources:
+    # -----------------------------
+    # User table
+    # -----------------------------
     usersTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -110,6 +113,4 @@ resources:
         KeySchema:
           - AttributeName: User_ID
             KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
+        BillingMode: PAY_PER_REQUEST
