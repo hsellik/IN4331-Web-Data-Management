@@ -1,0 +1,108 @@
+service: postgres-orders-microservice
+
+package:
+  excludeDevDependencies: false
+
+custom:
+  region: ${opt:region, self:provider.region}
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  memorySize: 512 # optional, in MB, default is 1024
+  timeout: 10 # optional, in seconds, default is 6
+  stage: dev
+  region: us-east-1
+  environment:
+    PGHOST: PLACEHOLDER_PGHOST
+    PGUSER: PLACEHOLDER-USERNAME
+    PGDATABASE: PLACEHOLDER-DBNAME
+    PGPASSWORD: PLACEHOLDER-PWD
+    PGPORT: 5432
+
+functions:
+  # -----------------------------
+  # Order functions
+  # -----------------------------
+  create-order:
+    handler: functions/create-order.handler
+    events:
+      - http:
+          path: /orders/create/{user_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                user_id: true
+
+  find-order:
+    handler: functions/find-order.handler
+    events:
+      - http:
+          path: /orders/find/{order_id}
+          method: GET
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+
+  remove-order:
+    handler: functions/remove-order.handler
+    events:
+      - http:
+          path: /orders/remove/{order_id}
+          method: DELETE
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+
+  add-item:
+    handler: functions/add-item.handler
+    events:
+      - http:
+          path: /orders/addItem/{order_id}/{item_id}
+          method: POST
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+                item_id: true
+
+  remove-item:
+    handler: functions/remove-item.handler
+    events:
+      - http:
+          path: /orders/removeItem/{order_id}/{item_id}
+          method: DELETE
+          integration: lambda-proxy
+          private: false
+          request:
+            parameters:
+              paths:
+                order_id: true
+                item_id: true
+
+resources:
+  Resources:
+    StockDB:
+      Type: AWS::RDS::DBInstance
+      Properties:
+        Engine: Postgres
+        EngineVersion: 10.6
+        DBInstanceIdentifier: "PLACEHOLDER-DBID"    # case insensitive
+        DBName: "PLACEHOLDER-DBNAME"                # case sensitive
+        MasterUsername: "PLACEHOLDER-USERNAME"
+        MasterUserPassword: "PLACEHOLDER-PWD"
+        DBInstanceClass: "PLACEHOLDER-DBINSTANCE-CLASS"
+        AllocatedStorage: 20
+        Port: 5432
+        PubliclyAccessible: true

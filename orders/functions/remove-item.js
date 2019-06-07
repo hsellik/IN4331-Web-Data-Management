@@ -1,13 +1,13 @@
-'use strict';
-const AWS = require('aws-sdk');
-const uuidv4 = require('uuid/v4');
+"use strict";
+const AWS = require("aws-sdk");
+const uuidv4 = require("uuid/v4");
 
 const region = process.env.AWS_REGION;
-AWS.config.update({ region: region});
+AWS.config.update({ region: region });
 
 exports.handler = async (event, context) => {
-  const ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08"});
-  const documentClient = new AWS.DynamoDB.DocumentClient({ region: region});
+  const ddb = new AWS.DynamoDB({ apiVersion: "2012-10-08" });
+  const documentClient = new AWS.DynamoDB.DocumentClient({ region: region });
 
   let responseBody = "";
   let statusCode = 0;
@@ -26,7 +26,7 @@ exports.handler = async (event, context) => {
     const data = await documentClient.get(searchParams).promise();
     if (data.Item) {
       let found = false;
-      data.Item.items.forEach(function(entry) {
+      data.Item.items.forEach(function (entry) {
         if (entry.Item_ID == item_id) {
           entry.quantity -= 1;
           found = true;
@@ -34,39 +34,41 @@ exports.handler = async (event, context) => {
         }
       });
       if (found == false) {
-        throw 'Item was not in order.'
-      };
+        throw "Item was not in order.";
+      }
+      ;
       const updateParams = {
-        TableName: 'Orders',
+        TableName: "Orders",
         Key: { Order_ID: order_id },
-        ReturnValues: 'UPDATED_NEW',
-        UpdateExpression: 'set #items = :newList, #total_price = :newTotalPrice',
+        ReturnValues: "UPDATED_NEW",
+        UpdateExpression: "set #items = :newList, #total_price = :newTotalPrice",
         ExpressionAttributeNames: {
-          '#items': 'items',
-          '#total_price': 'total_price'
+          "#items": "items",
+          "#total_price": "total_price"
         },
         ExpressionAttributeValues: {
-          ':newList': data.Item.items,
-          ':newTotalPrice': data.Item.total_price
+          ":newList": data.Item.items,
+          ":newTotalPrice": data.Item.total_price
         }
       };
       const data = await documentClient.update(updateParams).promise();
       responseBody = JSON.stringify(data);
       statusCode = 200;
     } else {
-      throw 'Order not found.';
-    }  
+      throw "Order not found.";
+    }
   } catch (err) {
     console.log(err);
     responseBody = "Something went wrong.";
     statusCode = 403;
-  };
-  
-  const response = { 
+  }
+  ;
+
+  const response = {
     statusCode: statusCode,
     body: responseBody
   };
-  
+
   return response;
 
 };
