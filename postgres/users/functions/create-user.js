@@ -25,7 +25,7 @@ exports.handler = async function(e, ctx) {
             statusCode: 200,
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                User_ID: user_id
+                user_id: user_id
             }),
             isBase64Encoded: false,
         };

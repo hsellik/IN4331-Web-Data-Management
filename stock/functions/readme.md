@@ -24,11 +24,11 @@ No input needed
   "Item": {
     "items": [
       {
-        "Item_ID": "8b889cd0-7e6a-11e9-8292-c7a364071636",
+        "item_id": "8b889cd0-7e6a-11e9-8292-c7a364071636",
         "quantity": 5
       },
       {
-        "Item_ID": "b120c9e0-7e6a-11e9-8292-c7a364071636",
+        "item_id": "b120c9e0-7e6a-11e9-8292-c7a364071636",
         "quantity": 6
       }
     ]
@@ -43,11 +43,11 @@ No input needed
   "Item": {
     "items": [
       {
-        "Item_ID": "8b889cd0-7e6a-11e9-8292-c7a364071636",
+        "item_id": "8b889cd0-7e6a-11e9-8292-c7a364071636",
         "quantity": 5
       },
       {
-        "Item_ID": "b120c9e0-7e6a-11e9-8292-c7a364071636",
+        "item_id": "b120c9e0-7e6a-11e9-8292-c7a364071636",
         "quantity": 6
       }
     ]

@@ -11,7 +11,7 @@ exports.handler = async function (e, ctx) {
   const params = {
     TableName: "Users",
     Key: {
-      User_ID: user_id
+      user_id: user_id
     }
   };
 

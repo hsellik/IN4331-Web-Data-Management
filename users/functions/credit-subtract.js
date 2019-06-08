@@ -21,7 +21,7 @@ exports.handler = async function (e, ctx) {
   const getParams = {
     TableName: "Users",
     Key: {
-      User_ID: user_id
+      user_id: user_id
     }
   };
 
@@ -43,7 +43,7 @@ exports.handler = async function (e, ctx) {
       try {
         const updateParams = {
           TableName: "Users",
-          Key: { User_ID: user_id },
+          Key: { user_id: user_id },
           UpdateExpression: "SET credit = credit - :amount",
           ConditionExpression: "credit >= :amount",   // This is a sanity check, has been checked in code before
                                                       // but something might have changed

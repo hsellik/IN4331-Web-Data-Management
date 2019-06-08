@@ -23,7 +23,7 @@ exports.handler = async function(e, ctx) {
     async function add (item) {
         const updateQuery = {
             text: 'UPDATE Stock SET quantity = quantity + $1 WHERE item_id = $2 RETURNING *',
-            values: [item.quantity, item.Item_ID],
+            values: [item.quantity, item.item_id],
         };
         return await pool.query(updateQuery);
     }

@@ -28,7 +28,7 @@ exports.handler = async function (e, ctx) {
   const params = {
     TableName: "Stock",
     Key: {
-      "Item_ID": item_id
+      "item_id": item_id
     },
     UpdateExpression: "SET quantity = quantity - :num",
     ConditionExpression: "quantity >= :num",

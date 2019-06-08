@@ -18,7 +18,7 @@ exports.handler = async (event, context) => {
   const searchParams = {
     TableName: "Orders",
     Key: {
-      Order_ID: order_id
+      order_id: order_id
     }
   };
 
@@ -27,7 +27,7 @@ exports.handler = async (event, context) => {
     if (data.Item) {
       let found = false;
       data.Item.items.forEach(function (entry) {
-        if (entry.Item_ID == item_id) {
+        if (entry.order_id == item_id) {
           entry.quantity -= 1;
           found = true;
           data.Item.total_price -= 1;
@@ -39,7 +39,7 @@ exports.handler = async (event, context) => {
       ;
       const updateParams = {
         TableName: "Orders",
-        Key: { Order_ID: order_id },
+        Key: { order_id: order_id },
         ReturnValues: "UPDATED_NEW",
         UpdateExpression: "set #items = :newList, #total_price = :newTotalPrice",
         ExpressionAttributeNames: {

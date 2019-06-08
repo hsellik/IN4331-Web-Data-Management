@@ -32,7 +32,7 @@ exports.handler = async (event, context) => {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        Order_ID: uuid
+        order_id: uuid
       })
     };
   } catch (err) {

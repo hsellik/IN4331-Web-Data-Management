@@ -29,7 +29,7 @@ exports.handler = async (event, context) => {
   const searchParams = {
     TableName: "Orders",
     Key: {
-      Order_ID: uuid
+      order_id: uuid
     }
   };
 
@@ -41,8 +41,8 @@ exports.handler = async (event, context) => {
       const putParams = {
         TableName: "Orders",
         Item: {
-          Order_ID: uuid,
-          User_ID: user_id,
+          order_id: uuid,
+          user_id: user_id,
           items: [],
           total_price: 0
         }
@@ -52,7 +52,7 @@ exports.handler = async (event, context) => {
         statusCode: 200,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          Order_ID: uuid
+          order_id: uuid
         }),
         isBase64Encoded: false
       };

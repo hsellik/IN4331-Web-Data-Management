@@ -23,7 +23,7 @@ exports.handler = async function (e, ctx) {
   async function subtract(item) {
     const updateQuery = {
       text: "UPDATE Stock SET quantity = quantity - $1 WHERE item_id = $2 RETURNING *",
-      values: [item.quantity, item.Item_ID]
+      values: [item.quantity, item.item_id]
     };
     // return await dynamoDB.update(params).promise();
     return await pool.query(updateQuery);
@@ -41,7 +41,7 @@ exports.handler = async function (e, ctx) {
     let satisfied = 0;
     for (let item of data.rows) {
       for (let orderItem of items) {
-        if (item["item_id"] === orderItem["Item_ID"] && item["quantity"] > orderItem["quantity"]) {
+        if (item["item_id"] === orderItem["item_id"] && item["quantity"] > orderItem["quantity"]) {
 
           satisfied++;
         }

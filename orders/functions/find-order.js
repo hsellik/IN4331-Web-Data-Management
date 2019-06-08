@@ -17,7 +17,7 @@ exports.handler = async (event, context) => {
   const searchParams = {
     TableName: "Orders",
     Key: {
-      Order_ID: orderId
+      order_id: orderId
     }
   };
 
