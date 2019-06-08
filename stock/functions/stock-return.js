@@ -18,7 +18,7 @@ exports.handler = async function (e, ctx) {
     var params = {
       TableName: "Stock",
       Key: {
-        "Item_ID": item.Item_ID
+        "item_id": item.item_id
       },
       UpdateExpression: "SET quantity = quantity + :num",
       ExpressionAttributeValues: {

@@ -15,9 +15,9 @@ provider:
   region: us-east-1
   environment:
     PGHOST: PLACEHOLDER_PGHOST
-    PGUSER: PLACEHOLDER-USERNAME
-    PGDATABASE: PLACEHOLDER-DBNAME
-    PGPASSWORD: PLACEHOLDER-PWD
+    PGUSER: master
+    PGDATABASE: DBUsers
+    PGPASSWORD: master-pwd
     PGPORT: 5432
 
 functions:
@@ -108,11 +108,11 @@ resources:
       Properties: 
         Engine: Postgres
         EngineVersion: 10.6
-        DBInstanceIdentifier: "PLACEHOLDER-DBID"    # case insensitive
-        DBName: "PLACEHOLDER-DBNAME"                # case sensitive
-        MasterUsername: "PLACEHOLDER-USERNAME"
-        MasterUserPassword: "PLACEHOLDER-PWD"
-        DBInstanceClass: "PLACEHOLDER-DBINSTANCE-CLASS"
+        DBInstanceIdentifier: "WebDataManagementUsers"    # case insensitive
+        DBName: "DBUsers"                # case sensitive
+        MasterUsername: "master"
+        MasterUserPassword: "master-pwd"
+        DBInstanceClass: "db.t2.micro"
         AllocatedStorage: 20
         Port: 5432
         PubliclyAccessible: true

@@ -5,12 +5,12 @@ const region = process.env.AWS_REGION;
 const lambda = new AWS.Lambda();
 
 const rollbackFromNoStock = async (subtractedItems, user_id, credit) => {
-  for (let i = 0; i < subtractedItems.length; i++) { 
+  for (let i = 0; i < subtractedItems.length; i++) {
     const addItem = {
-      FunctionName: "stock-microservice-dev-stock-add", 
-      InvocationType: "RequestResponse", 
+      FunctionName: "stock-microservice-dev-stock-add",
+      InvocationType: "RequestResponse",
       Payload: JSON.stringify({
-        "item_id": subtractedItems.Item_ID,
+        "item_id": subtractedItems.item_id,
         "number": subtractedItems.quantity
       })
     }
@@ -22,14 +22,14 @@ const rollbackFromNoStock = async (subtractedItems, user_id, credit) => {
   }
 
   const addCredit = {
-    FunctionName: "users-microservice-dev-credit-add", 
-    InvocationType: "RequestResponse", 
+    FunctionName: "users-microservice-dev-credit-add",
+    InvocationType: "RequestResponse",
     Payload: JSON.stringify({
       "user_id": user_id,
       "amount": credit
     })
   }
-  
+
   const addCreditResult = await lambda.invoke(addCredit).promise().then(res => res.Payload);
   if (JSON.parse(addCreditResult).statusCode !== 200) {
     throw "Unable to refund credit to user account, manual fix necessary."
@@ -49,13 +49,13 @@ exports.handler = async function(e, ctx) {
         const orderId = ((e.pathParameters || {})['order_id']) || e.order_id;
 
         const findOrder = {
-          FunctionName: "orders-microservice-dev-find-order", 
-          InvocationType: "RequestResponse", 
+          FunctionName: "orders-microservice-dev-find-order",
+          InvocationType: "RequestResponse",
           Payload: JSON.stringify({
             "order_id": orderId,
           })
         }
-        
+
         const findOrderResult = await lambda.invoke(findOrder).promise().then(res => res.Payload);
         if (JSON.parse(findOrderResult).statusCode !== 200) {
           throw "Couldn't find order in order table."
@@ -63,28 +63,28 @@ exports.handler = async function(e, ctx) {
         const order = JSON.parse(findOrderResult);
 
         const getPaymentStatus = {
-          FunctionName: "payment-microservice-dev-payment-status", 
-          InvocationType: "RequestResponse", 
+          FunctionName: "payment-microservice-dev-payment-status",
+          InvocationType: "RequestResponse",
           Payload: JSON.stringify({
             "order_id": orderId,
           })
         }
-        
+
         const getPaymentStatusResult = await lambda.invoke(getPaymentStatus).promise().then(res => res.Payload);
-        if (JSON.parse(getPaymentStatusResult).statusCode === 200 && 
+        if (JSON.parse(getPaymentStatusResult).statusCode === 200 &&
             JSON.parse(JSON.parse(getPaymentStatusResult).body).Data.Item.isPaid === true) {
               throw "Order is already paid."
         }
-          
+
         const subtractCredit = {
-          FunctionName: "users-microservice-dev-credit-subtract", 
-          InvocationType: "RequestResponse", 
+          FunctionName: "users-microservice-dev-credit-subtract",
+          InvocationType: "RequestResponse",
           Payload: JSON.stringify({
-            "user_id": JSON.parse(order.body).Item.User_ID,
+            "user_id": JSON.parse(order.body).Item.user_id,
             "amount": JSON.parse(order.body).Item.total_price
           })
         }
-        
+
         const subtractCreditResult = await lambda.invoke(subtractCredit).promise().then(res => res.Payload);
         if (JSON.parse(subtractCreditResult).statusCode !== 200) {
           throw "User does not have enough credits."
@@ -92,37 +92,37 @@ exports.handler = async function(e, ctx) {
 
         let subtractedItems = [];
 
-        for (let i = 0; i < JSON.parse(order.body).Item.items.length; i++) { 
+        for (let i = 0; i < JSON.parse(order.body).Item.items.length; i++) {
           const subtractItem = {
-            FunctionName: "stock-microservice-dev-stock-subtract", 
-            InvocationType: "RequestResponse", 
+            FunctionName: "stock-microservice-dev-stock-subtract",
+            InvocationType: "RequestResponse",
             Payload: JSON.stringify({
-              "item_id": JSON.parse(order.body).Item.items[i].Item_ID,
+              "item_id": JSON.parse(order.body).Item.items[i].item_id,
               "number": JSON.parse(order.body).Item.items[i].quantity
             })
           }
           const subtractItemResult = await lambda.invoke(subtractItem).promise().then(res => res.Payload);
           if (JSON.parse(subtractItemResult).statusCode !== 200) {
-            return await rollbackFromNoStock(subtractedItems, JSON.parse(order.body).Item.User_ID, JSON.parse(order.body).Item.total_price)
+            return await rollbackFromNoStock(subtractedItems, JSON.parse(order.body).Item.user_id, JSON.parse(order.body).Item.total_price)
           }
-          subtractedItems.push({ 
-            "item_id": JSON.parse(order.body).Item.items[i].Item_ID,
+          subtractedItems.push({
+            "item_id": JSON.parse(order.body).Item.items[i].item_id,
             "quantity": JSON.parse(order.body).Item.items[i].quantity
           })
         }
 
         const setPaymentStatus = {
-          FunctionName: "payment-microservice-dev-pay", 
-          InvocationType: "RequestResponse", 
+          FunctionName: "payment-microservice-dev-pay",
+          InvocationType: "RequestResponse",
           Payload: JSON.stringify({
             "order_id": orderId,
-            "user_id": JSON.parse(order.body).Item.User_ID,
+            "user_id": JSON.parse(order.body).Item.user_id,
           })
         }
-        
+
         const setPaymentStatusResult = await lambda.invoke(setPaymentStatus).promise().then(res => res.Payload);
         if (JSON.parse(setPaymentStatusResult).statusCode !== 200){
-          return await rollbackFromNoStock(subtractedItems, JSON.parse(order.body).Item.User_ID, JSON.parse(order.body).Item.total_price)
+          return await rollbackFromNoStock(subtractedItems, JSON.parse(order.body).Item.user_id, JSON.parse(order.body).Item.total_price)
         }
 
         return {

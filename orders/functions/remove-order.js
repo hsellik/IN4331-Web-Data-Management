@@ -18,7 +18,7 @@ exports.handler = async (event, context) => {
     const params = {
       TableName: "Orders",
       Key: {
-        Order_ID: orderId
+        order_id: orderId
       }
     };
 

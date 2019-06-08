@@ -11,9 +11,9 @@ exports.handler = async function (e, ctx) {
   var params = {
     TableName: "Payments",
     Key: {
-      "Order_ID": order_id
+      "order_id": order_id
     },
-    ConditionExpression: "Order_ID = :order_ID and isPaid <> :paid",
+    ConditionExpression: "order_id = :order_ID and isPaid <> :paid",
     ExpressionAttributeValues: {
       ":order_ID": order_id,
       ":paid": true

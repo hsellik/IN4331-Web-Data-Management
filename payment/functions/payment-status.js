@@ -11,7 +11,7 @@ exports.handler = async function (e, ctx) {
   const params = {
     TableName: "Payments",
     Key: {
-      "Order_ID": order_id
+      "order_id": order_id
     }
   };
 
