@@ -22,7 +22,7 @@ exports.handler = async (event, context) => {
     const result = [];
     for (let row of data.rows) {
       result.push({
-        Item_ID: row.Item_ID,
+        Item_ID: row.item_id,
         quantity: row.quantity
       });
     }
@@ -45,7 +45,7 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({
         Item: {
           total_price: data.rows[0].total_price,
-          User_ID: data.rows[0].User_ID,
+          User_ID: data.rows[0].user_id,
           Order_ID: order_id,
           items: extractItemsArray(data)
         }
