@@ -5,13 +5,13 @@ import random
 
 from locust import HttpLocust, TaskSet, task, TaskSequence, seq_task
 
-usersService = "https://ji7nq7f6ec.execute-api.us-east-1.amazonaws.com/dev"
-orderService = "https://8nso6blu02.execute-api.us-east-1.amazonaws.com/dev"
-stockService = "https://i0l7s6pzj1.execute-api.us-east-1.amazonaws.com/dev"
-sagasService = "https://yy59g2msvk.execute-api.us-east-1.amazonaws.com/dev"
-paymentService = "https://jdckj8bvoe.execute-api.us-east-1.amazonaws.com/dev"
+usersService = "https://vw5i9ixvea.execute-api.us-east-1.amazonaws.com/dev"
+orderService = "https://nhgr8boy44.execute-api.us-east-1.amazonaws.com/dev"
+stockService = "https://dab00touw9.execute-api.us-east-1.amazonaws.com/dev"
+sagasService = "https://36hqvw6py4.execute-api.us-east-1.amazonaws.com/dev"
+paymentService = "https://76t240065h.execute-api.us-east-1.amazonaws.com/dev"
 
-resource.setrlimit(resource.RLIMIT_STACK, (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
+# resource.setrlimit(resource.RLIMIT_STACK, (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
 
 class ElbTasks(TaskSet):
 
@@ -30,21 +30,21 @@ class tasks(TaskSet):
     def create_account(self):
       response = self.client.post(f"{usersService}/users/create", name="CreateUser")
       print("Create account:")
-      print("User_ID: " + response.json()['User_ID'])
-      self.UserID = response.json()['User_ID']
+      print("user_id: " + response.json()['user_id'])
+      self.UserID = response.json()['user_id']
 
     @seq_task(2)
     def create_order(self):
       response = self.client.post(f"{sagasService}/orders/create/{self.UserID}", name="CreateOrder")
       if response.ok:
-        self.OrderID = response.json()['Order_ID']
-        print("Order_ID: " + self.OrderID)
+        self.OrderID = response.json()['order_id']
+        print("order_id: " + self.OrderID)
 
     @seq_task(3)
     def create_item(self):
       response = self.client.post(f"{stockService}/stock/item/create", name="CreateItem")
-      print("Item_ID: " + response.json()['Item_ID'])
-      self.ItemID = response.json()['Item_ID']
+      print("item_id: " + response.json()['item_id'])
+      self.ItemID = response.json()['item_id']
 
     @seq_task(4)
     def add_stock(self):
@@ -76,21 +76,21 @@ class tasks(TaskSet):
     def create_account(self):
       response = self.client.post(f"{usersService}/users/create", name="CreateUser")
       print("Create account:")
-      print("User_ID: " + response.json()['User_ID'])
-      self.UserID = response.json()['User_ID']
+      print("user_id: " + response.json()['user_id'])
+      self.UserID = response.json()['user_id']
 
     @seq_task(2)
     def create_order(self):
       response = self.client.post(f"{sagasService}/orders/create/{self.UserID}", name="CreateOrder")
       if response.ok:
-        self.OrderID = response.json()['Order_ID']
-        print("Order_ID: " + self.OrderID)
+        self.OrderID = response.json()['order_id']
+        print("order_id: " + self.OrderID)
 
     @seq_task(3)
     def create_item(self):
       response = self.client.post(f"{stockService}/stock/item/create", name="CreateItem")
-      #print("Item_ID: " + response.json()['Item_ID'])
-      self.ItemID = response.json()['Item_ID']
+      #print("item_id: " + response.json()['item_id'])
+      self.ItemID = response.json()['item_id']
 
     @seq_task(4)
     def add_stock(self):
@@ -112,17 +112,17 @@ class tasks(TaskSet):
     @seq_task(1)
     def create_account(self):
       response = self.client.post(f"{usersService}/users/create", name="CreateUser")
-      self.UserID = response.json()['User_ID']
+      self.UserID = response.json()['user_id']
 
     @seq_task(2)
     def create_order(self):
       response = self.client.post(f"{sagasService}/orders/create/{self.UserID}", name="CreateOrder")
-      self.OrderID = response.json()['Order_ID']
+      self.OrderID = response.json()['order_id']
 
     @seq_task(3)
     def create_item(self):
       response = self.client.post(f"{stockService}/stock/item/create/", name="CreateItem")
-      self.ItemID = response.json()['Item_ID']
+      self.ItemID = response.json()['item_id']
 
     @seq_task(4)
     def add_stock(self):
@@ -139,17 +139,17 @@ class tasks(TaskSet):
     @seq_task(1)
     def create_account(self):
       response = self.client.post(f"{usersService}/users/create", name="CreateUser")
-      self.UserID = response.json()['User_ID']
+      self.UserID = response.json()['user_id']
 
     @seq_task(2)
     def create_order(self):
       response = self.client.post(f"{sagasService}/orders/create/{self.UserID}", name="CreateOrder")
-      self.OrderID = response.json()['Order_ID']
+      self.OrderID = response.json()['order_id']
 
     @seq_task(3)
     def create_item(self):
       response = self.client.post(f"{stockService}/stock/item/create/", name="CreateItem")
-      self.ItemID = response.json()['Item_ID']
+      self.ItemID = response.json()['item_id']
 
     @seq_task(4)
     def add_item_to_order(self):
@@ -164,17 +164,17 @@ class tasks(TaskSet):
     @seq_task(1)
     def create_account(self):
       response = self.client.post(f"{usersService}/users/create", name="CreateUser")
-      self.UserID = response.json()['User_ID']
+      self.UserID = response.json()['user_id']
 
     @seq_task(2)
     def create_order(self):
       response = self.client.post(f"{sagasService}/orders/create/{self.UserID}", name="CreateOrder")
-      self.OrderID = response.json()['Order_ID']
+      self.OrderID = response.json()['order_id']
 
     @seq_task(3)
     def create_item(self):
       response = self.client.post(f"{stockService}/stock/item/create/", name="CreateItem")
-      self.ItemID = response.json()['Item_ID']
+      self.ItemID = response.json()['item_id']
 
     @seq_task(4)
     def add_stock(self):
