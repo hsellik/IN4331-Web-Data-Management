@@ -5,11 +5,11 @@ import random
 
 from locust import HttpLocust, TaskSet, task, TaskSequence, seq_task
 
-usersService = "https://0ku9sdii1j.execute-api.us-east-1.amazonaws.com/dev"
-orderService = "https://w1vv2o7j00.execute-api.us-east-1.amazonaws.com/dev"
-stockService = "https://f6r12yon57.execute-api.us-east-1.amazonaws.com/dev"
-sagasService = "https://gt0u5bgjkb.execute-api.us-east-1.amazonaws.com/dev"
-paymentService = "https://aebpr3kvd8.execute-api.us-east-1.amazonaws.com/dev"
+usersService = "https://ji7nq7f6ec.execute-api.us-east-1.amazonaws.com/dev"
+orderService = "https://8nso6blu02.execute-api.us-east-1.amazonaws.com/dev"
+stockService = "https://i0l7s6pzj1.execute-api.us-east-1.amazonaws.com/dev"
+sagasService = "https://yy59g2msvk.execute-api.us-east-1.amazonaws.com/dev"
+paymentService = "https://jdckj8bvoe.execute-api.us-east-1.amazonaws.com/dev"
 
 resource.setrlimit(resource.RLIMIT_STACK, (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
 
@@ -23,7 +23,8 @@ class ElbTasks(TaskSet):
     self.client.post(f"{paymentService}/payment/pay/{user_id}/{order_id}", name="Pay")
 
 class tasks(TaskSet):
-  @task(1)
+
+  @task(40)
   class completeCheckout(TaskSequence):
     @seq_task(1)
     def create_account(self):
@@ -62,9 +63,51 @@ class tasks(TaskSet):
     @seq_task(7)
     def checkout(self):
       self.client.post(f"{sagasService}/orders/checkout/{self.OrderID}", name="Checkout")
+
+    @seq_task(7)
+    def checkout(self):
+      response = self.client.get(f"{sagasService}/orders/find/{self.OrderID}", name="Checkout")
+      #print("isPaid: " + str(response.json()['isPaid']))
       self.interrupt()
 
-  @task(1)
+  @task(20)
+  class removeOrder(TaskSequence):
+    @seq_task(1)
+    def create_account(self):
+      response = self.client.post(f"{usersService}/users/create", name="CreateUser")
+      print("Create account:")
+      print("User_ID: " + response.json()['User_ID'])
+      self.UserID = response.json()['User_ID']
+
+    @seq_task(2)
+    def create_order(self):
+      response = self.client.post(f"{sagasService}/orders/create/{self.UserID}", name="CreateOrder")
+      if response.ok:
+        self.OrderID = response.json()['Order_ID']
+        print("Order_ID: " + self.OrderID)
+
+    @seq_task(3)
+    def create_item(self):
+      response = self.client.post(f"{stockService}/stock/item/create", name="CreateItem")
+      #print("Item_ID: " + response.json()['Item_ID'])
+      self.ItemID = response.json()['Item_ID']
+
+    @seq_task(4)
+    def add_stock(self):
+      self.InitialStock = random.randint(1,11)
+      self.client.post(f"{stockService}/stock/add/{self.ItemID}/{self.InitialStock}", name="AddStock")
+
+    @seq_task(5)
+    def add_item_to_order(self):
+      for i in range(random.randint(1, self.InitialStock)):
+        self.client.post(f"{sagasService}/orders/addItem/{self.OrderID}/{self.ItemID}", name="AddItemToOrder")
+
+    @seq_task(7)
+    def remove_order(self):
+      response = self.client.delete(f"{sagasService}/orders/remove/{self.OrderID}", name="Remove Order")
+      self.interrupt()
+
+  @task(20)
   class justLooking(TaskSequence):
     @seq_task(1)
     def create_account(self):
@@ -91,7 +134,7 @@ class tasks(TaskSet):
       for i in range(random.randint(1, self.InitialStock)):
         self.client.post(f"{sagasService}/orders/addItem/{self.OrderID}/{self.ItemID}", name="AddItemToOrder")
 
-  @task(1)
+  @task(10)
   class noStockTask(TaskSequence):
     @seq_task(1)
     def create_account(self):
@@ -116,7 +159,7 @@ class tasks(TaskSet):
           response.success()
       self.interrupt()
 
-  @task(1)
+  @task(10)
   class noCreditTask(TaskSequence):
     @seq_task(1)
     def create_account(self):
