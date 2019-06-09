@@ -10,9 +10,17 @@ const { Pool } = require("pg");
  */
 exports.handler = async function (e, ctx) {
   const item_id = ((e.path || {})["item_id"]) || (e["item_id"]);
-  let number = ((e.path || {})["number"]) || (e["number"]);
+  const numberRaw = ((e.path || {})["number"]) || (e["number"]) || ((e.pathParameters || {})["number"]);
 
-  number = parseInt(number, 10);
+  const number = parseInt(numberRaw, 10);
+
+  if (Number.isNaN(number)) {
+    return {
+      statusCode: 400,
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify({ message: `Amount parameter is not a number: \"${numberRaw}\"` })
+    };
+  }
 
   const pool = new Pool({
     host: process.env.PGHOST,
