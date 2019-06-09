@@ -2,7 +2,7 @@ service: postgres-stock-microservice
 
 package:
   excludeDevDependencies: false
-  
+
 custom:
   region: ${opt:region, self:provider.region}
 
@@ -30,7 +30,7 @@ functions:
       - http:
           path: /stock/availability/{item_id}
           method: GET
-          integration: lambda
+          integration: lambda-proxy
           private: false
           request:
             parameters:
@@ -43,7 +43,7 @@ functions:
       - http:
           path: /stock/subtract/{order_id}
           method: POST
-          integration: lambda
+          integration: lambda-proxy
           private: false
           request:
             parameters:
@@ -56,7 +56,7 @@ functions:
       - http:
           path: /stock/add/{item_id}/{number}
           method: POST
-          integration: lambda
+          integration: lambda-proxy
           private: false
           request:
             parameters:
@@ -70,7 +70,7 @@ functions:
       - http:
           path: /stock/return/{order_id}
           method: POST
-          integration: lambda
+          integration: lambda-proxy
           private: false
           request:
             parameters:
@@ -83,14 +83,14 @@ functions:
       - http:
           path: /stock/item/create/
           method: POST
-          integration: lambda
+          integration: lambda-proxy
           private: false
 
 resources:
   Resources:
     StockDB:
       Type: AWS::RDS::DBInstance
-      Properties: 
+      Properties:
         Engine: Postgres
         EngineVersion: 10.6
         DBInstanceIdentifier: "PLACEHOLDER-DBID"    # case insensitive
