@@ -9,7 +9,7 @@ const { Pool } = require("pg");
  * }
  */
 exports.handler = async function (e, ctx) {
-  const item_id = ((e.path || {})["item_id"]) || (e["item_id"]);
+  const item_id = ((e.path || {})["item_id"]) || (e["item_id"]) || ((e.pathParameters || {})["item_id"]);
   const numberRaw = ((e.path || {})["number"]) || (e["number"]) || ((e.pathParameters || {})["number"]);
 
   const number = parseInt(numberRaw, 10);

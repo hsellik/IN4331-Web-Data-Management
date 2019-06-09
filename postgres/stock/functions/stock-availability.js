@@ -8,7 +8,7 @@ const { Pool } = require("pg");
  * }
  */
 exports.handler = async function (e, ctx) {
-  const item_id = ((e.path || {})["item_id"]) || (e["item_id"]);
+  const item_id = ((e.path || {})["item_id"]) || (e["item_id"]) || ((e.pathParameters || {})["item_id"]);
 
   const pool = new Pool({
     host: process.env.PGHOST,

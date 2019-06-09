@@ -9,7 +9,7 @@ const { Pool } = require("pg");
  * }
  */
 exports.handler = async function (e, ctx) {
-  const order_id = ((e.path || {})["order_id"]) || (e["order_id"]);
+  const order_id = ((e.path || {})["order_id"]) || (e["order_id"]) || ((e.pathParameters || {})["order_id"]);
   const Item = e["Item"];
 
   const pool = new Pool({
