@@ -17,7 +17,7 @@ exports.handler = async (event, context) => {
 
   const updateOrderQuery = {
     text: "UPDATE Orders SET total_price = total_price + 1 WHERE order_id = $1 RETURNING *",
-    values: [order_id, item_id]
+    values: [order_id]
   };
 
   const pool = new Pool({
