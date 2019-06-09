@@ -38,6 +38,8 @@ exports.handler = async function (e, ctx) {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        ItemId: item_id,
+        quantity: data.rows[0].quantity,
         Message: "Successfully retrieved availability of item " + item_id,
         Data: JSON.stringify({Item: data.rows[0]})
       })
