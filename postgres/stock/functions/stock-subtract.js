@@ -36,30 +36,8 @@ exports.handler = async function (e, ctx) {
       text: "UPDATE Stock SET quantity = quantity - $1 WHERE item_id = $2 RETURNING *",
       values: [number, item_id]
     };
-    // return await dynamoDB.update(params).promise();
     return await pool.query(updateQuery);
   }
-
-  // async function checkQuantity(items) {
-  //   const selectQuery = `SELECT item_id, quantity FROM Stock WHERE item_id IN ${items.join()}`;
-  //
-  //   const data = await pool.query(selectQuery);
-  //
-  //   if (items.length !== data.rows.length) {
-  //     throw new Error("ERROR! Some items do not exist of order: " + order_id);
-  //   }
-  //
-  //   let satisfied = 0;
-  //   for (let item of data.rows) {
-  //     for (let orderItem of items) {
-  //       if (item["item_id"] === orderItem["item_id"] && item["quantity"] > orderItem["quantity"]) {
-  //
-  //         satisfied++;
-  //       }
-  //     }
-  //   }
-  //   return satisfied === items.length;
-  // }
 
   try {
     const data = await subtract();
