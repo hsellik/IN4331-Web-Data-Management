@@ -62,11 +62,17 @@ exports.handler = async function (e, ctx) {
   // }
 
   try {
-
-
-    // const promises = Item.items.map(subtract);
-    // const data = await Promise.all(promises);
     const data = await subtract();
+    if (data.rows.length === 0) {
+      return {
+        statusCode: 403,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          Message: "Something wrong! Not enough item: " + item_id + " in the stock.",
+          Data: JSON.stringify(data)
+        })
+      }
+    }
 
     return {
       statusCode: 200,
