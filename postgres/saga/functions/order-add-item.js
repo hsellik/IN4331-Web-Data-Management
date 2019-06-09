@@ -11,13 +11,13 @@ exports.handler = async function(e, ctx) {
         const itemId = ((e.pathParameters || {})['item_id']) || e.item_id;
 
         const checkAvailability = {
-          FunctionName: "stock-microservice-dev-stock-availability", 
+          FunctionName: "postgres-stock-microservice-dev-stock-availability",
           InvocationType: "RequestResponse", 
           Payload: JSON.stringify({"item_id": itemId})
         }
       
         const addItemToOrder = {
-          FunctionName: "orders-microservice-dev-add-item", 
+          FunctionName: "postgres-orders-microservice-dev-add-item",
           InvocationType: "RequestResponse", 
           Payload: JSON.stringify({
             "order_id": orderId,

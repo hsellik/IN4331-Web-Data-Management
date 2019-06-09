@@ -7,7 +7,7 @@ const lambda = new AWS.Lambda();
 const rollbackFromNoStock = async (subtractedItems, user_id, credit) => {
   for (let i = 0; i < subtractedItems.length; i++) {
     const addItem = {
-      FunctionName: "stock-microservice-dev-stock-add",
+      FunctionName: "postgres-stock-microservice-dev-stock-add",
       InvocationType: "RequestResponse",
       Payload: JSON.stringify({
         "item_id": subtractedItems.item_id,
@@ -22,7 +22,7 @@ const rollbackFromNoStock = async (subtractedItems, user_id, credit) => {
   }
 
   const addCredit = {
-    FunctionName: "users-microservice-dev-credit-add",
+    FunctionName: "postgres-users-microservice-dev-credit-add",
     InvocationType: "RequestResponse",
     Payload: JSON.stringify({
       "user_id": user_id,
@@ -49,7 +49,7 @@ exports.handler = async function(e, ctx) {
         const orderId = ((e.pathParameters || {})['order_id']) || e.order_id;
 
         const findOrder = {
-          FunctionName: "orders-microservice-dev-find-order",
+          FunctionName: "postgres-orders-microservice-dev-find-order",
           InvocationType: "RequestResponse",
           Payload: JSON.stringify({
             "order_id": orderId,
@@ -63,7 +63,7 @@ exports.handler = async function(e, ctx) {
         const order = JSON.parse(findOrderResult);
 
         const getPaymentStatus = {
-          FunctionName: "payment-microservice-dev-payment-status",
+          FunctionName: "postgres-payment-microservice-dev-payment-status",
           InvocationType: "RequestResponse",
           Payload: JSON.stringify({
             "order_id": orderId,
@@ -77,7 +77,7 @@ exports.handler = async function(e, ctx) {
         }
 
         const subtractCredit = {
-          FunctionName: "users-microservice-dev-credit-subtract",
+          FunctionName: "postgres-users-microservice-dev-credit-subtract",
           InvocationType: "RequestResponse",
           Payload: JSON.stringify({
             "user_id": JSON.parse(order.body).Item.user_id,
@@ -94,7 +94,7 @@ exports.handler = async function(e, ctx) {
 
         for (let i = 0; i < JSON.parse(order.body).Item.items.length; i++) {
           const subtractItem = {
-            FunctionName: "stock-microservice-dev-stock-subtract",
+            FunctionName: "postgres-stock-microservice-dev-stock-subtract",
             InvocationType: "RequestResponse",
             Payload: JSON.stringify({
               "item_id": JSON.parse(order.body).Item.items[i].item_id,
@@ -112,7 +112,7 @@ exports.handler = async function(e, ctx) {
         }
 
         const setPaymentStatus = {
-          FunctionName: "payment-microservice-dev-pay",
+          FunctionName: "postgres-payment-microservice-dev-pay",
           InvocationType: "RequestResponse",
           Payload: JSON.stringify({
             "order_id": orderId,

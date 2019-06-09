@@ -9,25 +9,25 @@ exports.handler = async function(e, ctx) {
     const orderId = ((e.pathParameters || {})['order_id']) || e.order_id;
 
     const paymentStatus = {
-        FunctionName: "payment-microservice-dev-payment-status", 
+        FunctionName: "postgres-payment-microservice-dev-payment-status",
         InvocationType: "RequestResponse", 
         Payload: JSON.stringify({"order_id": orderId})
     };
 
     const removeOrder = {
-        FunctionName: "orders-microservice-dev-remove-order", 
+        FunctionName: "postgres-orders-microservice-dev-remove-order",
         InvocationType: "RequestResponse", 
         Payload: JSON.stringify({"order_id": orderId})
     };
 
     const removePayment = {
-        FunctionName: "payment-microservice-dev-remove-payment", 
+        FunctionName: "postgres-payment-microservice-dev-remove-payment",
         InvocationType: "RequestResponse", 
         Payload: JSON.stringify({"order_id": orderId})
     }
     
     const findOrder = {
-        FunctionName: "orders-microservice-dev-find-order", 
+        FunctionName: "postgres-orders-microservice-dev-find-order",
         InvocationType: "RequestResponse", 
         Payload: JSON.stringify({"order_id": orderId})
     }

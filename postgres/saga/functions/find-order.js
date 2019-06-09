@@ -10,7 +10,7 @@ exports.handler = async function (e, ctx) {
         const orderId = ((e.pathParameters || {})['order_id']) || e.order_id;
 
         const findOrder = {
-            FunctionName: "orders-microservice-dev-find-order",
+            FunctionName: "postgres-orders-microservice-dev-find-order",
             InvocationType: "RequestResponse",
             Payload: JSON.stringify({
                 "order_id": orderId,
@@ -25,7 +25,7 @@ exports.handler = async function (e, ctx) {
         const order = JSON.parse(findOrderResult);
 
         const getPaymentStatus = {
-            FunctionName: "payment-microservice-dev-payment-status",
+            FunctionName: "postgres-payment-microservice-dev-payment-status",
             InvocationType: "RequestResponse",
             Payload: JSON.stringify({
                 "order_id": orderId,

@@ -7,13 +7,13 @@ module.exports.handler = async function(e, ctx) {
   const user_id = ((e.pathParameters || {})['user_id']) || e.user_id;
   
   const findUser = {
-    FunctionName: "users-microservice-dev-find-user", 
+    FunctionName: "postgres-users-microservice-dev-find-user",
     InvocationType: "RequestResponse", 
     Payload: JSON.stringify({"user_id": user_id})
   }
 
   const createOrder = {
-    FunctionName: "orders-microservice-dev-create-order", 
+    FunctionName: "postgres-orders-microservice-dev-create-order",
     InvocationType: "RequestResponse", 
     Payload: JSON.stringify({"user_id": user_id})
   }
