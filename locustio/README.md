@@ -8,10 +8,9 @@ Python 3
 `pip install locustio`
 
 ## Running Single Locust in localhost
-`cd helm/tasks/`
-`locust -f tasks.py --host=https://{restapi_id}.execute-api.{region}.amazonaws.com/{stage_name}`   
-Example  
-`locust -f tasks.py --host=https://6ull6qibde.execute-api.us-east-1.amazonaws.com/dev/`  
+`cd helm/tasks/`  
+Change the endpoint addresses in tasks.py and run  
+`locust -f tasks.py --host=""`     
 Open browser for locustio UI  
 `localhost:8089`
 
