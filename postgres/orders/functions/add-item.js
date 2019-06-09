@@ -6,7 +6,7 @@ exports.handler = async (event, context) => {
   const item_id = ((event.pathParameters || {})["item_id"]) || event.item_id;
 
   const insertQuery = {
-    text: "INSERT INTO OrderRow VALUES($1, $2, $3) RETURNING *",
+    text: "INSERT INTO OrderRow (order_id, item_id, quantity) VALUES($1, $2, $3) RETURNING *",
     values: [order_id, item_id, 1]
   };
 

@@ -31,7 +31,7 @@ exports.handler = async function (e, ctx) {
       body: JSON.stringify({
         Message: "Successfully created item " + item_id,
         item_id: item_id,
-        Data: JSON.stringify({Item: data.rows[0]})
+        Data: {Item: data.rows[0]}
       })
     };
   } catch (err) {
@@ -40,7 +40,7 @@ exports.handler = async function (e, ctx) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         Message: "Unable to create item.",
-        Data: JSON.stringify({Item: data.rows[0]}),
+        Data: {Item: data.rows[0]},
         Error: err
       })
     };
