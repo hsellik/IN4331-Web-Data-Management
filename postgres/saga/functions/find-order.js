@@ -42,9 +42,9 @@ exports.handler = async function (e, ctx) {
         const payment = JSON.parse(getPaymentStatusResult);
 
         if (payment.statusCode === 404) {
-            payment.ispaid = false;
+            payment.isPaid = false;
         } else {
-            payment.ispaid = JSON.parse(payment.body).Data.Item.ispaid;
+            payment.isPaid = JSON.parse(payment.body).Data.Item.isPaid;
         }
 
         return {

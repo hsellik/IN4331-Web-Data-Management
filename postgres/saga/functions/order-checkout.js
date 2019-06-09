@@ -72,7 +72,7 @@ exports.handler = async function(e, ctx) {
 
         const getPaymentStatusResult = await lambda.invoke(getPaymentStatus).promise().then(res => res.Payload);
         if (JSON.parse(getPaymentStatusResult).statusCode === 200 &&
-            JSON.parse(JSON.parse(getPaymentStatusResult).body).Data.Item.ispaid === true) {
+            JSON.parse(JSON.parse(getPaymentStatusResult).body).Data.Item.isPaid === true) {
               throw "Order is already paid."
         }
 
