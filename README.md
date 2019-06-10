@@ -27,7 +27,8 @@ The URL of endpoints will also be printed by the build scripts described below a
 * Serverless (npm install -g serverless)
 ## Setting AWS Credentials  
 https://www.youtube.com/watch?v=KngM5bfpttA 
-## Running :computer:
+## Deploying NodeJS Lambda functions with DynamoDB :computer:
+A shell script will deploy the whole project to AWS  
 * `./build-all.sh deploy <stage> <region> <aws_profile>`  
 Example  
 * `./build-all.sh deploy dev us-east-1 default`
