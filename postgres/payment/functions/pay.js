@@ -18,7 +18,7 @@ exports.handler = async function (e, ctx) {
     const insertQuery = {
         text: "INSERT INTO Payments(order_id, isPaid) VALUES ($1, TRUE);",
         values: [order_id],
-    }
+    };
 
     const updateQuery = {
         text: 'UPDATE Payments SET isPaid=TRUE WHERE order_id = $1',
@@ -26,9 +26,9 @@ exports.handler = async function (e, ctx) {
     };
 
     try {
-        const data = await pool.query(insertQuery);
+        const data = await pool.query(updateQuery);
         if (data.rows.length === 0) {
-            await pool.query(updateQuery);
+            await pool.query(insertQuery);
         }
 
         return {
