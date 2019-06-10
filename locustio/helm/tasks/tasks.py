@@ -65,8 +65,8 @@ class tasks(TaskSet):
       self.client.post(f"{sagasService}/orders/checkout/{self.OrderID}", name="Checkout")
 
     @seq_task(7)
-    def checkout(self):
-      response = self.client.get(f"{sagasService}/orders/find/{self.OrderID}", name="Checkout")
+    def find_order(self):
+      response = self.client.get(f"{sagasService}/orders/find/{self.OrderID}", name="FindOrder")
       #print("isPaid: " + str(response.json()['isPaid']))
       self.interrupt()
 
