@@ -16,11 +16,7 @@ exports.handler = async function (e, ctx) {
     });
 
     const insertQuery = {
-        text: "INSERT INTO Payments(order_id, isPaid) \
-            SELECT $1, TRUE \
-            WHERE NOT EXISTS ( \
-                SELECT $1 FROM Payments \
-            );",
+        text: "INSERT INTO Payments(order_id, isPaid) VALUES ($1, TRUE);",
         values: [order_id],
     }
 
