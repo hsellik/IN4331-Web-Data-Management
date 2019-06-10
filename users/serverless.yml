@@ -108,9 +108,9 @@ resources:
       Properties:
         TableName: Users
         AttributeDefinitions:
-          - AttributeName: User_ID
+          - AttributeName: user_id
             AttributeType: S
         KeySchema:
-          - AttributeName: User_ID
+          - AttributeName: user_id
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST

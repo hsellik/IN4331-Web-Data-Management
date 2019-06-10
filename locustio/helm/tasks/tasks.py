@@ -5,11 +5,11 @@ import random
 
 from locust import HttpLocust, TaskSet, task, TaskSequence, seq_task
 
-usersService = "https://exyo8ltd82.execute-api.us-east-1.amazonaws.com/dev"
-orderService = "https://tpbvo967n5.execute-api.us-east-1.amazonaws.com/dev"
-stockService = "https://2lquq57a6b.execute-api.us-east-1.amazonaws.com/dev"
-sagasService = "https://930ku1x7kb.execute-api.us-east-1.amazonaws.com/dev"
-paymentService = "https://szf0nvhjb4.execute-api.us-east-1.amazonaws.com/dev"
+usersService = "https://g8zxwvx7d8.execute-api.us-east-1.amazonaws.com/dev"
+orderService = "https://v4ndc08392.execute-api.us-east-1.amazonaws.com/dev"
+stockService = "https://cfa1z9013f.execute-api.us-east-1.amazonaws.com/dev"
+sagasService = "https://r7ocz4j4gk.execute-api.us-east-1.amazonaws.com/dev"
+paymentService = "https://v0wy3hiark.execute-api.us-east-1.amazonaws.com/dev"
 
 # resource.setrlimit(resource.RLIMIT_STACK, (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
 

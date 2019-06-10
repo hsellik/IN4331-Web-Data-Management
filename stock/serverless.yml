@@ -95,9 +95,9 @@ resources:
       Properties:
         TableName: Stock
         AttributeDefinitions:
-          - AttributeName: Item_ID
+          - AttributeName: item_id
             AttributeType: S
         KeySchema:
-          - AttributeName: Item_ID
+          - AttributeName: item_id
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST

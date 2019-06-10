@@ -99,9 +99,9 @@ resources:
       Properties:
         TableName: Orders
         AttributeDefinitions:
-          - AttributeName: Order_ID
+          - AttributeName: order_id
             AttributeType: S
         KeySchema:
-          - AttributeName: Order_ID
+          - AttributeName: order_id
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
