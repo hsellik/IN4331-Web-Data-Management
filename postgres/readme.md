@@ -33,23 +33,3 @@ Example
 ## Settings not to change
 * PLACEHOLDERs in `serverless.yml`.
 * Parameters in `db.config`. Only change `CREATE_TABLE` if the table is not perfect.
-## DB connection and return data
-As the parameters of the DB server is passed into Node.js environment through `serverless.yml`, you could connect to the database like:
-```
-const { Pool, Client } = require('pg');
-const pool = new Pool({
-        host: process.env.PGHOST,
-        user: process.env.PGUSER,
-        database: process.env.PGDATABASE,
-        password: process.env.PGPASSWORD,
-        port: process.env.PGPORT,
-    });
-``` 
-For returning the data, we only need the `rows` of the data:
-```
-JSON.stringify(data.rows)
-```
-## TODO
-* Complete `CREATE_TABLE` for other microservices. **Done.**
-* Test the deployment script for other microservices. **Stock and orders tested**
-* Migrate DynamoDB to PostGreSql and test the functionalities. **On progress** 

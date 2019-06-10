@@ -19,10 +19,9 @@ Locust can be run in a distributed way on multiple machines. Firstly a master mu
 After that a slave can be run in another machine. If run locally, all slaves default to 127.0.0.1
 and no master host must be specified.  
 Running master:  
-`locust -f tasks.py --host https://6ull6qibde.execute-api.us-east-1.amazonaws.com/dev --master`  
+`locust -f tasks.py --host="" --master`  
 Running slave:  
 `locust -f tasks.py --slave --master-host=<master-url>`  
-
 
 ## Running Distributed Locust with Helm (Kubernetes + Docker) in Google Cloud  
 First, create a google cloud project:
@@ -37,7 +36,7 @@ After that you need to change quotas in Google Cloud Console:
 * CPUS_ALL_REGIONS = 576
 * Regional (us-east1) CPUs = 576
 * Regional (us-east1) In-use IP addresses = 9
-![Change quotas in Google Cloud Console](readme-images/change-quotas.png)  
+![Change quotas in Google Cloud Console](images/change-quotas.png)  
 After this you can deploy a cluster  
 * `gcloud beta container clusters create --machine-type n1-highcpu-64 locust-cluster --zone us-east1 --preemptible`  
 You should end up something like:
@@ -73,27 +72,3 @@ Access external swarm via local url:
 
 ## Additional Documentation on The Chart  
 * https://github.com/helm/charts/tree/master/stable/locust
-
-<!--
-## Docker
-From the locustio directory, build a docker image via:
-```docker build -t locust:locust_container .```  
-You can then verify that the docker file has been built successfully by running:  
-```
-docker run -it \  
-       -e TARGET_HOST=http://<insert_target_host> \
-       -e LOCUST_TASK=locust/locustfile.py \
-       -p 8089:8089 locust:locust_container
-```  
-Example:  
-* `sudo docker run -it -e TARGET_HOST=https://6ull6qibde.execute-api.us-east-1.amazonaws.com/dev -e LOCUST_TASK=/locust/locustfile.py -p 8089:8089 locust:locust_container`
-# GCE deployment
-Next, assuming you have kubernetes and gcloud installed, you can push the docker image to google via:
-`gcloud components install docker-credential-gcr`
-`gcloud docker -- build -t  gcr.io/${project-id}/${docker_image_name}:${tag}  --file=Dockerfile  . && gcloud docker -- push gcr.io/${project-id}/${docker_image_name}:${tag}`  
-Example  
-```
-gcloud docker -- build -t  gcr.io/web-data-management-242011/locust:locust_container  --file=Dockerfile  . && gcloud docker -- push gcr.io/web-data-management-242011/locust:locust_container
-```  
-(Handy [YouTube video](https://www.youtube.com/watch?v=pn0cPqUusRE&feature=youtu.be))
--->
