@@ -5,7 +5,7 @@ This repository contains 4 microservices:
 * `stock-service` (sub-directory `stock/`)
 * `payment-service` (sub-directory `payment/`)
 * `order-service` (sub-directory `orders/`)  
-Each microservice contains:  
+#### Each microservice contains:  
 * `functions/` which contain nodejs lambda functions
 * `package.json` for installing serverless
 * `serverless.yml` a yaml file which specifies link between API gateway and lambda functions.  
@@ -27,7 +27,7 @@ The URL of endpoints will also be printed by the build scripts described below a
 * Serverless (npm install -g serverless)
 ## Setting AWS Credentials  
 https://www.youtube.com/watch?v=KngM5bfpttA 
-## Running
+## Running :computer:
 * `./build-all.sh deploy <stage> <region> <aws_profile>`  
 Example  
 * `./build-all.sh deploy dev us-east-1 default`
