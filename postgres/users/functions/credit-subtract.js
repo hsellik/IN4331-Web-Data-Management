@@ -28,9 +28,12 @@ exports.handler = async function(e, ctx) {
         text: 'UPDATE Users SET credit = credit - $1 WHERE credit >= $1 AND user_id = $2 RETURNING *',
         values: [amount, user_id],
     };
+    let client;
 
     try {
-        const data = await pool.query(updateQuery);
+        client = await pool.connect();
+        const data = await client.query(updateQuery);
+        client.release();
         if (data.rows.length === 0) {
             return {
                 statusCode: 404,
@@ -50,6 +53,7 @@ exports.handler = async function(e, ctx) {
             body: JSON.stringify(data.rows[0]),
         };
     } catch (err) {
+        if (client) client.release();
         return {
             statusCode: 500,
             headers: { "Content-type": "application/json" },

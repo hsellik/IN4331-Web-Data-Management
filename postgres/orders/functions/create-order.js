@@ -21,12 +21,15 @@ exports.handler = async (event, context) => {
   };
 
   var data;
+  let client;
   try {
-    data = await pool.query(insertQuery);
+    client = await pool.connect();
+    data = await client.query(insertQuery);
 
     if (data.rows.length === 0) {
       throw "Duplicate ID tried to be written.";
     }
+    client.release();
 
     return {
       statusCode: 200,
@@ -36,6 +39,7 @@ exports.handler = async (event, context) => {
       })
     };
   } catch (err) {
+    if (client) client.release();
     return {
       statusCode: 403,
       headers: { "Content-Type": "application/json" },

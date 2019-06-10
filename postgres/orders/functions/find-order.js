@@ -30,8 +30,11 @@ exports.handler = async (event, context) => {
   };
 
   var data;
+  let client;
   try {
-    data = await pool.query(selectQuery);
+    client = await pool.connect();
+    data = await client.query(selectQuery);
+    client.release();
     if (data.rows.length === 0) {
       return {
         statusCode: 404,
@@ -52,6 +55,7 @@ exports.handler = async (event, context) => {
       })
     };
   } catch (err) {
+    if (client) client.release();
     return {
       statusCode: 403,
       headers: { "Content-Type": "application/json" },

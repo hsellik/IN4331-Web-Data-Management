@@ -22,9 +22,12 @@ exports.handler = async function (e, ctx) {
     values: [item_id]
   };
 
+  let client;
   try {
-    const data = await pool.query(query);
+    client = await pool.connect();
+    const data = await client.query(query);
 
+    client.release();
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
@@ -35,6 +38,7 @@ exports.handler = async function (e, ctx) {
       })
     };
   } catch (err) {
+    if (client) client.release();
     return {
       statusCode: 403,
       headers: { "Content-Type": "application/json" },

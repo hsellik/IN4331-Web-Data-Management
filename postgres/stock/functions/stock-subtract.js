@@ -31,16 +31,20 @@ exports.handler = async function (e, ctx) {
     port: process.env.PGPORT
   });
 
-  async function subtract() {
+  let client;
+
+  async function subtract(client) {
     const updateQuery = {
       text: "UPDATE Stock SET quantity = quantity - $1 WHERE item_id = $2 RETURNING *",
       values: [number, item_id]
     };
-    return await pool.query(updateQuery);
+    return await client.query(updateQuery);
   }
 
   try {
-    const data = await subtract();
+    client = await pool.connect();
+    const data = await subtract(client);
+    client.release();
     if (data.rows.length === 0) {
       return {
         statusCode: 403,
@@ -61,6 +65,7 @@ exports.handler = async function (e, ctx) {
       })
     };
   } catch (err) {
+    if (client) client.release();
     return {
       statusCode: 403,
       headers: { "Content-Type": "application/json" },

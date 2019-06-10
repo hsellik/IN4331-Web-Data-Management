@@ -29,18 +29,22 @@ exports.handler = async (event, context) => {
   });
 
   var data;
+  let client;
   try {
-    data = await pool.query(deleteQuery);
+    client = await pool.connect();
+    data = await client.query(deleteQuery);
     if (data.rows.length === 0) {
-      data = await pool.query(updateQuery);
+      data = await client.query(updateQuery);
       if (data.rows.length === 0) {
+        client.release();
         return {
           statusCode: 404,
           headers: { "Content-type": "application/json" },
           body: JSON.stringify({ Message: "Item not found" })
         };
       }
-      await pool.query(updateOrderQuery);
+      await client.query(updateOrderQuery);
+      client.release();
       return {
         statusCode: 200,
         headers: { "Content-Type": "application/json" },
@@ -51,6 +55,7 @@ exports.handler = async (event, context) => {
       };
     }
   } catch (err) {
+    if (client) client.release();
     return {
       statusCode: 403,
       headers: { "Content-Type": "application/json" },

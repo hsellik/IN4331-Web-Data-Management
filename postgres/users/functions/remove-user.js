@@ -19,10 +19,11 @@ exports.handler = async function(e, ctx) {
         values: [user_id],
     };
 
+    let client;
     try {
-        console.log("there");
-        const data = await pool.query(deleteQuery);
-        console.log("here");
+        client = await pool.connect();
+        const data = await client.query(deleteQuery);
+        client.release();
         if (data.rows.length === 0) {
             return {
                 statusCode: 404,
@@ -36,6 +37,7 @@ exports.handler = async function(e, ctx) {
             }
         }
     } catch (err) {
+        if (client) client.release();
         return {
             statusCode: 500,
             body: JSON.stringify({ Message: err }),

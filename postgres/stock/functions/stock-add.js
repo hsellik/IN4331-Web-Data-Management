@@ -35,9 +35,12 @@ exports.handler = async function (e, ctx) {
     values: [number, item_id]
   };
 
+  let client;
   try {
+    client = await pool.connect();
     const data = await pool.query(updateQuery);
 
+    client.release();
     if (data.rows.length === 0) {
       return {
         statusCode: 403,
@@ -57,6 +60,7 @@ exports.handler = async function (e, ctx) {
       };
     }
   } catch (err) {
+    if (client) client.release();
     return {
       statusCode: 500,
       headers: { "Content-type": "application/json" },

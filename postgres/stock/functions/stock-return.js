@@ -20,18 +20,21 @@ exports.handler = async function(e, ctx) {
         port: process.env.PGPORT
     });
 
+    let client;
+
     async function add (item) {
         const updateQuery = {
             text: 'UPDATE Stock SET quantity = quantity + $1 WHERE item_id = $2 RETURNING *',
             values: [item.quantity, item.item_id],
         };
-        return await pool.query(updateQuery);
+        return await client.query(updateQuery);
     }
-
     try {
+        client = await pool.connect();
         const promises = Item.items.map(add);
         const data = await Promise.all(promises);
 
+        client.release();
         return {
             statusCode: 200,
             headers: {"Content-Type": "application/json"},
@@ -41,6 +44,7 @@ exports.handler = async function(e, ctx) {
             }),
         };
     } catch (err) {
+        if (client) client.release();
         return {
             statusCode: 403,
             headers: {"Content-Type": "application/json"},

@@ -29,12 +29,15 @@ exports.handler = async (event, context) => {
   });
 
   var data;
+  let client;
   try {
-    data = await pool.query(updateQuery);
+    client = await pool.connect();
+    data = await client.query(updateQuery);
     if (data.rows.length === 0) {
-      data = await pool.query(insertQuery);
+      data = await client.query(insertQuery);
     }
-    await pool.query(updateOrderQuery);
+    await client.query(updateOrderQuery);
+    client.release();
 
     return {
       statusCode: 200,
@@ -44,6 +47,7 @@ exports.handler = async (event, context) => {
 
 
   } catch (e) {
+    if (client) client.release();
     return {
       statusCode: 500,
       body: JSON.stringify({ Message: e })

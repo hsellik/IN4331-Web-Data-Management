@@ -19,9 +19,12 @@ exports.handler = async function(e, ctx) {
         values: [order_id],
     };
 
+    let client;
     try {
-        const data = await pool.query(deleteQuery);
+        client = await pool.connect();
+        const data = await client.query(deleteQuery);
 
+        client.release();
         if (data.rows.length === 0) {
             return {
                 statusCode: 404,
@@ -39,6 +42,7 @@ exports.handler = async function(e, ctx) {
             }),
         };
     } catch (err) {
+        client.release();
         return {
             statusCode: 500,
             headers: {
